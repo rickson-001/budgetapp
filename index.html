@@ -1,0 +1,2607 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="theme-color" content="#0d1821" id="metaThemeColor"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Budget"/>
+<meta name="description" content="Gérez vos transactions, comptes et épargnes facilement."/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<title>💰 Budget</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<style>
+/* ==================================================
+   TOKENS (inchangé)
+================================================== */
+:root,[data-theme="dark"]{
+  --bg:#0d1821;--surface:#152030;--surface2:#1c2c3e;--surface3:#243444;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#e6f0fb;--text2:#8fafc8;--text3:#4d7a9a;
+  --green:#00d97e;--green-dim:rgba(0,217,126,0.12);
+  --red:#ff4d6d;--red-dim:rgba(255,77,109,0.12);
+  --blue:#3b9eff;--blue-dim:rgba(59,158,255,0.12);
+  --wave:#009cff;--wave-dim:rgba(0,156,255,0.12);
+  --gold:#ffb830;--gold-dim:rgba(255,184,48,0.12);
+  --purple:#a78bfa;--purple-dim:rgba(167,139,250,0.12);
+  --shadow:rgba(0,0,0,0.45);
+  --r:12px;--r2:18px;--r3:24px;
+}
+[data-theme="light"]{
+  --bg:#f0f4f8;--surface:#fff;--surface2:#f4f7fb;--surface3:#eaf0f7;
+  --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.13);
+  --text:#0d1821;--text2:#4a6880;--text3:#8fafc8;
+  --green:#00a85e;--green-dim:rgba(0,168,94,0.10);
+  --red:#e0294a;--red-dim:rgba(224,41,74,0.10);
+  --blue:#2680d9;--blue-dim:rgba(38,128,217,0.10);
+  --wave:#0070cc;--wave-dim:rgba(0,112,204,0.10);
+  --gold:#c4780a;--gold-dim:rgba(196,120,10,0.10);
+  --purple:#7c3aed;--purple-dim:rgba(124,58,237,0.10);
+  --shadow:rgba(0,0,0,0.08);
+}
+
+/* ==================================================
+   RESET & BASE
+================================================== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+input,textarea,select{-webkit-user-select:text;user-select:text}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;justify-content:center;align-items:center;transition:background .3s,color .3s}
+
+/* ==================================================
+   PHONE SHELL
+================================================== */
+.phone{width:390px;height:844px;background:var(--bg);border-radius:44px;overflow:hidden;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.5),0 0 0 1px var(--border2);display:flex;flex-direction:column;transition:background .3s}
+@media(max-width:420px){body{align-items:flex-start}.phone{width:100%;height:100dvh;border-radius:0;box-shadow:none}}
+
+/* ==================================================
+   STATUS BAR
+================================================== */
+.status-bar{padding:14px 24px 6px;display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-weight:600;color:var(--text3);flex-shrink:0}
+
+/* ==================================================
+   MAIN SCROLL AREA
+================================================== */
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px 88px;scrollbar-width:none;scroll-behavior:smooth}
+.screen::-webkit-scrollbar{display:none}
+
+/* ==================================================
+   TAB PAGES
+================================================== */
+.tab-page{display:none;animation:fadeUp .2s ease}
+.tab-page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ==================================================
+   PAGE HEADERS
+================================================== */
+.page-header{padding:10px 0 14px;display:flex;justify-content:space-between;align-items:center}
+.page-title{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--text)}
+.page-sub{font-size:.73rem;color:var(--text3);margin-top:2px}
+.month-nav{display:flex;align-items:center;gap:7px}
+.month-btn{background:var(--surface);border:1px solid var(--border);color:var(--text2);width:29px;height:29px;border-radius:9px;cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.month-btn:hover{background:var(--surface2);color:var(--text)}
+.month-lbl{font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;color:var(--text);min-width:86px;text-align:center}
+
+/* ==================================================
+   SEARCH BAR
+================================================== */
+.search-bar{margin-bottom:14px}
+.search-bar input{width:100%;padding:10px 14px;border-radius:40px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-size:.8rem;outline:none;transition:all .15s}
+.search-bar input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,158,255,.1)}
+
+/* ==================================================
+   SUMMARY STRIP
+================================================== */
+.summary-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;position:relative;overflow:hidden;transition:background .3s}
+.sc.main{grid-column:1/-1;background:linear-gradient(135deg,var(--blue) 0%,#1a5fb4 100%);border-color:transparent;padding:16px 20px}
+.sc-lbl{font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.sc.main .sc-lbl{color:rgba(255,255,255,.65)}
+.sc-val{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700}
+.sc-val.big{font-size:1.85rem}
+.sc-val.pos{color:var(--green)}.sc-val.neg{color:var(--red)}
+.sc.main .sc-val{color:#fff}
+
+/* ==================================================
+   ACCOUNT CARDS ROW
+================================================== */
+.accounts-row{display:flex;gap:10px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none}
+.accounts-row::-webkit-scrollbar{display:none}
+.mini-ac{flex:0 0 120px;border-radius:var(--r);padding:13px;border:1px solid var(--border);background:var(--surface);transition:background .3s,transform .15s;cursor:pointer;position:relative;overflow:hidden}
+.mini-ac:active{transform:scale(.97)}
+.mini-ac[data-color="green"]{border-color:rgba(0,217,126,.2)}
+.mini-ac[data-color="wave"]{border-color:rgba(0,156,255,.2)}
+.mini-ac[data-color="blue"]{border-color:rgba(59,158,255,.2)}
+.mini-ac[data-color="gold"]{border-color:rgba(255,184,48,.2)}
+.mini-ac[data-color="purple"]{border-color:rgba(167,139,250,.2)}
+.mac-badge{display:flex;align-items:center;gap:5px;font-size:.63rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.mac-icon{width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:.75rem}
+.mac-bal{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;line-height:1.1}
+.mac-sub{font-size:.62rem;color:var(--text3);margin-top:2px}
+[data-color="green"] .mac-badge{color:var(--green)}[data-color="green"] .mac-bal{color:var(--green)}
+[data-color="wave"] .mac-badge{color:var(--wave)}[data-color="wave"] .mac-bal{color:var(--wave)}
+[data-color="blue"] .mac-badge{color:var(--blue)}[data-color="blue"] .mac-bal{color:var(--blue)}
+[data-color="gold"] .mac-badge{color:var(--gold)}[data-color="gold"] .mac-bal{color:var(--gold)}
+[data-color="purple"] .mac-badge{color:var(--purple)}[data-color="purple"] .mac-bal{color:var(--purple)}
+
+/* ==================================================
+   QUICK ACTIONS
+================================================== */
+.qa-row{display:flex;gap:7px;margin-bottom:18px;flex-wrap:wrap}
+.qa-btn{flex:1;min-width:70px;padding:9px 4px;border-radius:var(--r);background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:500;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s}
+.qa-icon{font-size:1.1rem}
+.qa-btn:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
+
+/* ==================================================
+   SECTION HEADERS
+================================================== */
+.sec-head{display:flex;justify-content:space-between;align-items:center;margin:14px 0 9px}
+.sec-title{font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3)}
+.sec-link{font-size:.72rem;color:var(--blue);cursor:pointer}
+
+/* ==================================================
+   FILTER PILLS
+================================================== */
+.filter-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;margin-bottom:4px}
+.filter-row::-webkit-scrollbar{display:none}
+.f-pill{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:5px 11px;font-size:.72rem;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .15s;white-space:nowrap;color:var(--text2)}
+.f-pill.active{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* ==================================================
+   TRANSACTION LIST
+================================================== */
+.tx-list{display:flex;flex-direction:column;gap:6px}
+.tx-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px;display:flex;align-items:center;gap:11px;transition:transform .15s,background .3s}
+.tx-item:active{transform:scale(.985)}
+.tx-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.tx-info{flex:1;min-width:0}
+.tx-name{font-size:.83rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.tx-meta{font-size:.65rem;color:var(--text3);margin-top:1px}
+.tx-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.tx-amt{font-size:.88rem;font-weight:600}
+.tx-amt.pos{color:var(--green)}.tx-amt.neg{color:var(--red)}
+.tx-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:.72rem;padding:2px 4px;border-radius:5px;transition:all .15s}
+.tx-del:hover{color:var(--red);background:var(--red-dim)}
+
+/* ==================================================
+   ACCOUNTS TAB
+================================================== */
+.ac-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:10px;cursor:pointer;position:relative;overflow:hidden;transition:background .2s,transform .15s}
+.ac-card:active{transform:scale(.985)}
+.ac-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ac-card-brand{display:flex;align-items:center;gap:10px}
+.ac-card-logo{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.ac-card-name{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--text)}
+.ac-card-sub{font-size:.63rem;color:var(--text3);margin-top:1px}
+.ac-card-bal{text-align:right}
+.ac-card-bal-val{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800}
+.ac-card-bal-lbl{font-size:.6rem;color:var(--text3)}
+.ac-card-footer{display:flex;gap:7px}
+.ac-card-btn{flex:1;padding:8px;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;transition:filter .15s}
+.ac-card-btn:hover{filter:brightness(1.15)}
+.ac-card-btn.out{background:var(--red-dim);color:var(--red)}
+.ac-card-btn.in{background:var(--green-dim);color:var(--green)}
+.ac-card-btn.cash{background:var(--gold-dim);color:var(--gold)}
+.lp-hint{font-size:.58rem;color:var(--text3);text-align:right;margin-top:6px;opacity:.6}
+
+/* ==================================================
+   SAVINGS TAB
+================================================== */
+.sav-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:10px;cursor:pointer;transition:background .2s,transform .15s;position:relative}
+.sav-card:active{transform:scale(.985)}
+.sav-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.sav-emoji{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;background:var(--surface2);flex-shrink:0}
+.sav-info{flex:1}
+.sav-name{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--text)}
+.sav-goal-lbl{font-size:.63rem;color:var(--text3);margin-top:2px}
+.sav-bal{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;text-align:right;flex-shrink:0}
+.sav-progress-wrap{margin-top:2px}
+.sav-progress-track{height:4px;background:var(--border);border-radius:99px;overflow:hidden}
+.sav-progress-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
+.sav-progress-lbl{font-size:.6rem;color:var(--text3);text-align:right}
+
+/* ==================================================
+   STATS
+================================================== */
+.pie-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:12px}
+.pie-wrap{display:flex;align-items:center;gap:14px}
+.pie-legend{flex:1;display:flex;flex-direction:column;gap:7px}
+.leg-item{display:flex;align-items:center;gap:7px;font-size:.73rem}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.leg-name{flex:1;color:var(--text)}.leg-pct{color:var(--text3);font-size:.66rem;font-weight:600}
+.prog-list{display:flex;flex-direction:column;gap:7px}
+.prog-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.prog-name{font-size:.8rem;font-weight:500;display:flex;align-items:center;gap:6px;color:var(--text)}
+.prog-vals{font-size:.68rem;color:var(--text3)}
+.prog-track{height:5px;background:var(--border);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
+
+/* ==================================================
+   SETTINGS
+================================================== */
+.settings-sec{margin-bottom:18px}
+.settings-lbl{font-family:'Syne',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:7px;padding:0 2px}
+.settings-group{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.srow{display:flex;align-items:center;padding:13px 15px;gap:11px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.srow:last-child{border-bottom:none}
+.srow:hover{background:var(--surface2)}
+.srow-icon{font-size:1.05rem;flex-shrink:0;width:26px;text-align:center}
+.srow-info{flex:1}.srow-name{font-size:.83rem;font-weight:500;color:var(--text)}
+.srow-desc{font-size:.66rem;color:var(--text3);margin-top:1px}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-track{position:absolute;inset:0;background:var(--surface3);border-radius:99px;cursor:pointer;transition:background .2s}
+.toggle-track::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s}
+.toggle input:checked+.toggle-track{background:var(--blue)}
+.toggle input:checked+.toggle-track::after{transform:translateX(18px)}
+.avatar{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--blue),#8b5cf6);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:#fff;margin:0 auto 10px}
+.profile-name{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--text);text-align:center}
+.profile-sub{font-size:.7rem;color:var(--text3);text-align:center;margin-top:2px}
+.app-version{text-align:center;font-size:.63rem;color:var(--text3);margin-top:20px;padding-bottom:4px}
+
+/* ==================================================
+   BOTTOM NAV
+================================================== */
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;background:rgba(13,24,33,.92);backdrop-filter:blur(24px);border-top:1px solid var(--border);padding:8px 6px 22px;display:flex;justify-content:space-around;align-items:center;z-index:50}
+[data-theme="light"] .bottom-nav{background:rgba(240,244,248,.93)}
+.nav-btn{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--text3);cursor:pointer;font-size:.58rem;padding:5px 14px;border-radius:9px;transition:all .15s;position:relative}
+.nav-btn.active{color:var(--blue)}
+.nav-btn.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:18px;height:2px;background:var(--blue);border-radius:99px}
+.nav-btn .ni{font-size:1.1rem}
+.nav-add{
+  position:absolute;
+  top:-50px;
+  right:14px;
+  width:44px;
+  height:44px;
+  background:var(--blue);
+  border:none;
+  border-radius:13px;
+  color:#fff;
+  font-size:1.3rem;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 4px 16px rgba(59,158,255,.45);
+  transition:transform .2s, background .3s, box-shadow .3s;
+  z-index:51;
+  font-weight:300
+}
+.nav-add:active{transform:scale(.88) rotate(45deg)}
+.nav-add.hidden{opacity:0;visibility:hidden;pointer-events:none;transform:scale(.7)}
+
+/* ==================================================
+   DETAIL PANEL
+================================================== */
+.detail-panel{position:absolute;inset:0;background:var(--bg);transform:translateX(110%);transition:transform .32s cubic-bezier(.32,.72,0,1);z-index:120;display:flex;flex-direction:column;overflow:hidden}
+.detail-panel.open{transform:translateX(0)}
+.detail-topbar{display:flex;align-items:center;padding:14px 14px 10px;border-bottom:1px solid var(--border);gap:10px;flex-shrink:0}
+.detail-back{background:none;border:none;color:var(--blue);font-size:.85rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 6px;border-radius:8px}
+.detail-back:hover{background:var(--blue-dim)}
+.detail-topbar-title{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--text);flex:1;text-align:center}
+.detail-body{flex:1;overflow-y:auto;padding:16px 16px 80px}
+.detail-hero{text-align:center;padding:20px 0 24px}
+.detail-hero-icon{font-size:2.4rem;margin-bottom:8px}
+.detail-hero-name{font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.detail-hero-bal{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800}
+.detail-actions-row{display:flex;gap:8px;margin-bottom:20px}
+.detail-act-btn{flex:1;padding:11px 4px;border:none;border-radius:12px;font-size:.78rem;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+.detail-act-btn.out{background:var(--red-dim);color:var(--red)}
+.detail-act-btn.in{background:var(--green-dim);color:var(--green)}
+.detail-act-btn.cash{background:var(--gold-dim);color:var(--gold)}
+.detail-ops{display:flex;flex-direction:column;gap:6px}
+.op-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)}
+.op-ico{font-size:1rem;flex-shrink:0;width:28px;text-align:center}
+.op-info{flex:1}.op-desc{font-size:.8rem;color:var(--text)}.op-date{font-size:.63rem;color:var(--text3)}
+.op-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.op-amt{font-size:.85rem;font-weight:600}
+.op-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:.7rem;padding:2px 3px;border-radius:5px}
+.op-del:hover{color:var(--red);background:var(--red-dim)}
+.sav-detail-goal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px;margin-bottom:16px}
+.sdg-top{display:flex;justify-content:space-between;font-size:.75rem;color:var(--text2);margin-bottom:8px}
+.sdg-track{height:8px;background:var(--border);border-radius:99px;overflow:hidden}
+.sdg-fill{height:100%;border-radius:99px;background:var(--gold);transition:width .8s}
+
+/* ==================================================
+   CONTEXT MENU
+================================================== */
+.ctx-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(5px);z-index:180;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s}
+.ctx-overlay.open{opacity:1;pointer-events:all}
+.ctx-menu{width:100%;background:var(--surface);border-radius:22px 22px 0 0;padding:10px 0 28px;transform:translateY(100%);transition:transform .28s;border-top:1px solid var(--border2)}
+.ctx-overlay.open .ctx-menu{transform:translateY(0)}
+.ctx-handle{width:30px;height:3px;background:var(--border2);border-radius:99px;margin:0 auto 10px}
+.ctx-title{font-size:.72rem;font-weight:600;text-transform:uppercase;color:var(--text3);padding:4px 18px 10px}
+.ctx-item{display:flex;align-items:center;gap:13px;padding:13px 18px;cursor:pointer}
+.ctx-item:hover{background:var(--surface2)}
+.ctx-item-icon{font-size:1.1rem;width:26px;text-align:center}
+.ctx-item-label.danger{color:var(--red)}
+.ctx-divider{height:1px;background:var(--border);margin:4px 0}
+
+/* ==================================================
+   MODALS
+================================================== */
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .22s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border-radius:26px 26px 0 0;padding:14px 17px 34px;width:100%;transform:translateY(100%);transition:transform .3s;border-top:1px solid var(--border2);max-height:88vh;overflow-y:auto}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-handle{width:30px;height:3px;background:var(--border2);border-radius:99px;margin:0 auto 12px}
+.modal-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.modal-title-text{font-family:'Syne',sans-serif;font-size:1.02rem;font-weight:800;color:var(--text);flex:1}
+.modal-close{background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--red-dim);color:var(--red)}
+.field{margin-bottom:11px}
+.field label{display:block;font-size:.66rem;color:var(--text3);text-transform:uppercase;margin-bottom:4px}
+.field input,.field select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-size:.9rem;outline:none}
+.field input:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,158,255,.1)}
+.amt-wrap{position:relative}
+.amt-wrap input{padding-left:32px;font-size:1.05rem;font-weight:700}
+.amt-sign{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3)}
+.type-toggle{display:flex;background:var(--surface2);border-radius:10px;padding:3px;margin-bottom:13px}
+.type-btn{flex:1;padding:7px;border:none;background:none;color:var(--text3);font-size:.8rem;font-weight:500;border-radius:8px;cursor:pointer}
+.type-btn.ae{background:var(--red);color:#fff}
+.type-btn.ai{background:var(--green);color:#fff}
+.cat-picker{display:flex;flex-wrap:wrap;gap:5px}
+.cat-chip{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 9px;font-size:.73rem;cursor:pointer;color:var(--text2)}
+.cat-chip.sel{border-color:var(--blue);background:var(--blue-dim);color:var(--blue)}
+.emoji-picker{display:flex;flex-wrap:wrap;gap:6px}
+.emoji-opt{width:36px;height:36px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer}
+.emoji-opt.sel{border-color:var(--blue);background:var(--blue-dim)}
+.color-picker{display:flex;gap:8px;flex-wrap:wrap}
+.color-opt{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent}
+.color-opt.sel{transform:scale(1.2);border-color:var(--border2)}
+.warn-box{background:var(--gold-dim);border:1px solid var(--gold);border-radius:9px;padding:9px 12px;font-size:.76rem;color:var(--gold);margin-bottom:11px;display:none}
+.btn-primary{width:100%;padding:12px;border:none;border-radius:11px;color:#fff;font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;margin-top:5px;transition:all .15s}
+.btn-primary:active{transform:scale(.98)}
+.btn-blue{background:var(--blue)}
+.btn-green{background:var(--green);color:#062010}
+.btn-red{background:var(--red)}
+.btn-gold{background:var(--gold);color:#1a0e00}
+.confirm-row{display:flex;gap:8px;margin-top:14px}
+.confirm-row .btn-primary{flex:1}
+.btn-danger{width:100%;padding:10px;border:1px solid var(--red-dim);border-radius:10px;background:var(--red-dim);color:var(--red);font-size:.8rem;font-weight:600;cursor:pointer}
+.btn-danger:hover{background:var(--red);color:#fff}
+.empty{text-align:center;padding:30px 20px;color:var(--text3);font-size:.8rem}
+.empty-icon{font-size:2.1rem;margin-bottom:8px;opacity:.55}
+
+/* ==================================================
+   TOAST
+================================================== */
+.toast{position:absolute;bottom:78px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--surface3);color:var(--text);border:1px solid var(--border2);border-radius:99px;padding:7px 17px;font-size:.76rem;font-weight:500;white-space:nowrap;z-index:300;opacity:0;pointer-events:none;transition:all .25s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:var(--green);color:#062010}
+.toast.error{background:var(--red);color:#fff}
+.toast.info{background:var(--blue);color:#fff}
+
+/* ==================================================
+   SYNC DOT
+================================================== */
+.sync-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.sync-idle{background:var(--border2)}
+.sync-saving{background:var(--gold);animation:pulse 0.8s infinite alternate}
+.sync-saved{background:var(--green)}
+.sync-error{background:var(--red)}
+@keyframes pulse{from{opacity:.45}to{opacity:1}}
+
+/* ==================================================
+   PWA UPDATE BAR
+================================================== */
+.pwa-update-bar{position:absolute;top:0;left:0;right:0;z-index:400;background:var(--gold);color:#1a0e00;padding:9px 16px;display:flex;align-items:center;justify-content:space-between;font-size:.78rem;font-weight:600;transform:translateY(-100%);transition:transform .3s}
+.pwa-update-bar.show{transform:translateY(0)}
+.pwa-update-bar button{background:rgba(0,0,0,.15);border:none;border-radius:6px;color:inherit;padding:4px 10px;cursor:pointer}
+.pwa-install-card{background:linear-gradient(135deg,var(--blue-dim),var(--surface2));border:1px solid rgba(59,158,255,.25);border-radius:var(--r2);padding:14px 16px;display:flex;align-items:center;gap:12px}
+.pwa-install-card.hidden{display:none}
+.pwa-install-btn{background:var(--blue);border:none;border-radius:9px;color:#fff;font-size:.75rem;font-weight:600;padding:8px 14px;cursor:pointer}
+.fsync-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.fsync-status-row{display:flex;align-items:center;gap:11px;padding:13px 15px;border-bottom:1px solid var(--border)}
+.fsync-btn-row{display:flex;gap:0}
+.fsync-btn{flex:1;padding:12px 6px;border:none;border-right:1px solid var(--border);background:none;color:var(--text2);font-size:.72rem;font-weight:500;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.fsync-btn:last-child{border-right:none}
+.fsync-btn:hover{background:var(--surface2);color:var(--text)}
+.fsync-btn.primary .fbi,.fsync-btn.primary{color:var(--blue)}
+.fsync-btn.danger .fbi,.fsync-btn.danger{color:var(--red)}
+
+/* Jauge d'objectif mensuel */
+.progress-track{height:6px;background:var(--border);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;transition:width .3s ease}
+</style>
+</head>
+<body oncontextmenu="return false">
+<div class="phone" id="phone">
+  <div class="pwa-update-bar" id="pwaUpdateBar"><span>⬆️ Mise à jour disponible</span><button onclick="PWA.applyUpdate()">Mettre à jour</button></div>
+  <div class="status-bar"><span id="clock">09:41</span><div style="display:flex;align-items:center;gap:8px"><span class="sync-dot sync-idle" id="syncDot"></span><span style="font-size:.65rem;opacity:.4">v6.9</span></div></div>
+  <div class="screen" id="screen">
+    <div class="tab-page active" id="tab-home">
+      <div class="page-header"><div><div class="page-title" id="welcomeMsg">Bonjour 👋</div><div class="page-sub" id="welcomeSub">Avril 2026</div></div><div class="month-nav"><button class="month-btn" onclick="App.changeMonth(-1)">‹</button><span class="month-lbl" id="monthLbl">Avril 2026</span><button class="month-btn" onclick="App.changeMonth(1)">›</button></div></div>
+      <div class="summary-strip">
+        <div class="sc main"><div class="sc-lbl">Solde total</div><div class="sc-val big" id="hBal">0 FCFA</div></div>
+        <div class="sc"><div class="sc-lbl">Revenus</div><div class="sc-val pos" id="hInc">+0</div></div>
+        <div class="sc"><div class="sc-lbl">Dépenses</div><div class="sc-val neg" id="hExp">-0</div></div>
+        <div class="sc" id="budgetGaugeContainer" style="display:none;grid-column:1/-1">
+          <div class="sc-lbl">Objectif mensuel</div>
+          <div class="sc-val" id="budgetGauge" style="font-size:.95rem"></div>
+          <div class="progress-track" style="margin-top:8px"><div class="progress-fill" id="budgetGaugeFill"></div></div>
+        </div>
+      </div>
+      <div class="accounts-row" id="homeAccountsRow"></div>
+      <div class="qa-row">
+        <button class="qa-btn" onclick="Modals.openTx('expense')"><span class="qa-icon">💸</span>Dépense</button>
+        <button class="qa-btn" onclick="Modals.openTx('income')"><span class="qa-icon">💵</span>Revenu</button>
+        <button class="qa-btn" onclick="Modals.openTransfer()"><span class="qa-icon">🔄</span>Compte → Compte</button>
+        <button class="qa-btn" onclick="Modals.openTransferToSaving()"><span class="qa-icon">🔄💰</span>Compte ↔ Épargne</button>
+        <button class="qa-btn" onclick="Modals.openStats()"><span class="qa-icon">📊</span>Stats</button>
+      </div>
+      <div class="search-bar"><input type="text" id="txSearch" placeholder="🔍 Rechercher une transaction..."></div>
+      <div class="sec-head"><div class="sec-title">Transactions</div><div class="filter-row" id="homeFilter"><div class="f-pill active" onclick="App.setFilter('all',this)">Tout</div><div class="f-pill" onclick="App.setFilter('alimentation',this)">🍽️</div><div class="f-pill" onclick="App.setFilter('transport',this)">🚗</div><div class="f-pill" onclick="App.setFilter('logement',this)">🏠</div><div class="f-pill" onclick="App.setFilter('sante',this)">💊</div><div class="f-pill" onclick="App.setFilter('loisirs',this)">🎉</div><div class="f-pill" onclick="App.setFilter('salaire',this)">💼</div><div class="f-pill" onclick="App.setFilter('autre',this)">📦</div></div></div>
+      <div class="tx-list" id="homeTxList"></div>
+    </div>
+    <div class="tab-page" id="tab-accounts"><div class="page-header"><div><div class="page-title">Comptes</div><div class="page-sub" id="accountsSubtitle"></div></div></div><div id="accountsList"></div></div>
+    <div class="tab-page" id="tab-savings"><div class="page-header"><div><div class="page-title">Épargne 🐖</div><div class="page-sub" id="savingsSubtitle"></div></div></div><div id="savingsList"></div></div>
+    <div class="tab-page" id="tab-settings">
+      <div class="page-header"><div><div class="page-title">Paramètres</div></div></div>
+      <div class="settings-sec"><div style="text-align:center;padding:8px 0 18px"><div class="avatar" id="avatarLetter">?</div><div class="profile-name" id="profileNameEl">Utilisateur</div><div class="profile-sub">Compte personnel</div></div><div class="settings-group"><div class="srow" onclick="Modals.openProfile()"><span class="srow-icon">👤</span><div class="srow-info"><div class="srow-name">Modifier le profil</div><div class="srow-desc">Nom, devise</div></div><div class="srow-right">›</div></div></div></div>
+      <div class="settings-sec"><div class="settings-lbl">Apparence</div><div class="settings-group"><div class="srow"><span class="srow-icon">🌙</span><div class="srow-info"><div class="srow-name">Mode sombre</div><div class="srow-desc">Thème de l'application</div></div><label class="toggle"><input type="checkbox" id="darkToggle" onchange="App.toggleTheme(this.checked)"/><div class="toggle-track"></div></label></div></div></div>
+      
+      <div class="settings-sec">
+        <div class="settings-lbl">Personnalisation</div>
+        <div class="settings-group">
+          <div class="srow" onclick="Modals.openHomeAccountsSettings()">
+            <span class="srow-icon">🏠</span>
+            <div class="srow-info">
+              <div class="srow-name">Comptes sur l'accueil</div>
+              <div class="srow-desc">Choisir quels comptes afficher</div>
+            </div>
+            <div class="srow-right">›</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-sec">
+        <div class="settings-lbl">Budget</div>
+        <div class="settings-group">
+          <div class="srow" onclick="Modals.openBudgetSettings()">
+            <span class="srow-icon">🎯</span>
+            <div class="srow-info">
+              <div class="srow-name">Objectif mensuel</div>
+              <div class="srow-desc" id="budgetSummary">Aucun objectif défini</div>
+            </div>
+            <div class="srow-right">›</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-sec" id="pwaInstallSec"><div class="settings-lbl">Application</div><div id="pwaInstallArea"></div></div>
+      <div class="settings-sec"><div class="settings-lbl">Sauvegarde fichier</div><div id="fsyncSection"></div></div>
+      <div class="settings-sec"><div class="settings-lbl">Données</div><div class="settings-group"><div class="srow" onclick="Modals.confirmReset()"><span class="srow-icon">🗑️</span><div class="srow-info"><div class="srow-name" style="color:var(--red)">Réinitialiser</div><div class="srow-desc">Supprimer toutes les données</div></div><div class="srow-right" style="color:var(--red)">›</div></div></div></div>
+      <div class="app-version">Budget App v6.9 · Transferts compte ↔ épargne · Transactions uniques</div>
+    </div>
+  </div>
+  <div class="detail-panel" id="detailPanel"><div class="detail-topbar"><button class="detail-back" onclick="Nav.closeDetail()">‹ Retour</button><div class="detail-topbar-title" id="detailTitle"></div><div class="detail-topbar-right" id="detailTopRight"></div></div><div class="detail-body" id="detailBody"></div></div>
+  <div class="bottom-nav"><button class="nav-btn active" id="nav-home" onclick="Nav.go('home')"><span class="ni">🏠</span><span>Accueil</span></button><button class="nav-btn" id="nav-accounts" onclick="Nav.go('accounts')"><span class="ni">💳</span><span>Comptes</span></button><button class="nav-btn" id="nav-savings" onclick="Nav.go('savings')"><span class="ni">🐖</span><span>Épargne</span></button><button class="nav-btn" id="nav-settings" onclick="Nav.go('settings')"><span class="ni">⚙️</span><span>Réglages</span></button><button class="nav-add" id="navAdd" onclick="Nav.addAction()">＋</button></div>
+  <div class="toast" id="toast"></div>
+
+  <!-- MODAL: Transfert entre comptes (original) -->
+  <div class="modal-overlay" id="transferModal">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">
+        <span class="modal-title-text">🔄 Transfert entre comptes</span>
+        <button class="modal-close" onclick="Modals.close('transferModal')">✕</button>
+      </div>
+      <div class="field">
+        <label>Compte source (débité)</label>
+        <select id="transferFromAccount"></select>
+      </div>
+      <div class="field">
+        <label>Compte destination (crédité)</label>
+        <select id="transferToAccount"></select>
+      </div>
+      <div class="field">
+        <label>Montant (FCFA)</label>
+        <div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="transferAmount" placeholder="0" min="1"/></div>
+      </div>
+      <div class="field">
+        <label>Description (optionnel)</label>
+        <input type="text" id="transferDesc" placeholder="Ex: Virement" maxlength="80"/>
+      </div>
+      <button class="btn-primary btn-blue" onclick="Actions.saveTransfer()">Effectuer le transfert</button>
+    </div>
+  </div>
+
+  <!-- MODAL: Transfert vers épargne / depuis épargne -->
+  <div class="modal-overlay" id="transferSavingModal">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">
+        <span class="modal-title-text">🔄 Transfert compte ↔ épargne</span>
+        <button class="modal-close" onclick="Modals.close('transferSavingModal')">✕</button>
+      </div>
+      <div class="field">
+        <label>Direction</label>
+        <select id="transferDirection">
+          <option value="accountToSaving">Compte → Épargne</option>
+          <option value="savingToAccount">Épargne → Compte</option>
+        </select>
+      </div>
+      <div class="field" id="transferSourceAccountField">
+        <label>Compte source</label>
+        <select id="transferSourceAccount"></select>
+      </div>
+      <div class="field" id="transferSourceSavingField" style="display:none">
+        <label>Épargne source</label>
+        <select id="transferSourceSaving"></select>
+      </div>
+      <div class="field" id="transferDestAccountField">
+        <label>Compte destination</label>
+        <select id="transferDestAccount"></select>
+      </div>
+      <div class="field" id="transferDestSavingField" style="display:none">
+        <label>Épargne destination</label>
+        <select id="transferDestSaving"></select>
+      </div>
+      <div class="field">
+        <label>Montant (FCFA)</label>
+        <div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="transferSavingAmount" placeholder="0" min="1"/></div>
+      </div>
+      <div class="field">
+        <label>Description (optionnel)</label>
+        <input type="text" id="transferSavingDesc" placeholder="Ex: Alimenter épargne" maxlength="80"/>
+      </div>
+      <button class="btn-primary btn-blue" onclick="Actions.saveTransferToSaving()">Effectuer le transfert</button>
+    </div>
+  </div>
+
+  <!-- MODAL: Transaction avec sélecteur de compte -->
+  <div class="modal-overlay" id="txOverlay">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title"><span class="modal-title-text">Nouvelle transaction</span><button class="modal-close" onclick="Modals.close('txOverlay')">✕</button></div>
+      <div class="type-toggle"><button class="type-btn ae" id="btnExp" onclick="Modals.setTxType('expense')">💸 Dépense</button><button class="type-btn" id="btnInc" onclick="Modals.setTxType('income')">💵 Revenu</button></div>
+      <div class="field"><label>Montant (FCFA)</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="txAmt" placeholder="0" min="1"/></div></div>
+      <div class="field"><label>Description</label><input type="text" id="txDesc" placeholder="Ex: Courses au marché" maxlength="80"/></div>
+      <div class="field"><label>Compte</label><select id="txAccountId"></select></div>
+      <div class="field"><label>Catégorie</label><div class="cat-picker" id="txCats"></div></div>
+      <button class="btn-primary btn-blue" id="txSaveBtn" onclick="Actions.saveTx()">Enregistrer</button>
+    </div>
+  </div>
+
+  <!-- MODAL: Account Operation -->
+  <div class="modal-overlay" id="acOpOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="acOpTitle">Opération</span><button class="modal-close" onclick="Modals.close('acOpOverlay')">✕</button></div><div class="warn-box" id="acOpWarn"></div><div class="field"><label>Montant (FCFA)</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="acOpAmt" placeholder="0" min="1"/></div></div><div class="field"><label id="acOpDescLbl">Description</label><input type="text" id="acOpDesc" maxlength="80"/></div><button class="btn-primary" id="acOpBtn" onclick="Actions.saveAccountOp()">Confirmer</button></div></div>
+
+  <!-- MODAL: Account Form -->
+  <div class="modal-overlay" id="acFormOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="acFormTitle">Nouveau compte</span><button class="modal-close" onclick="Modals.close('acFormOverlay')">✕</button></div><div class="field"><label>Nom</label><input type="text" id="acFormName" maxlength="40"/></div><div class="field"><label>Icône</label><div class="emoji-picker" id="acFormEmojis"></div></div><div class="field"><label>Couleur</label><div class="color-picker" id="acFormColors"></div></div><div class="field"><label>Type</label><select id="acFormType"><option value="bank">Banque</option><option value="mobile">Mobile Money</option><option value="cash">Espèces</option></select></div>
+      <div class="field"><label>Afficher sur l'accueil</label><select id="acFormShowOnHome"><option value="true">✅ Oui, afficher</option><option value="false">❌ Non, masquer</option></select></div>
+      <div class="field"><label>Solde initial</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="acFormBal" min="0"/></div></div>
+      <button class="btn-primary btn-blue" onclick="Actions.saveAccountForm()">Enregistrer</button></div></div>
+
+  <!-- MODAL: Rename -->
+  <div class="modal-overlay" id="renameOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="renameTitle">Renommer</span><button class="modal-close" onclick="Modals.close('renameOverlay')">✕</button></div><div class="field"><label>Nouveau nom</label><input type="text" id="renameInput" maxlength="40"/></div><button class="btn-primary btn-blue" onclick="Actions.saveRename()">Enregistrer</button></div></div>
+
+  <!-- MODAL: Saving Form -->
+  <div class="modal-overlay" id="savFormOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="savFormTitle">Nouvelle épargne</span><button class="modal-close" onclick="Modals.close('savFormOverlay')">✕</button></div><div class="field"><label>Nom</label><input type="text" id="savFormName" maxlength="40"/></div><div class="field"><label>Icône</label><div class="emoji-picker" id="savFormEmojis"></div></div><div class="field"><label>Objectif (optionnel)</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="savFormGoal" min="0"/></div></div><button class="btn-primary btn-blue" onclick="Actions.saveSavingForm()">Créer</button></div></div>
+
+  <!-- MODAL: Saving Operation -->
+  <div class="modal-overlay" id="savOpOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="savOpTitle">Mettre de côté</span><button class="modal-close" onclick="Modals.close('savOpOverlay')">✕</button></div><div class="warn-box" id="savOpWarn"></div><div class="field"><label>Montant</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="savOpAmt" min="1"/></div></div><div class="field"><label>Note</label><input type="text" id="savOpNote" maxlength="60"/></div><button class="btn-primary" id="savOpBtn" onclick="Actions.saveSavingOp()">Confirmer</button></div></div>
+
+  <!-- MODAL: Stats -->
+  <div class="modal-overlay" id="statsOverlay">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">
+        <span class="modal-title-text">Statistiques</span>
+        <div class="month-nav" style="gap:5px">
+          <button class="month-btn" id="statsMonthPrev">‹</button>
+          <span class="month-lbl" id="statsMonthLbl" style="min-width:78px;font-size:.73rem">Avril 2026</span>
+          <button class="month-btn" id="statsMonthNext">›</button>
+        </div>
+        <button class="modal-close" onclick="Modals.close('statsOverlay')" style="margin-left:8px">✕</button>
+      </div>
+      <div class="pie-card"><div class="pie-wrap"><canvas id="pieCanvas" width="120" height="120"></canvas><div class="pie-legend" id="pieLegend"></div></div></div>
+      <div class="prog-list" id="progList"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: Profile -->
+  <div class="modal-overlay" id="profileOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text">Mon profil</span><button class="modal-close" onclick="Modals.close('profileOverlay')">✕</button></div><div class="field"><label>Prénom</label><input type="text" id="profileName" maxlength="30"/></div><div class="field"><label>Devise</label><select id="currencySel"><option value="FCFA">FCFA</option><option value="EUR">EUR</option><option value="USD">USD</option></select></div><button class="btn-primary btn-blue" onclick="Actions.saveProfile()">Enregistrer</button></div></div>
+
+  <!-- MODAL: Confirm -->
+  <div class="modal-overlay" id="confirmOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="confirmTitle">Confirmer</span><button class="modal-close" onclick="Modals.close('confirmOverlay')">✕</button></div><div id="confirmMsg"></div><div class="confirm-row"><button class="btn-primary btn-blue" onclick="Modals.close('confirmOverlay')">Annuler</button><button class="btn-primary btn-red" id="confirmBtn">Confirmer</button></div></div></div>
+
+  <!-- MODAL: Gestion des comptes sur l'accueil -->
+  <div class="modal-overlay" id="homeAccountsModal">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">
+        <span class="modal-title-text">Comptes sur l'accueil</span>
+        <button class="modal-close" onclick="Modals.close('homeAccountsModal')">✕</button>
+      </div>
+      <div id="homeAccountsList" style="max-height: 400px; overflow-y: auto;"></div>
+      <button class="btn-primary btn-blue" onclick="Modals.close('homeAccountsModal'); App.renderHome();" style="margin-top:12px">Fermer</button>
+    </div>
+  </div>
+
+  <!-- MODAL: Objectif mensuel -->
+  <div class="modal-overlay" id="budgetModal">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">
+        <span class="modal-title-text">🎯 Objectif mensuel</span>
+        <button class="modal-close" onclick="Modals.close('budgetModal')">✕</button>
+      </div>
+      <div class="field">
+        <label>Budget maximum (FCFA)</label>
+        <div class="amt-wrap">
+          <span class="amt-sign">F</span>
+          <input type="number" id="budgetAmount" placeholder="0" min="0" step="1000"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>Mois</label>
+        <select id="budgetMonth">
+          <option value="0">Janvier</option><option value="1">Février</option><option value="2">Mars</option>
+          <option value="3">Avril</option><option value="4">Mai</option><option value="5">Juin</option>
+          <option value="6">Juillet</option><option value="7">Août</option><option value="8">Septembre</option>
+          <option value="9">Octobre</option><option value="10">Novembre</option><option value="11">Décembre</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Année</label>
+        <input type="number" id="budgetYear" value="2026" min="2024" max="2030" step="1"/>
+      </div>
+      <button class="btn-primary btn-blue" onclick="Actions.saveMonthlyBudget()">Enregistrer</button>
+    </div>
+  </div>
+
+  <!-- CONTEXT MENU -->
+  <div class="ctx-overlay" id="ctxOverlay" onclick="Modals.closeCtx(event)"><div class="ctx-menu"><div class="ctx-handle"></div><div class="ctx-title" id="ctxTitle"></div><div id="ctxItems"></div></div></div>
+</div>
+
+<script>
+'use strict';
+
+// ==================================================
+// CONSTANTES
+// ==================================================
+const CATS = {
+  alimentation: { e: '🍽️', l: 'Alimentation', c: '#ff9f43' },
+  transport:    { e: '🚗', l: 'Transport',    c: '#54a0ff' },
+  logement:     { e: '🏠', l: 'Logement',     c: '#a29bfe' },
+  sante:        { e: '💊', l: 'Santé',        c: '#55efc4' },
+  loisirs:      { e: '🎉', l: 'Loisirs',      c: '#fd79a8' },
+  salaire:      { e: '💼', l: 'Salaire',      c: '#00d97e' },
+  autre:        { e: '📦', l: 'Autre',        c: '#8fa8c0' }
+};
+
+const OP_SIGNS = {
+  send: { sign: -1 }, receive: { sign: +1 }, cashout: { sign: -1 },
+  withdraw: { sign: -1 }, deposit: { sign: +1 }, out: { sign: -1 }, in: { sign: +1 },
+  deposit_sav: { sign: +1 }, withdraw_sav: { sign: -1 },
+  transfer_out: { sign: -1 }, transfer_in: { sign: +1 },
+  transfer_to_saving: { sign: -1 }, transfer_from_saving: { sign: +1 }
+};
+
+const MONTHS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+const COLORS = ['green', 'wave', 'blue', 'gold', 'purple', 'red'];
+const COLOR_CSS = { green: 'var(--green)', wave: 'var(--wave)', blue: 'var(--blue)', gold: 'var(--gold)', purple: 'var(--purple)', red: 'var(--red)' };
+const COLOR_HEX = { green: '#00d97e', wave: '#009cff', blue: '#3b9eff', gold: '#ffb830', purple: '#a78bfa', red: '#ff4d6d' };
+const AC_ICONS = ['🏦', '💳', '🏧', '🌊', '💵', '🪙', '🏪', '🌐', '💎', '🔐'];
+const SAV_EMOJIS = ['🐖', '✈️', '🚗', '🏠', '📱', '💍', '🎓', '🏖️', '💊', '🎮', '🛒', '💼', '🎯', '📚', '💻'];
+
+// ==================================================
+// DB - Base de données avec localStorage
+// ==================================================
+const DB = (() => {
+  const DEFAULTS = {
+    txs: [],
+    accounts: [],
+    accountOps: [],
+    savings: [],
+    savingsOps: [],
+    transfers: [],
+    settings: { name: '', currency: 'FCFA', theme: 'dark', monthlyBudget: {} }
+  };
+
+  function _load(k) {
+    try {
+      const raw = localStorage.getItem('b5_' + k);
+      if (!raw) return null;
+      const p = JSON.parse(raw);
+      const d = DEFAULTS[k];
+      if (Array.isArray(d) && !Array.isArray(p)) return null;
+      if (d && typeof d === 'object' && !Array.isArray(d) && typeof p !== 'object') return null;
+      return p;
+    } catch { return null; }
+  }
+
+  function _save(k, v) {
+    try { localStorage.setItem('b5_' + k, JSON.stringify(v)); }
+    catch (e) { console.warn('DB save failed', k, e); }
+  }
+
+  const S = {};
+  for (const k of Object.keys(DEFAULTS)) {
+    const loaded = _load(k);
+    S[k] = loaded !== null ? loaded : JSON.parse(JSON.stringify(DEFAULTS[k]));
+  }
+
+  // Migration monthlyBudget nombre -> objet
+  if (typeof S.settings.monthlyBudget === 'number') {
+    const oldBudget = S.settings.monthlyBudget;
+    S.settings.monthlyBudget = {};
+    if (oldBudget > 0) {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      if (!S.settings.monthlyBudget[year]) S.settings.monthlyBudget[year] = {};
+      S.settings.monthlyBudget[year][month] = oldBudget;
+    }
+    _save('settings', S.settings);
+  }
+
+  // Migration showOnHome
+  if (S.accounts.length) {
+    let needsSave = false;
+    S.accounts.forEach(ac => {
+      if (ac.showOnHome === undefined) {
+        ac.showOnHome = true;
+        needsSave = true;
+      }
+    });
+    if (needsSave) _save('accounts', S.accounts);
+  }
+
+  if (!S.accounts.length) {
+    const mkId = () => 'acc-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    let bankId, waveId;
+    try {
+      const bd = JSON.parse(localStorage.getItem('bgt_bankData') || 'null');
+      const wd = JSON.parse(localStorage.getItem('bgt_waveData') || 'null');
+      const bOps = JSON.parse(localStorage.getItem('bgt_bankOps') || '[]');
+      const wOps = JSON.parse(localStorage.getItem('bgt_waveOps') || '[]');
+      bankId = mkId();
+      waveId = mkId();
+      S.accounts.push({ id: bankId, name: (bd && bd.name) || 'Compte Bancaire', icon: '🏦', colorKey: 'green', balance: (bd && bd.balance) || 0, type: 'bank', showOnHome: true });
+      S.accounts.push({ id: waveId, name: 'Wave Money', icon: '🌊', colorKey: 'wave', balance: (wd && wd.balance) || 0, type: 'mobile', number: (wd && wd.number) || '', showOnHome: true });
+      bOps.forEach(o => S.accountOps.push({ ...o, accountId: bankId }));
+      wOps.forEach(o => S.accountOps.push({ ...o, accountId: waveId }));
+    } catch {
+      bankId = mkId();
+      waveId = mkId();
+      S.accounts.push({ id: bankId, name: 'Compte Bancaire', icon: '🏦', colorKey: 'green', balance: 0, type: 'bank', showOnHome: true });
+      S.accounts.push({ id: waveId, name: 'Wave Money', icon: '🌊', colorKey: 'wave', balance: 0, type: 'mobile', number: '', showOnHome: true });
+    }
+    _save('accounts', S.accounts);
+    _save('accountOps', S.accountOps);
+  }
+
+  // Migration pour les anciens transferts sans type
+  if (S.transfers.length) {
+    let needSave = false;
+    S.transfers.forEach(t => {
+      if (t.fromType === undefined) {
+        t.fromType = 'account';
+        t.toType = 'account';
+        needSave = true;
+      }
+    });
+    if (needSave) _save('transfers', S.transfers);
+  }
+
+  return {
+    get: k => S[k],
+    set: (k, v) => { S[k] = v; _save(k, v); try { FileSync.scheduleSave(); } catch (_) { } },
+    update: (k, fn) => { fn(S[k]); _save(k, S[k]); try { FileSync.scheduleSave(); } catch (_) { } }
+  };
+})();
+
+// ==================================================
+// UTILS
+// ==================================================
+const Utils = {
+  esc: s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'),
+  uid: () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+  parseAmt: s => { const n = parseFloat(String(s).replace(',', '.')); return isNaN(n) || n < 0 ? 0 : n; },
+  fmt: n => {
+    const absValue = Math.abs(Math.round(n)).toLocaleString('fr-FR');
+    const currency = DB.get('settings').currency || 'FCFA';
+    return n < 0 ? `-${absValue} ${currency}` : `${absValue} ${currency}`;
+  },
+  fmtS: n => Math.abs(Math.round(n)).toLocaleString('fr-FR'),
+  fmtDate: iso => new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+};
+
+// ==================================================
+// UI
+// ==================================================
+const UI = {
+  $: id => document.getElementById(id),
+  txt: (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; },
+  html: (id, v) => { const e = document.getElementById(id); if (e) e.innerHTML = v; },
+  _toastT: null,
+  toast(msg, type = '') {
+    const t = this.$('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (type ? ' ' + type : '');
+    clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => { t.className = 'toast'; }, 2700);
+  }
+};
+
+// Horloge
+(function tick() {
+  const n = new Date();
+  UI.txt('clock', String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0'));
+  setTimeout(tick, 15000);
+})();
+
+// ==================================================
+// FILE SYNC (version lisible)
+// ==================================================
+const FileSync = (() => {
+  let _handle = null;
+  let _saveTimer = null;
+  let _lastSaved = null;
+  let _status = 'idle';
+  const SUPPORTED = (typeof window.showSaveFilePicker === 'function');
+
+  const _IDB = (() => {
+    const DB_NAME = 'budget_filesync_v6';
+    const STORE = 'handles';
+    const KEY = 'active';
+
+    function open() {
+      return new Promise((res, rej) => {
+        const r = indexedDB.open(DB_NAME, 1);
+        r.onupgradeneeded = e => e.target.result.createObjectStore(STORE);
+        r.onsuccess = e => res(e.target.result);
+        r.onerror = e => rej(e.target.error);
+      });
+    }
+
+    async function save(h) {
+      try {
+        const db = await open();
+        await new Promise((res, rej) => {
+          const tx = db.transaction(STORE, 'readwrite');
+          tx.objectStore(STORE).put(h, KEY);
+          tx.oncomplete = res;
+          tx.onerror = rej;
+        });
+      } catch (e) { console.warn('[FileSync] IDB save:', e); }
+    }
+
+    async function load() {
+      try {
+        const db = await open();
+        return await new Promise((res, rej) => {
+          const tx = db.transaction(STORE, 'readonly');
+          const r = tx.objectStore(STORE).get(KEY);
+          r.onsuccess = e => res(e.target.result || null);
+          r.onerror = e => rej(e.target.error);
+        });
+      } catch (e) { return null; }
+    }
+
+    async function clear() {
+      try {
+        const db = await open();
+        await new Promise((res, rej) => {
+          const tx = db.transaction(STORE, 'readwrite');
+          tx.objectStore(STORE).delete(KEY);
+          tx.oncomplete = res;
+          tx.onerror = rej;
+        });
+      } catch (e) { }
+    }
+
+    return { save, load, clear };
+  })();
+
+  function _build() {
+    return JSON.stringify({
+      version: '6.9',
+      savedAt: new Date().toISOString(),
+      txs: DB.get('txs'),
+      accounts: DB.get('accounts'),
+      accountOps: DB.get('accountOps'),
+      savings: DB.get('savings'),
+      savingsOps: DB.get('savingsOps'),
+      transfers: DB.get('transfers'),
+      settings: DB.get('settings')
+    }, null, 2);
+  }
+
+  async function _write() {
+    if (!_handle) return;
+    try {
+      let perm = await _handle.queryPermission({ mode: 'readwrite' });
+      if (perm === 'prompt') perm = await _handle.requestPermission({ mode: 'readwrite' });
+      if (perm !== 'granted') { _setStatus('error'); return; }
+      const writable = await _handle.createWritable();
+      await writable.write(_build());
+      await writable.close();
+      _lastSaved = new Date();
+      _setStatus('saved');
+    } catch (e) {
+      if (e.name !== 'AbortError') { _setStatus('error'); }
+    }
+  }
+
+  function _setStatus(s) {
+    _status = s;
+    const dot = UI.$('syncDot');
+    if (dot) {
+      dot.className = 'sync-dot sync-' + s;
+      const LABELS = {
+        idle: 'Aucun fichier sélectionné',
+        saving: 'Sauvegarde en cours…',
+        saved: 'Fichier synchronisé ✓',
+        error: 'Erreur de sauvegarde',
+        unsupported: 'Non supporté'
+      };
+      dot.title = LABELS[s] || '';
+    }
+    try { if (Nav._tab === 'settings') App.renderSettings(); } catch (_) { }
+  }
+
+  async function init() {
+    if (!SUPPORTED) { _setStatus('unsupported'); return; }
+    const h = await _IDB.load();
+    if (h) {
+      try {
+        const perm = await h.queryPermission({ mode: 'readwrite' });
+        if (perm === 'granted' || perm === 'prompt') { _handle = h; _setStatus('idle'); }
+      } catch (e) { _handle = null; }
+    }
+    _setStatus(_handle ? 'idle' : 'idle');
+  }
+
+  async function chooseFile() {
+    if (!SUPPORTED) { UI.toast('Non supporté - Chrome ou Edge requis', 'error'); return; }
+    try {
+      const h = await window.showSaveFilePicker({
+        suggestedName: 'budget_' + new Date().toISOString().slice(0, 10) + '.json',
+        types: [{ description: 'Budget JSON', accept: { 'application/json': ['.json'] } }]
+      });
+      _handle = h;
+      await _IDB.save(h);
+      _setStatus('saving');
+      await _write();
+      UI.toast('✅ Fichier sélectionné et sauvegardé', 'success');
+    } catch (e) {
+      if (e.name !== 'AbortError') UI.toast('Erreur lors de la sélection', 'error');
+    }
+  }
+
+  async function saveNow() {
+    if (!_handle) { UI.toast('Aucun fichier sélectionné', 'error'); return; }
+    _setStatus('saving');
+    await _write();
+    UI.toast(_status === 'saved' ? '✅ Sauvegarde réussie' : '⚠️ Erreur', _status === 'saved' ? 'success' : 'error');
+  }
+
+  async function loadFile() {
+    if (!SUPPORTED) { UI.toast('Non supporté', 'error'); return; }
+    try {
+      const [h] = await window.showOpenFilePicker({
+        types: [{ description: 'Budget JSON', accept: { 'application/json': ['.json'] } }],
+        multiple: false
+      });
+      const file = await h.getFile();
+      let data;
+      try {
+        data = JSON.parse(await file.text());
+      } catch (e) {
+        UI.toast('Fichier JSON invalide', 'error');
+        return;
+      }
+      const OK = ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers'].every(k => data[k] === undefined || Array.isArray(data[k]));
+      if (!OK) { UI.toast('Format non reconnu', 'error'); return; }
+      Modals.openConfirm('📂 Charger ce fichier', `Les données actuelles seront remplacées. Continuer ?`, async () => {
+        ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'settings'].forEach(k => {
+          if (data[k] !== undefined) DB.set(k, data[k]);
+        });
+        _handle = h;
+        await _IDB.save(h);
+        _setStatus('saved');
+        App.renderHome();
+        App.renderAccounts();
+        App.renderSavings();
+        App.renderSettings();
+        UI.toast('✅ Données chargées', 'success');
+      });
+    } catch (e) {
+      if (e.name !== 'AbortError') UI.toast('Erreur', 'error');
+    }
+  }
+
+  function scheduleSave() {
+    if (!_handle) return;
+    clearTimeout(_saveTimer);
+    _setStatus('saving');
+    _saveTimer = setTimeout(() => _write(), 1500);
+  }
+
+  async function disconnect() {
+    _handle = null;
+    clearTimeout(_saveTimer);
+    await _IDB.clear();
+    _setStatus('idle');
+    UI.toast('Fichier déconnecté');
+  }
+
+  return {
+    init, chooseFile, saveNow, loadFile, scheduleSave, disconnect,
+    isSupported: () => SUPPORTED,
+    isConnected: () => !!_handle,
+    getStatus: () => _status,
+    getFileName: () => _handle?.name || null,
+    getLastSaved: () => _lastSaved
+  };
+})();
+
+// ==================================================
+// PWA
+// ==================================================
+const PWA = (() => {
+  let _installPrompt = null;
+  let _swReg = null;
+
+  async function init() {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+      _swReg = await navigator.serviceWorker.register('./service-worker.js', { scope: './' });
+      _swReg.addEventListener('updatefound', () => {
+        const newSW = _swReg.installing;
+        newSW.addEventListener('statechange', () => {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            const bar = UI.$('pwaUpdateBar');
+            if (bar) bar.classList.add('show');
+          }
+        });
+      });
+      navigator.serviceWorker.addEventListener('controllerchange', () => { window.location.reload(); });
+    } catch (e) { console.warn('[PWA] SW registration failed:', e); }
+  }
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    _installPrompt = e;
+    _renderInstallSection();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    _installPrompt = null;
+    _renderInstallSection();
+    UI.toast('✅ Application installée !', 'success');
+  });
+
+  async function install() {
+    if (!_installPrompt) return;
+    try {
+      await _installPrompt.prompt();
+      const { outcome } = await _installPrompt.userChoice;
+      if (outcome === 'accepted') { _installPrompt = null; _renderInstallSection(); }
+    } catch (e) { console.warn('[PWA] install error:', e); }
+  }
+
+  function applyUpdate() { if (_swReg && _swReg.waiting) _swReg.waiting.postMessage('SKIP_WAITING'); }
+
+  function isInstalled() { return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; }
+
+  function _renderInstallSection() {
+  const area = UI.$('pwaInstallArea');
+  const sec = UI.$('pwaInstallSec');
+  if (!area) return;
+  if (isInstalled()) {
+    if (sec) sec.style.display = '';
+    area.innerHTML = `<div class="settings-group"><div class="srow" style="cursor:default"><span class="srow-icon">✅</span><div class="srow-info"><div class="srow-name">Application installée</div><div class="srow-desc">Mode app actif</div></div></div></div>`;
+    return;
+  }
+  if (_installPrompt) {
+    if (sec) sec.style.display = '';
+    area.innerHTML = `<div class="pwa-install-card"><div class="pwa-install-icon">📲</div><div class="pwa-install-info"><div class="pwa-install-title">Installer l'application</div><div class="pwa-install-sub">Accès rapide, fonctionne hors ligne</div></div><button class="pwa-install-btn" onclick="PWA.install()">Installer</button></div>`;
+    return;
+  }
+  // ⚠️ ICI : au lieu de cacher la section, affiche un message d'information
+  if (sec) sec.style.display = '';
+  area.innerHTML = `<div class="settings-group"><div class="srow" style="cursor:default"><span class="srow-icon">🌐</span><div class="srow-info"><div class="srow-name">PWA disponible</div><div class="srow-desc">Ouvrez l'app en HTTPS ou localhost pour installer</div></div></div></div>`;
+}
+
+  return { init, install, applyUpdate, isInstalled, renderInstallSection: _renderInstallSection };
+})();
+
+// ==================================================
+// LONG PRESS
+// ==================================================
+let _lpFired = false;
+const LP = {
+  _reg: {}, _t: null, _sx: 0, _sy: 0, _moved: false,
+  register(fn) { const k = 'lp' + Utils.uid(); this._reg[k] = fn; return k; },
+  attach(el, key) {
+    if (el._lpKey === key) return;
+    el._lpKey = key;
+    const start = e => {
+      this._moved = false;
+      const p = e.touches ? e.touches[0] : e;
+      this._sx = p.clientX; this._sy = p.clientY;
+      clearTimeout(this._t);
+      this._t = setTimeout(() => {
+        if (!this._moved) {
+          _lpFired = true;
+          setTimeout(() => { _lpFired = false; }, 600);
+          this._reg[key] && this._reg[key]();
+        }
+      }, 520);
+    };
+    const move = e => {
+      const p = e.touches ? e.touches[0] : e;
+      if (Math.abs(p.clientX - this._sx) > 9 || Math.abs(p.clientY - this._sy) > 9) {
+        this._moved = true;
+        clearTimeout(this._t);
+      }
+    };
+    const end = () => clearTimeout(this._t);
+    el.addEventListener('touchstart', start, { passive: true });
+    el.addEventListener('touchmove', move, { passive: true });
+    el.addEventListener('touchend', end);
+    el.addEventListener('mousedown', start);
+    el.addEventListener('mousemove', move);
+    el.addEventListener('mouseup', end);
+    el.addEventListener('mouseleave', end);
+    el.addEventListener('contextmenu', e => { e.preventDefault(); this._reg[key] && this._reg[key](); });
+  },
+  bindAll() { document.querySelectorAll('[data-lp]').forEach(el => this.attach(el, el.dataset.lp)); }
+};
+
+// ==================================================
+// NAV
+// ==================================================
+const Nav = {
+  _tab: 'home',
+  go(tab) {
+    this._tab = tab;
+    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    const p = UI.$('tab-' + tab), b = UI.$('nav-' + tab);
+    if (p) p.classList.add('active');
+    if (b) b.classList.add('active');
+    UI.$('screen').scrollTop = 0;
+    
+    const addBtn = UI.$('navAdd');
+    if (tab === 'settings') {
+      addBtn.classList.add('hidden');
+    } else {
+      addBtn.classList.remove('hidden');
+    }
+    
+    if (tab === 'accounts') App.renderAccounts();
+    if (tab === 'savings') App.renderSavings();
+    if (tab === 'settings') App.renderSettings();
+  },
+  addAction() {
+    if (this._tab === 'accounts') {
+      Modals.openAccountForm();
+    } else if (this._tab === 'savings') {
+      Modals.openSavingForm();
+    } else {
+      Modals.openTx('expense');
+    }
+  },
+  openDetail(type, id) {
+    this._detailType = type;
+    this._detailId = id;
+    if (type === 'account') App.renderAccountDetail(id);
+    else if (type === 'saving') App.renderSavingDetail(id);
+    UI.$('detailPanel').classList.add('open');
+  },
+  closeDetail() {
+    UI.$('detailPanel').classList.remove('open');
+    setTimeout(() => {
+      if (this._tab === 'accounts') App.renderAccounts();
+      if (this._tab === 'savings') App.renderSavings();
+      App.renderHome();
+    }, 320);
+  },
+  refreshDetail() { if (this._detailType && this._detailId) this.openDetail(this._detailType, this._detailId); }
+};
+
+// ==================================================
+// APP - Rendu principal avec correction des doublons
+// ==================================================
+const App = {
+  _month: new Date().getMonth(),
+  _year: new Date().getFullYear(),
+  _filter: 'all',
+  _searchTerm: '',
+  _searchDebounceTimer: null,
+  _lastBudgetAlert: null,
+
+  changeMonth(d) {
+    this._month += d;
+    if (this._month > 11) { this._month = 0; this._year++; }
+    if (this._month < 0) { this._month = 11; this._year--; }
+    this.renderHome();
+  },
+
+  setFilter(f, el) {
+    this._filter = f;
+    document.querySelectorAll('.f-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    this.renderTxList();
+  },
+
+  monthTxs() {
+    return DB.get('txs').filter(t => {
+      const d = new Date(t.date);
+      return d.getMonth() === this._month && d.getFullYear() === this._year;
+    });
+  },
+
+  toggleTheme(dark) {
+    const t = dark ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', t);
+    DB.update('settings', s => { s.theme = t; });
+    const metaTc = document.getElementById('metaThemeColor');
+    if (metaTc) metaTc.setAttribute('content', t === 'light' ? '#f0f4f8' : '#0d1821');
+  },
+
+  initSearch() {
+    const searchInput = UI.$('txSearch');
+    if (!searchInput) return;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(this._searchDebounceTimer);
+      this._searchDebounceTimer = setTimeout(() => {
+        this._searchTerm = e.target.value.toLowerCase();
+        this.renderTxList();
+      }, 300);
+    });
+  },
+
+  renderHome() {
+    const lbl = MONTHS[this._month] + ' ' + this._year;
+    UI.txt('monthLbl', lbl);
+    UI.txt('welcomeSub', lbl);
+    const mt = this.monthTxs();
+    const inc = mt.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+    const exp = mt.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    // Solde total = somme des comptes affichés sur l'accueil
+    const visibleAccounts = DB.get('accounts').filter(ac => ac.showOnHome !== false);
+    const totalBalance = visibleAccounts.reduce((sum, ac) => sum + ac.balance, 0);
+    const bal = totalBalance;
+    const balElement = UI.$('hBal');
+    if (balElement) {
+      balElement.textContent = Utils.fmt(bal);
+      balElement.style.color = bal < 0 ? 'var(--red)' : '';
+    }
+    UI.txt('hInc', '+' + Utils.fmtS(inc));
+    UI.txt('hExp', '-' + Utils.fmtS(exp));
+
+    const h = new Date().getHours();
+    const g = h < 5 ? 'Bonne nuit' : h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
+    const n = DB.get('settings').name;
+    UI.txt('welcomeMsg', g + (n ? ' , ' + n.split(' ')[0] : '') + ' 👋');
+
+    let allAccounts = DB.get('accounts');
+    let acs = allAccounts.filter(ac => ac.showOnHome !== false);
+    UI.html('homeAccountsRow', acs.map(ac => `
+      <div class="mini-ac" data-color="${ac.colorKey}" onclick="if(!_lpFired)Nav.openDetail('account','${ac.id}')">
+        <div class="mac-badge"><div class="mac-icon">${ac.icon}</div>${Utils.esc(ac.name)}</div>
+        <div class="mac-bal" style="color:${ac.balance < 0 ? 'var(--red)' : (COLOR_CSS[ac.colorKey] || 'var(--green)')}">${ac.balance < 0 ? '-' : ''}${Utils.fmtS(Math.abs(ac.balance))} F</div>
+        <div class="mac-sub">Solde</div>
+      </div>
+    `).join(''));
+
+    this.renderBudgetGauge();
+    this.renderTxList();
+    this.renderSettings();
+  },
+
+  renderBudgetGauge() {
+    const settings = DB.get('settings');
+    const budgets = settings.monthlyBudget || {};
+    const budget = budgets[this._year]?.[this._month] || 0;
+    const container = UI.$('budgetGaugeContainer');
+    const gaugeVal = UI.$('budgetGauge');
+    const gaugeFill = UI.$('budgetGaugeFill');
+    const summaryEl = UI.$('budgetSummary');
+    if (!container) return;
+    if (budget === 0) {
+      container.style.display = 'none';
+      if (summaryEl) summaryEl.textContent = 'Aucun objectif défini';
+      this._lastBudgetAlert = null;
+      return;
+    }
+    const mt = this.monthTxs();
+    const expenses = mt.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    const percent = Math.min(100, Math.round((expenses / budget) * 100));
+    if (summaryEl) summaryEl.textContent = `${Utils.fmtS(expenses)} / ${Utils.fmtS(budget)} FCFA (${percent}%)`;
+    container.style.display = '';
+    if (gaugeVal) gaugeVal.textContent = `${Utils.fmtS(expenses)} / ${Utils.fmtS(budget)} FCFA`;
+    if (gaugeFill) {
+      gaugeFill.style.width = `${percent}%`;
+      gaugeFill.style.background = percent >= 100 ? 'var(--red)' : percent >= 80 ? 'var(--gold)' : 'var(--green)';
+    }
+    if (gaugeVal) gaugeVal.style.color = percent >= 100 ? 'var(--red)' : percent >= 80 ? 'var(--gold)' : 'var(--green)';
+    const alertKey = percent >= 100 ? 'over' : percent >= 80 ? 'warn' : null;
+    if (alertKey && this._lastBudgetAlert !== alertKey) {
+      this._lastBudgetAlert = alertKey;
+      if (alertKey === 'over') {
+        UI.toast(`⚠️ Objectif dépassé ! ${Utils.fmtS(expenses)} / ${Utils.fmtS(budget)} FCFA`, 'error');
+      } else {
+        UI.toast(`⚠️ ${percent}% de votre budget mensuel utilisé`, 'info');
+      }
+    }
+    if (!alertKey) this._lastBudgetAlert = null;
+  },
+
+  renderTxList() {
+    let mt = this.monthTxs(); // transactions classiques
+
+    // Récupérer les transferts du mois depuis la collection `transfers`
+    const allTransfers = DB.get('transfers');
+    const monthTransfers = allTransfers.filter(t => {
+      const d = new Date(t.date);
+      return d.getMonth() === this._month && d.getFullYear() === this._year;
+    });
+
+    // Construire un objet d'affichage pour chaque transfert
+    const transferItems = monthTransfers.map(t => {
+      let label = '';
+      let type = 'expense';
+      let color = 'var(--red)';
+      let sign = '-';
+      let icon = '🔄';
+
+      if (t.fromType === 'account' && t.toType === 'account') {
+        const fromAcc = DB.get('accounts').find(a => a.id === t.fromAccountId);
+        const toAcc = DB.get('accounts').find(a => a.id === t.toAccountId);
+        label = `Transfert : ${fromAcc?.name || '?'} → ${toAcc?.name || '?'}`;
+        type = 'expense';
+      } 
+      else if (t.fromType === 'account' && t.toType === 'saving') {
+        const fromAcc = DB.get('accounts').find(a => a.id === t.fromAccountId);
+        const toSav = DB.get('savings').find(s => s.id === t.toSavingId);
+        label = `Transfert compte → épargne : ${fromAcc?.name || '?'} → ${toSav?.name || '?'}`;
+        type = 'expense';
+      }
+      else if (t.fromType === 'saving' && t.toType === 'account') {
+        const fromSav = DB.get('savings').find(s => s.id === t.fromSavingId);
+        const toAcc = DB.get('accounts').find(a => a.id === t.toAccountId);
+        label = `Transfert épargne → compte : ${fromSav?.name || '?'} → ${toAcc?.name || '?'}`;
+        type = 'income';
+        color = 'var(--green)';
+        sign = '+';
+      }
+
+      return {
+        id: t.id,
+        type: type,
+        amount: t.amount,
+        cat: 'transfert',
+        desc: t.desc || label,
+        date: t.date,
+        isTransfer: true,
+        transferDirection: type === 'expense' ? 'out' : 'in',
+        transferData: t
+      };
+    });
+
+    let allItems = [...mt, ...transferItems];
+    // Appliquer filtre et recherche
+    let list = this._filter === 'all' ? allItems : allItems.filter(t => t.cat === this._filter);
+    if (this._searchTerm) {
+      list = list.filter(t =>
+        (t.desc && t.desc.toLowerCase().includes(this._searchTerm)) ||
+        (t.cat === 'transfert' ? 'transfert'.includes(this._searchTerm) : (CATS[t.cat] && CATS[t.cat].l.toLowerCase().includes(this._searchTerm)))
+      );
+    }
+    list = [...list].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 40);
+    const el = UI.$('homeTxList');
+    if (!list.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">🗒️</div>Aucune transaction</div>'; return; }
+    el.innerHTML = list.map(t => {
+      if (t.isTransfer) {
+        const isOut = t.transferDirection === 'out';
+        const icon = '🔄';
+        const color = isOut ? 'var(--red)' : 'var(--green)';
+        const sign = isOut ? '-' : '+';
+        return `<div class="tx-item">
+          <div class="tx-ico" style="background:${color}22">${icon}</div>
+          <div class="tx-info"><div class="tx-name">${Utils.esc(t.desc)}</div><div class="tx-meta">${Utils.fmtDate(t.date)} · Transfert</div></div>
+          <div class="tx-right">
+            <div class="tx-amt" style="color:${color}">${sign}${Utils.fmtS(t.amount)}</div>
+            <button class="tx-del" onclick="Actions.deleteTransfer('${t.id}')">✕</button>
+          </div>
+        </div>`;
+      } else {
+        const c = CATS[t.cat] || CATS.autre;
+        const pos = t.type === 'income';
+        return `<div class="tx-item">
+          <div class="tx-ico" style="background:${c.c}22">${c.e}</div>
+          <div class="tx-info"><div class="tx-name">${Utils.esc(t.desc || c.l)}</div><div class="tx-meta">${Utils.fmtDate(t.date)} · ${c.l}</div></div>
+          <div class="tx-right">
+            <div class="tx-amt ${pos ? 'pos' : 'neg'}">${pos ? '+' : '-'}${Utils.fmtS(t.amount)}</div>
+            <button class="tx-del" onclick="Actions.deleteTx('${t.id}')">✕</button>
+          </div>
+        </div>`;
+      }
+    }).join('');
+  },
+
+  renderAccounts() {
+    const acs = DB.get('accounts');
+    const total = acs.reduce((s, a) => s + a.balance, 0);
+    UI.txt('accountsSubtitle', acs.length + ' compte' + (acs.length > 1 ? 's' : '') + ' · Total : ' + Utils.fmt(total));
+    if (!acs.length) { UI.html('accountsList', '<div class="empty"><div class="empty-icon">💳</div>Aucun compte</div>'); return; }
+    const ops = DB.get('accountOps');
+    UI.html('accountsList', acs.map(ac => {
+      const btns = this._acButtons(ac);
+      const lpKey = LP.register(() => Modals.openCtxMenu('account', ac.id, ac.name));
+      const recentOp = ops.filter(o => o.accountId === ac.id).sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+      const lastTxt = recentOp ? 'Dernière op. : ' + Utils.fmtDate(recentOp.date) : 'Aucune opération';
+      return `<div class="ac-card" data-lp="${lpKey}" onclick="if(!_lpFired)Nav.openDetail('account','${ac.id}')">
+        <div class="ac-card-header">
+          <div class="ac-card-brand">
+            <div class="ac-card-logo" style="background:${COLOR_CSS[ac.colorKey] || 'var(--blue)'}22">${ac.icon}</div>
+            <div><div class="ac-card-name">${Utils.esc(ac.name)}</div><div class="ac-card-sub">${lastTxt}</div></div>
+          </div>
+          <div class="ac-card-bal">
+            <div class="ac-card-bal-val" style="color:${ac.balance < 0 ? 'var(--red)' : (COLOR_CSS[ac.colorKey] || 'var(--blue)')}">${Utils.fmt(ac.balance)}</div>
+            <div class="ac-card-bal-lbl">Solde</div>
+          </div>
+        </div>
+        <div class="ac-card-footer">${btns}</div>
+        <div class="lp-hint">Appui long pour options</div>
+      </div>`;
+    }).join(''));
+    LP.bindAll();
+  },
+
+  _acButtons(ac) {
+    const id = ac.id;
+    if (ac.type === 'mobile') {
+      return `<button class="ac-card-btn out" onclick="event.stopPropagation();Modals.openAccountOp('${id}','send')">📤 Envoi</button>
+              <button class="ac-card-btn in" onclick="event.stopPropagation();Modals.openAccountOp('${id}','receive')">📥 Réception</button>
+              <button class="ac-card-btn cash" onclick="event.stopPropagation();Modals.openAccountOp('${id}','cashout')">💵 Retrait</button>`;
+    }
+    if (ac.type === 'cash') {
+      return `<button class="ac-card-btn out" onclick="event.stopPropagation();Modals.openAccountOp('${id}','out')">💸 Sortie</button>
+              <button class="ac-card-btn in" onclick="event.stopPropagation();Modals.openAccountOp('${id}','in')">💵 Entrée</button>`;
+    }
+    return `<button class="ac-card-btn out" onclick="event.stopPropagation();Modals.openAccountOp('${id}','withdraw')">📤 Retrait</button>
+            <button class="ac-card-btn in" onclick="event.stopPropagation();Modals.openAccountOp('${id}','deposit')">📥 Dépôt</button>`;
+  },
+
+  renderAccountDetail(id) {
+    const ac = DB.get('accounts').find(a => a.id === id);
+    if (!ac) return;
+    UI.txt('detailTitle', ac.name);
+    UI.html('detailTopRight', '');
+    const ops = DB.get('accountOps').filter(o => o.accountId === id).sort((a, b) => new Date(b.date) - new Date(a.date));
+    const btns = this._detailButtons(ac);
+    UI.html('detailBody', `
+      <div class="detail-hero">
+        <div class="detail-hero-icon">${ac.icon}</div>
+        <div class="detail-hero-name">${Utils.esc(ac.name)}</div>
+        <div class="detail-hero-bal" style="color:${ac.balance < 0 ? 'var(--red)' : (COLOR_CSS[ac.colorKey] || 'var(--blue)')}">${Utils.fmt(ac.balance)}</div>
+        <div class="detail-hero-sub">Solde disponible</div>
+      </div>
+      <div class="detail-actions-row">${btns}</div>
+      <div class="sec-title" style="margin-bottom:10px">Historique</div>
+      <div class="detail-ops">${ops.length ? ops.map(o => this._opRow(o, 'accountOps')).join('') : '<div class="empty"><div class="empty-icon">📋</div>Aucune opération</div>'}</div>
+    `);
+  },
+
+  _detailButtons(ac) {
+    const id = ac.id;
+    if (ac.type === 'mobile') {
+      return `<button class="detail-act-btn out" onclick="Modals.openAccountOp('${id}','send')"><span class="dat-icon">📤</span>Envoi</button>
+              <button class="detail-act-btn in" onclick="Modals.openAccountOp('${id}','receive')"><span class="dat-icon">📥</span>Réception</button>
+              <button class="detail-act-btn cash" onclick="Modals.openAccountOp('${id}','cashout')"><span class="dat-icon">💵</span>Retrait</button>`;
+    }
+    if (ac.type === 'cash') {
+      return `<button class="detail-act-btn out" onclick="Modals.openAccountOp('${id}','out')"><span class="dat-icon">💸</span>Sortie</button>
+              <button class="detail-act-btn in" onclick="Modals.openAccountOp('${id}','in')"><span class="dat-icon">💵</span>Entrée</button>`;
+    }
+    return `<button class="detail-act-btn out" onclick="Modals.openAccountOp('${id}','withdraw')"><span class="dat-icon">📤</span>Retrait</button>
+            <button class="detail-act-btn in" onclick="Modals.openAccountOp('${id}','deposit')"><span class="dat-icon">📥</span>Dépôt</button>`;
+  },
+
+  _opRow(op, collection) {
+    const OPS_CFG = {
+      send: { icon: '📤', col: 'var(--red)', sign: '-' }, receive: { icon: '📥', col: 'var(--green)', sign: '+' },
+      cashout: { icon: '💵', col: 'var(--gold)', sign: '-' }, withdraw: { icon: '📤', col: 'var(--red)', sign: '-' },
+      deposit: { icon: '📥', col: 'var(--green)', sign: '+' }, out: { icon: '💸', col: 'var(--red)', sign: '-' },
+      in: { icon: '💵', col: 'var(--green)', sign: '+' }, deposit_sav: { icon: '🐖', col: 'var(--green)', sign: '+' },
+      withdraw_sav: { icon: '📤', col: 'var(--red)', sign: '-' },
+      transfer_out: { icon: '🔄', col: 'var(--blue)', sign: '-' }, transfer_in: { icon: '🔄', col: 'var(--blue)', sign: '+' },
+      transfer_to_saving: { icon: '🔄', col: 'var(--red)', sign: '-' }, transfer_from_saving: { icon: '🔄', col: 'var(--green)', sign: '+' }
+    };
+    const cfg = OPS_CFG[op.type] || { icon: '💸', col: 'var(--text2)', sign: '±' };
+    return `<div class="op-row">
+      <span class="op-ico">${cfg.icon}</span>
+      <div class="op-info"><div class="op-desc">${Utils.esc(op.desc || op.type)}</div><div class="op-date">${Utils.fmtDate(op.date)}</div></div>
+      <div class="op-right">
+        <div class="op-amt" style="color:${cfg.col}">${cfg.sign}${Utils.fmtS(op.amount)} F</div>
+        <button class="op-del" onclick="Actions.deleteOp('${op.id}','${collection}')">✕</button>
+      </div>
+    </div>`;
+  },
+
+  renderSavings() {
+    const savs = DB.get('savings');
+    const total = savs.reduce((s, v) => s + v.balance, 0);
+    UI.txt('savingsSubtitle', savs.length + ' épargne' + (savs.length > 1 ? 's' : '') + ' · Total : ' + Utils.fmt(total));
+    if (!savs.length) { UI.html('savingsList', '<div class="empty"><div class="empty-icon">🐖</div>Aucune épargne</div>'); return; }
+    UI.html('savingsList', savs.map(sv => {
+      const lpKey = LP.register(() => Modals.openCtxMenu('saving', sv.id, sv.name));
+      let progressHTML = '';
+      if (sv.goal > 0) {
+        const pct = Math.min(100, Math.round(sv.balance / sv.goal * 100));
+        progressHTML = `<div class="sav-progress-wrap">
+          <div class="sav-progress-track"><div class="sav-progress-fill" style="width:${pct}%;background:${COLOR_HEX.gold}"></div></div>
+          <div class="sav-progress-lbl">${pct}% de l'objectif (${Utils.fmtS(sv.goal)} F)</div>
+        </div>`;
+      }
+      return `<div class="sav-card" data-lp="${lpKey}" onclick="if(!_lpFired)Nav.openDetail('saving','${sv.id}')">
+        <div class="sav-top">
+          <div class="sav-emoji">${sv.emoji || '🐖'}</div>
+          <div class="sav-info">
+            <div class="sav-name">${Utils.esc(sv.name)}</div>
+            <div class="sav-goal-lbl">${sv.goal > 0 ? 'Objectif : ' + Utils.fmt(sv.goal) : 'Épargne libre'}</div>
+          </div>
+          <div class="sav-bal" style="color:${COLOR_HEX.gold}">${Utils.fmtS(sv.balance)} F</div>
+        </div>
+        ${progressHTML}
+        <div class="lp-hint">Appui long pour options</div>
+      </div>`;
+    }).join(''));
+    LP.bindAll();
+  },
+
+  renderSavingDetail(id) {
+    const sv = DB.get('savings').find(s => s.id === id);
+    if (!sv) return;
+    UI.txt('detailTitle', sv.name);
+    UI.html('detailTopRight', '');
+    const ops = DB.get('savingsOps').filter(o => o.savingId === id).sort((a, b) => new Date(b.date) - new Date(a.date));
+    let goalHTML = '';
+    if (sv.goal > 0) {
+      const pct = Math.min(100, Math.round(sv.balance / sv.goal * 100));
+      goalHTML = `<div class="sav-detail-goal">
+        <div class="sdg-top"><span>Progression</span><span>${Utils.fmtS(sv.balance)} / ${Utils.fmtS(sv.goal)} F</span></div>
+        <div class="sdg-track"><div class="sdg-fill" style="width:${pct}%"></div></div>
+        <div style="text-align:right;font-size:.65rem;color:var(--text3);margin-top:4px">${pct}% atteint</div>
+      </div>`;
+    }
+    UI.html('detailBody', `
+      <div class="detail-hero">
+        <div class="detail-hero-icon">${sv.emoji || '🐖'}</div>
+        <div class="detail-hero-name">${Utils.esc(sv.name)}</div>
+        <div class="detail-hero-bal" style="color:${COLOR_HEX.gold}">${Utils.fmt(sv.balance)}</div>
+        <div class="detail-hero-sub">Solde épargne</div>
+      </div>
+      ${goalHTML}
+      <div class="detail-actions-row">
+        <button class="detail-act-btn in" onclick="Modals.openSavingOp('${id}','deposit')"><span class="dat-icon">🐖</span>Mettre de côté</button>
+        <button class="detail-act-btn out" onclick="Modals.openSavingOp('${id}','withdraw')"><span class="dat-icon">📤</span>Retirer</button>
+      </div>
+      <div class="sec-title" style="margin-bottom:10px">Historique</div>
+      <div class="detail-ops">${ops.length ? ops.map(o => this._opRow({ ...o, type: o.type === 'deposit' ? 'deposit_sav' : o.type === 'withdraw' ? 'withdraw_sav' : o.type }, 'savingsOps')).join('') : '<div class="empty"><div class="empty-icon">📋</div>Aucune opération</div>'}</div>
+    `);
+  },
+
+  renderSettings() {
+    const s = DB.get('settings');
+    const n = s.name || 'Utilisateur';
+    UI.txt('profileNameEl', n);
+    UI.txt('avatarLetter', n.charAt(0).toUpperCase() || '?');
+    const tog = UI.$('darkToggle');
+    if (tog) tog.checked = s.theme !== 'light';
+    const metaTc = document.getElementById('metaThemeColor');
+    if (metaTc) metaTc.setAttribute('content', s.theme === 'light' ? '#f0f4f8' : '#0d1821');
+    try { PWA.renderInstallSection(); } catch (_) { }
+
+    const sec = UI.$('fsyncSection');
+    if (!sec) return;
+
+    if (!FileSync.isSupported()) {
+      sec.innerHTML = `<div class="fsync-card"><div class="fsync-unsupported-notice"><strong>⚠️ Navigateur non supporté</strong><br>La sauvegarde fichier nécessite Chrome ou Edge.</div></div>`;
+      return;
+    }
+
+    const connected = FileSync.isConnected();
+    const status = FileSync.getStatus();
+    const fileName = FileSync.getFileName();
+    const lastSaved = FileSync.getLastSaved();
+    const statusLabels = { idle: 'Prêt', saving: 'Sauvegarde…', saved: 'Synchronisé ✓', error: 'Erreur' };
+    const statusColors = { idle: 'var(--text3)', saving: 'var(--gold)', saved: 'var(--green)', error: 'var(--red)' };
+    const lastSavedTxt = lastSaved ? 'Dernière : ' + lastSaved.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : (connected ? 'Jamais sauvegardé' : 'Aucun fichier');
+
+    sec.innerHTML = `<div class="fsync-card">
+      <div class="fsync-status-row">
+        <div class="fsync-dot-wrap"><span style="font-size:1.15rem">${connected ? '📄' : '📂'}</span></div>
+        <div class="fsync-info">
+          <div class="fsync-name">${connected ? Utils.esc(fileName) : 'Aucun fichier sélectionné'}</div>
+          <div class="fsync-sub" style="color:${statusColors[status] || 'var(--text3)'}">${connected ? statusLabels[status] || '' : lastSavedTxt}</div>
+          ${connected ? `<div class="fsync-sub">${lastSavedTxt}</div>` : ''}
+        </div>
+      </div>
+      <div class="fsync-btn-row">
+        <button class="fsync-btn primary" onclick="FileSync.chooseFile()"><span class="fbi">📂</span>Choisir</button>
+        <button class="fsync-btn${connected ? '' : ' primary'}" onclick="FileSync.saveNow()" ${connected ? '' : 'disabled style="opacity:.4;cursor:default"'}>💾 Sauvegarder</button>
+        <button class="fsync-btn" onclick="FileSync.loadFile()"><span class="fbi">📥</span>Charger</button>
+        ${connected ? '<button class="fsync-btn danger" onclick="FileSync.disconnect()"><span class="fbi">✕</span>Déconnecter</button>' : ''}
+      </div>
+    </div>`;
+  },
+
+  init() {
+    const s = DB.get('settings');
+    document.documentElement.setAttribute('data-theme', s.theme || 'dark');
+    this._lastBudgetAlert = null;
+    FileSync.init();
+    PWA.init();
+    this.renderHome();
+    this.initSearch();
+
+    const statsPrev = document.getElementById('statsMonthPrev');
+    const statsNext = document.getElementById('statsMonthNext');
+    if (statsPrev) statsPrev.onclick = () => Modals.changeStatsMonth(-1);
+    if (statsNext) statsNext.onclick = () => Modals.changeStatsMonth(1);
+  }
+};
+
+// ==================================================
+// MODALS
+// ==================================================
+let _txType = 'expense';
+let _selectedCat = 'alimentation';
+let _acId = '';
+let _acOpType = '';
+let _savId = '';
+let _savOpType = '';
+let _acSetupId = '';
+let _renameType = '';
+let _renameId = '';
+
+const OP_CFG = {
+  send: { title: '📤 Envoi', descLbl: 'Destinataire', ph: 'Ex: +226 70 00 00 00', btnCls: 'btn-wave', sign: -1 },
+  receive: { title: '📥 Réception', descLbl: 'Expéditeur', ph: 'Ex: Mamadou K.', btnCls: 'btn-green', sign: +1 },
+  cashout: { title: '💵 Retrait', descLbl: 'Point de retrait', ph: 'Ex: Agent Wave', btnCls: 'btn-gold', sign: -1 },
+  withdraw: { title: '📤 Retrait', descLbl: 'Référence', ph: 'Ex: Retrait DAB', btnCls: 'btn-red', sign: -1 },
+  deposit: { title: '📥 Dépôt', descLbl: 'Source', ph: 'Ex: Virement reçu', btnCls: 'btn-green', sign: +1 },
+  out: { title: '💸 Sortie', descLbl: 'Motif', ph: 'Ex: Achat', btnCls: 'btn-red', sign: -1 },
+  in: { title: '💵 Entrée', descLbl: 'Source', ph: 'Ex: Vente', btnCls: 'btn-green', sign: +1 }
+};
+
+const Modals = {
+  statsMonth: new Date().getMonth(),
+  statsYear: new Date().getFullYear(),
+
+  open(id) {
+    const el = UI.$(id);
+    if (!el) return;
+    el.classList.add('open');
+    el._touchHandler = e => { if (e.target === el) e.preventDefault(); };
+    el.addEventListener('touchmove', el._touchHandler, { passive: false });
+  },
+
+  close(id) {
+    const el = UI.$(id);
+    if (!el) return;
+    el.classList.remove('open');
+    if (el._touchHandler) el.removeEventListener('touchmove', el._touchHandler);
+  },
+
+  closeCtx(e) { if (e.target === UI.$('ctxOverlay')) this.close('ctxOverlay'); },
+
+  openTransfer() {
+    // Transfert entre comptes
+    const fromSelect = UI.$('transferFromAccount');
+    const toSelect = UI.$('transferToAccount');
+    const accounts = DB.get('accounts');
+    if (accounts.length < 2) {
+      UI.toast('Vous devez avoir au moins 2 comptes pour effectuer un transfert', 'error');
+      return;
+    }
+    const options = accounts.map(ac => `<option value="${ac.id}">${ac.icon} ${Utils.esc(ac.name)} - ${Utils.fmtS(ac.balance)} FCFA</option>`).join('');
+    fromSelect.innerHTML = options;
+    toSelect.innerHTML = options;
+    UI.$('transferAmount').value = '';
+    UI.$('transferDesc').value = '';
+    this.open('transferModal');
+  },
+
+  openTransferToSaving() {
+    const accounts = DB.get('accounts');
+    const savings = DB.get('savings');
+    if (accounts.length === 0 || savings.length === 0) {
+      UI.toast('Vous devez avoir au moins un compte et une épargne', 'error');
+      return;
+    }
+    const accountOptions = accounts.map(ac => `<option value="${ac.id}">${ac.icon} ${Utils.esc(ac.name)} - ${Utils.fmtS(ac.balance)} FCFA</option>`).join('');
+    const savingOptions = savings.map(sv => `<option value="${sv.id}">${sv.emoji || '🐖'} ${Utils.esc(sv.name)} - ${Utils.fmtS(sv.balance)} FCFA</option>`).join('');
+    UI.$('transferSourceAccount').innerHTML = accountOptions;
+    UI.$('transferDestAccount').innerHTML = accountOptions;
+    UI.$('transferSourceSaving').innerHTML = savingOptions;
+    UI.$('transferDestSaving').innerHTML = savingOptions;
+    UI.$('transferSavingAmount').value = '';
+    UI.$('transferSavingDesc').value = '';
+    this._updateTransferSavingFields('accountToSaving');
+    const dirSelect = UI.$('transferDirection');
+    dirSelect.onchange = () => this._updateTransferSavingFields(dirSelect.value);
+    this.open('transferSavingModal');
+  },
+
+  _updateTransferSavingFields(direction) {
+    const srcAccField = UI.$('transferSourceAccountField');
+    const srcSavField = UI.$('transferSourceSavingField');
+    const dstAccField = UI.$('transferDestAccountField');
+    const dstSavField = UI.$('transferDestSavingField');
+    if (direction === 'accountToSaving') {
+      srcAccField.style.display = '';
+      srcSavField.style.display = 'none';
+      dstAccField.style.display = 'none';
+      dstSavField.style.display = '';
+    } else {
+      srcAccField.style.display = 'none';
+      srcSavField.style.display = '';
+      dstAccField.style.display = '';
+      dstSavField.style.display = 'none';
+    }
+  },
+
+  openTx(type = 'expense') {
+    _txType = type;
+    UI.$('txAmt').value = '';
+    UI.$('txDesc').value = '';
+
+    const accountSelect = UI.$('txAccountId');
+    const accounts = DB.get('accounts');
+    if (accounts.length === 0) {
+      accountSelect.innerHTML = '<option value="">Aucun compte - créez-en un</option>';
+    } else {
+      accountSelect.innerHTML = accounts.map(ac =>
+        `<option value="${ac.id}">${ac.icon} ${Utils.esc(ac.name)} - ${Utils.fmtS(ac.balance)} FCFA</option>`
+      ).join('');
+    }
+
+    _syncTxType();
+    _buildCats();
+    this.open('txOverlay');
+  },
+
+  setTxType(t) { _txType = t; _syncTxType(); _buildCats(); },
+
+  openAccountOp(acId, opType) {
+    _acId = acId;
+    _acOpType = opType;
+    const cfg = OP_CFG[opType] || { title: 'Opération', descLbl: 'Description', ph: '', btnCls: 'btn-blue', sign: +1 };
+    UI.txt('acOpTitle', cfg.title);
+    UI.$('acOpDesc').placeholder = cfg.ph;
+    UI.txt('acOpDescLbl', cfg.descLbl);
+    UI.$('acOpAmt').value = '';
+    UI.$('acOpDesc').value = '';
+    const warn = UI.$('acOpWarn');
+    if (cfg.sign === -1) {
+      const ac = DB.get('accounts').find(a => a.id === acId);
+      warn.textContent = `Solde disponible : ${Utils.fmtS(ac?.balance || 0)} F`;
+      warn.style.display = 'block';
+    } else { warn.style.display = 'none'; }
+    const btn = UI.$('acOpBtn');
+    btn.className = 'btn-primary ' + (cfg.btnCls || 'btn-blue');
+    btn.textContent = cfg.title;
+    this.open('acOpOverlay');
+    setTimeout(() => UI.$('acOpAmt').focus(), 340);
+  },
+
+  openAccountForm(editId = null) {
+    _acSetupId = editId;
+    UI.txt('acFormTitle', editId ? 'Modifier' : 'Nouveau compte');
+    const ac = editId ? DB.get('accounts').find(a => a.id === editId) : null;
+    UI.$('acFormName').value = ac ? ac.name : '';
+    UI.$('acFormBal').value = ac ? ac.balance : '';
+    if (ac) UI.$('acFormType').value = ac.type || 'bank';
+    const showSelect = UI.$('acFormShowOnHome');
+    if (showSelect) {
+      showSelect.value = ac ? (ac.showOnHome !== false ? 'true' : 'false') : 'true';
+    }
+    let selEmoji = ac ? ac.icon : AC_ICONS[0];
+    UI.html('acFormEmojis', AC_ICONS.map(e => `<div class="emoji-opt ${e === selEmoji ? 'sel' : ''}" onclick="Modals._pickAcEmoji('${e}',this)">${e}</div>`).join(''));
+    let selColor = ac ? ac.colorKey : COLORS[0];
+    UI.html('acFormColors', COLORS.map(c => `<div class="color-opt ${c === selColor ? 'sel' : ''}" style="background:${COLOR_HEX[c]}" onclick="Modals._pickAcColor('${c}',this)" data-color="${c}"></div>`).join(''));
+    this.open('acFormOverlay');
+  },
+
+  _pickAcEmoji(e, el) { document.querySelectorAll('#acFormEmojis .emoji-opt').forEach(x => x.classList.remove('sel')); el.classList.add('sel'); },
+  _pickAcColor(c, el) { document.querySelectorAll('#acFormColors .color-opt').forEach(x => x.classList.remove('sel')); el.classList.add('sel'); },
+
+  openSavingForm(editId = null) {
+    _acSetupId = editId;
+    UI.txt('savFormTitle', editId ? 'Modifier' : 'Nouvelle épargne');
+    const sv = editId ? DB.get('savings').find(s => s.id === editId) : null;
+    UI.$('savFormName').value = sv ? sv.name : '';
+    UI.$('savFormGoal').value = sv && sv.goal ? sv.goal : '';
+    let selEmoji = sv ? sv.emoji : SAV_EMOJIS[0];
+    UI.html('savFormEmojis', SAV_EMOJIS.map(e => `<div class="emoji-opt ${e === selEmoji ? 'sel' : ''}" onclick="Modals._pickSavEmoji('${e}',this)">${e}</div>`).join(''));
+    this.open('savFormOverlay');
+  },
+
+  _pickSavEmoji(e, el) { document.querySelectorAll('#savFormEmojis .emoji-opt').forEach(x => x.classList.remove('sel')); el.classList.add('sel'); },
+
+  openSavingOp(savId, opType) {
+    _savId = savId;
+    _savOpType = opType;
+    const sv = DB.get('savings').find(s => s.id === savId);
+    UI.txt('savOpTitle', opType === 'deposit' ? '🐖 Mettre de côté' : '📤 Retirer');
+    UI.$('savOpAmt').value = '';
+    UI.$('savOpNote').value = '';
+    const warn = UI.$('savOpWarn');
+    if (opType === 'withdraw' && sv) { warn.textContent = `Solde épargne : ${Utils.fmtS(sv.balance)} F`; warn.style.display = 'block'; }
+    else { warn.style.display = 'none'; }
+    const btn = UI.$('savOpBtn');
+    btn.className = 'btn-primary ' + (opType === 'deposit' ? 'btn-green' : 'btn-red');
+    btn.textContent = opType === 'deposit' ? 'Mettre de côté' : 'Retirer';
+    this.open('savOpOverlay');
+    setTimeout(() => UI.$('savOpAmt').focus(), 340);
+  },
+
+  openStats() {
+    this.statsMonth = App._month;
+    this.statsYear = App._year;
+    UI.txt('statsMonthLbl', MONTHS[this.statsMonth] + ' ' + this.statsYear);
+    this.renderStatsContent();
+    this.open('statsOverlay');
+  },
+
+  changeStatsMonth(delta) {
+    this.statsMonth += delta;
+    if (this.statsMonth > 11) { this.statsMonth = 0; this.statsYear++; }
+    if (this.statsMonth < 0) { this.statsMonth = 11; this.statsYear--; }
+    UI.txt('statsMonthLbl', MONTHS[this.statsMonth] + ' ' + this.statsYear);
+    this.renderStatsContent();
+  },
+
+  renderStatsContent() {
+    const txs = DB.get('txs').filter(t => {
+      const d = new Date(t.date);
+      return d.getMonth() === this.statsMonth && d.getFullYear() === this.statsYear;
+    });
+    const totalExp = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    const bycat = {};
+    txs.filter(t => t.type === 'expense').forEach(t => { bycat[t.cat] = (bycat[t.cat] || 0) + t.amount; });
+    const entries = Object.entries(bycat).sort((a, b) => b[1] - a[1]);
+    const canvas = UI.$('pieCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height, cx = W / 2, cy = H / 2, R = 54, r = 24;
+    ctx.clearRect(0, 0, W, H);
+    if (!entries.length) {
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(128,168,200,0.08)'; ctx.fill();
+      ctx.fillStyle = 'rgba(128,168,200,0.4)'; ctx.font = '9.5px DM Sans,sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('Aucune dépense', cx, cy + 4);
+      UI.html('pieLegend', '');
+      UI.html('progList', '<div class="empty">Aucune dépense</div>');
+      return;
+    }
+    let angle = -Math.PI / 2;
+    entries.forEach(([cat, amt]) => {
+      const c = CATS[cat] || CATS.autre;
+      const sl = (amt / totalExp) * Math.PI * 2;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, angle, angle + sl); ctx.closePath();
+      ctx.fillStyle = c.c; ctx.fill();
+      angle += sl;
+    });
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    const dark = document.documentElement.getAttribute('data-theme') !== 'light';
+    ctx.fillStyle = dark ? '#152030' : '#ffffff'; ctx.fill();
+    ctx.fillStyle = dark ? '#e6f0fb' : '#0d1821';
+    ctx.font = 'bold 10.5px Syne,sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = totalExp < 0 ? 'var(--red)' : (dark ? '#e6f0fb' : '#0d1821');
+    ctx.fillText(Utils.fmtS(totalExp), cx, cy - 1);
+    ctx.fillStyle = dark ? '#4d7a9a' : '#8fafc8'; ctx.font = '7.5px DM Sans,sans-serif';
+    ctx.fillText(DB.get('settings').currency || 'FCFA', cx, cy + 11);
+    UI.html('pieLegend', entries.map(([cat, amt]) => {
+      const c = CATS[cat] || CATS.autre;
+      const pct = Math.round(amt / totalExp * 100);
+      return `<div class="leg-item"><div class="leg-dot" style="background:${c.c}"></div><span class="leg-name">${c.e} ${c.l}</span><span class="leg-pct">${pct}%</span></div>`;
+    }).join(''));
+    UI.html('progList', entries.map(([cat, amt]) => {
+      const c = CATS[cat] || CATS.autre;
+      const pct = Math.round(amt / totalExp * 100);
+      return `<div class="prog-item"><div class="prog-top"><div class="prog-name">${c.e} ${c.l}</div><div class="prog-vals">${Utils.fmtS(amt)} F · ${pct}%</div></div><div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${c.c}"></div></div></div>`;
+    }).join(''));
+  },
+
+  openProfile() {
+    const s = DB.get('settings');
+    UI.$('profileName').value = s.name || '';
+    UI.$('currencySel').value = s.currency || 'FCFA';
+    this.open('profileOverlay');
+  },
+
+  openRename(type, id, currentName) {
+    _renameType = type;
+    _renameId = id;
+    UI.txt('renameTitle', type === 'account' ? 'Renommer le compte' : 'Renommer l\'épargne');
+    UI.$('renameInput').value = currentName;
+    this.close('ctxOverlay');
+    this.open('renameOverlay');
+    setTimeout(() => { UI.$('renameInput').focus(); UI.$('renameInput').select(); }, 340);
+  },
+
+  openConfirm(title, msg, onConfirm) {
+    UI.txt('confirmTitle', title);
+    UI.html('confirmMsg', msg);
+    UI.$('confirmBtn').onclick = () => { onConfirm(); this.close('confirmOverlay'); };
+    this.open('confirmOverlay');
+  },
+
+  openCtxMenu(type, id, name) {
+    UI.txt('ctxTitle', Utils.esc(name));
+    const items = type === 'account' ? [
+      { icon: '✏️', label: 'Renommer', action: `Modals.openRename('account','${id}','${Utils.esc(name)}')` },
+      { icon: '⚙️', label: 'Modifier', action: `Modals.close('ctxOverlay');Modals.openAccountForm('${id}')` },
+      { divider: true },
+      { icon: '🗑️', label: 'Supprimer', danger: true, action: `Modals.close('ctxOverlay');Actions.confirmDeleteAccount('${id}')` }
+    ] : [
+      { icon: '✏️', label: 'Renommer', action: `Modals.openRename('saving','${id}','${Utils.esc(name)}')` },
+      { icon: '🎯', label: 'Modifier objectif', action: `Modals.close('ctxOverlay');Modals.openSavingForm('${id}')` },
+      { divider: true },
+      { icon: '🗑️', label: 'Supprimer', danger: true, action: `Modals.close('ctxOverlay');Actions.confirmDeleteSaving('${id}')` }
+    ];
+    UI.html('ctxItems', items.map(it => {
+      if (it.divider) return '<div class="ctx-divider"></div>';
+      return `<div class="ctx-item" onclick="${it.action}"><span class="ctx-item-icon">${it.icon}</span><span class="ctx-item-label${it.danger ? ' danger' : ''}">${it.label}</span></div>`;
+    }).join(''));
+    this.open('ctxOverlay');
+  },
+
+  openHomeAccountsSettings() {
+    const container = UI.$('homeAccountsList');
+    if (!container) return;
+    const accounts = DB.get('accounts');
+    container.innerHTML = accounts.map(ac => `
+      <div class="srow" style="cursor:default">
+        <span class="srow-icon">${ac.icon}</span>
+        <div class="srow-info">
+          <div class="srow-name">${Utils.esc(ac.name)}</div>
+          <div class="srow-desc">${Utils.fmt(ac.balance)}</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" class="home-account-toggle" data-id="${ac.id}" ${ac.showOnHome !== false ? 'checked' : ''}>
+          <div class="toggle-track"></div>
+        </label>
+      </div>
+    `).join('');
+    container.querySelectorAll('.home-account-toggle').forEach(toggle => {
+      toggle.addEventListener('change', (e) => {
+        const accountId = toggle.dataset.id;
+        const isChecked = toggle.checked;
+        DB.update('accounts', accounts => {
+          const ac = accounts.find(a => a.id === accountId);
+          if (ac) ac.showOnHome = isChecked;
+        });
+        App.renderHome();
+      });
+    });
+    this.open('homeAccountsModal');
+  },
+
+  openBudgetSettings() {
+    const settings = DB.get('settings');
+    const budget = settings.monthlyBudget || {};
+    const currentMonth = App._month;
+    const currentYear = App._year;
+    UI.$('budgetAmount').value = budget[currentYear]?.[currentMonth] || '';
+    UI.$('budgetMonth').value = currentMonth;
+    UI.$('budgetYear').value = currentYear;
+    this.open('budgetModal');
+  },
+
+  confirmReset() {
+    this.openConfirm('⚠️ Réinitialisation', 'Cette action supprimera toutes vos données.', () => {
+      DB.set('txs', []);
+      DB.set('accounts', []);
+      DB.set('accountOps', []);
+      DB.set('savings', []);
+      DB.set('savingsOps', []);
+      DB.set('transfers', []);
+      DB.set('accounts', [
+        { id: 'acc-' + Utils.uid(), name: 'Compte Bancaire', icon: '🏦', colorKey: 'green', balance: 0, type: 'bank', showOnHome: true },
+        { id: 'acc-' + Utils.uid(), name: 'Wave Money', icon: '🌊', colorKey: 'wave', balance: 0, type: 'mobile', showOnHome: true }
+      ]);
+      App.renderHome();
+      App.renderAccounts();
+      App.renderSavings();
+      UI.toast('Données réinitialisées', 'success');
+    });
+  }
+};
+
+// ==================================================
+// ACTIONS - Logique métier
+// ==================================================
+const Actions = {
+  _isSubmitting: false,
+
+  saveTransfer() {
+    if (this._isSubmitting) return;
+    this._isSubmitting = true;
+    
+    const fromAccountId = UI.$('transferFromAccount').value;
+    const toAccountId = UI.$('transferToAccount').value;
+    const amount = Utils.parseAmt(UI.$('transferAmount').value);
+    const desc = UI.$('transferDesc').value.trim() || 'Transfert';
+    
+    if (!fromAccountId || !toAccountId) {
+      UI.toast('Veuillez sélectionner les comptes', 'error');
+      this._isSubmitting = false;
+      return;
+    }
+    
+    if (fromAccountId === toAccountId) {
+      UI.toast('Les comptes source et destination doivent être différents', 'error');
+      this._isSubmitting = false;
+      return;
+    }
+    
+    if (amount <= 0) {
+      UI.toast('Montant invalide', 'error');
+      this._isSubmitting = false;
+      return;
+    }
+    
+    const fromAccount = DB.get('accounts').find(a => a.id === fromAccountId);
+    if (fromAccount && amount > fromAccount.balance) {
+      UI.toast(`Solde insuffisant sur le compte source (${Utils.fmtS(fromAccount.balance)} FCFA)`, 'error');
+      this._isSubmitting = false;
+      return;
+    }
+    
+    const now = new Date().toISOString();
+    const transferId = Utils.uid();
+    
+    DB.update('accounts', accounts => {
+      const fromAc = accounts.find(a => a.id === fromAccountId);
+      const toAc = accounts.find(a => a.id === toAccountId);
+      if (fromAc) fromAc.balance = Math.round((fromAc.balance - amount) * 100) / 100;
+      if (toAc) toAc.balance = Math.round((toAc.balance + amount) * 100) / 100;
+    });
+    
+    DB.update('transfers', transfers => transfers.push({
+      id: transferId,
+      fromType: 'account',
+      toType: 'account',
+      fromAccountId,
+      toAccountId,
+      amount,
+      desc,
+      date: now
+    }));
+    
+    DB.update('accountOps', ops => ops.push(
+      {
+        id: Utils.uid(),
+        accountId: fromAccountId,
+        type: 'transfer_out',
+        amount: amount,
+        desc: `Transfert vers ${DB.get('accounts').find(a => a.id === toAccountId)?.name || 'autre compte'} : ${desc}`,
+        date: now,
+        transferId: transferId
+      },
+      {
+        id: Utils.uid(),
+        accountId: toAccountId,
+        type: 'transfer_in',
+        amount: amount,
+        desc: `Transfert depuis ${DB.get('accounts').find(a => a.id === fromAccountId)?.name || 'autre compte'} : ${desc}`,
+        date: now,
+        transferId: transferId
+      }
+    ));
+    
+    this._isSubmitting = false;
+    Modals.close('transferModal');
+    App.renderHome();
+    App.renderAccounts();
+    UI.toast(`✅ ${Utils.fmtS(amount)} FCFA transféré avec succès`, 'success');
+  },
+
+  saveTransferToSaving() {
+    if (this._isSubmitting) return;
+    this._isSubmitting = true;
+    
+    const direction = UI.$('transferDirection').value;
+    const amount = Utils.parseAmt(UI.$('transferSavingAmount').value);
+    const desc = UI.$('transferSavingDesc').value.trim() || (direction === 'accountToSaving' ? 'Alimentation épargne' : 'Retrait épargne');
+    
+    if (amount <= 0) {
+      UI.toast('Montant invalide', 'error');
+      this._isSubmitting = false;
+      return;
+    }
+    
+    const now = new Date().toISOString();
+    const transferId = Utils.uid();
+    
+    if (direction === 'accountToSaving') {
+      const accountId = UI.$('transferSourceAccount').value;
+      const savingId = UI.$('transferDestSaving').value;
+      const account = DB.get('accounts').find(a => a.id === accountId);
+      const saving = DB.get('savings').find(s => s.id === savingId);
+      if (!account || !saving) { UI.toast('Compte ou épargne introuvable', 'error'); this._isSubmitting = false; return; }
+      if (amount > account.balance) {
+        UI.toast(`Solde insuffisant sur le compte (${Utils.fmtS(account.balance)} FCFA)`, 'error');
+        this._isSubmitting = false;
+        return;
+      }
+      DB.update('accounts', accounts => {
+        const ac = accounts.find(a => a.id === accountId);
+        if (ac) ac.balance = Math.round((ac.balance - amount) * 100) / 100;
+      });
+      DB.update('savings', savings => {
+        const sv = savings.find(s => s.id === savingId);
+        if (sv) sv.balance = Math.round((sv.balance + amount) * 100) / 100;
+      });
+      DB.update('transfers', transfers => transfers.push({
+        id: transferId,
+        fromType: 'account',
+        toType: 'saving',
+        fromAccountId: accountId,
+        toSavingId: savingId,
+        amount,
+        desc,
+        date: now
+      }));
+      DB.update('accountOps', ops => ops.push({
+        id: Utils.uid(),
+        accountId: accountId,
+        type: 'transfer_to_saving',
+        amount: amount,
+        desc: `Transfert vers épargne "${saving.name}" : ${desc}`,
+        date: now,
+        transferId: transferId
+      }));
+      DB.update('savingsOps', ops => ops.push({
+        id: Utils.uid(),
+        savingId: savingId,
+        type: 'transfer_from_saving',
+        amount: amount,
+        desc: `Transfert depuis compte "${account.name}" : ${desc}`,
+        date: now,
+        transferId: transferId
+      }));
+      UI.toast(`✅ ${Utils.fmtS(amount)} FCFA transféré du compte vers l'épargne`, 'success');
+    } else {
+      const savingId = UI.$('transferSourceSaving').value;
+      const accountId = UI.$('transferDestAccount').value;
+      const saving = DB.get('savings').find(s => s.id === savingId);
+      const account = DB.get('accounts').find(a => a.id === accountId);
+      if (!saving || !account) { UI.toast('Épargne ou compte introuvable', 'error'); this._isSubmitting = false; return; }
+      if (amount > saving.balance) {
+        UI.toast(`Solde insuffisant sur l'épargne (${Utils.fmtS(saving.balance)} FCFA)`, 'error');
+        this._isSubmitting = false;
+        return;
+      }
+      DB.update('savings', savings => {
+        const sv = savings.find(s => s.id === savingId);
+        if (sv) sv.balance = Math.round((sv.balance - amount) * 100) / 100;
+      });
+      DB.update('accounts', accounts => {
+        const ac = accounts.find(a => a.id === accountId);
+        if (ac) ac.balance = Math.round((ac.balance + amount) * 100) / 100;
+      });
+      DB.update('transfers', transfers => transfers.push({
+        id: transferId,
+        fromType: 'saving',
+        toType: 'account',
+        fromSavingId: savingId,
+        toAccountId: accountId,
+        amount,
+        desc,
+        date: now
+      }));
+      DB.update('accountOps', ops => ops.push({
+        id: Utils.uid(),
+        accountId: accountId,
+        type: 'transfer_from_saving',
+        amount: amount,
+        desc: `Transfert depuis épargne "${saving.name}" : ${desc}`,
+        date: now,
+        transferId: transferId
+      }));
+      DB.update('savingsOps', ops => ops.push({
+        id: Utils.uid(),
+        savingId: savingId,
+        type: 'transfer_to_saving',
+        amount: amount,
+        desc: `Transfert vers compte "${account.name}" : ${desc}`,
+        date: now,
+        transferId: transferId
+      }));
+      UI.toast(`✅ ${Utils.fmtS(amount)} FCFA transféré de l'épargne vers le compte`, 'success');
+    }
+    
+    this._isSubmitting = false;
+    Modals.close('transferSavingModal');
+    App.renderHome();
+    App.renderAccounts();
+    App.renderSavings();
+  },
+
+  saveTx() {
+    if (this._isSubmitting) return;
+    this._isSubmitting = true;
+    const btn = UI.$('txSaveBtn');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Enregistrement...';
+    try {
+      const amt = Utils.parseAmt(UI.$('txAmt').value);
+      if (amt <= 0) { UI.toast('Montant invalide', 'error'); btn.disabled = false; btn.textContent = originalText; this._isSubmitting = false; return; }
+      const accountId = UI.$('txAccountId').value;
+      if (!accountId) { UI.toast('Veuillez sélectionner un compte', 'error'); btn.disabled = false; btn.textContent = originalText; this._isSubmitting = false; return; }
+      const desc = UI.$('txDesc').value.trim();
+      if (_txType === 'expense') {
+        const account = DB.get('accounts').find(a => a.id === accountId);
+        if (account && amt > account.balance) { UI.toast(`Solde insuffisant (${Utils.fmtS(account.balance)} FCFA)`, 'error'); btn.disabled = false; btn.textContent = originalText; this._isSubmitting = false; return; }
+      }
+      const sign = _txType === 'income' ? +1 : -1;
+      DB.update('accounts', acs => {
+        const ac = acs.find(a => a.id === accountId);
+        if (ac) ac.balance = Math.round((ac.balance + sign * amt) * 100) / 100;
+      });
+      const newOpId = Utils.uid();
+      DB.update('accountOps', ops => ops.push({
+        id: newOpId,
+        accountId: accountId,
+        type: _txType === 'income' ? 'deposit' : 'withdraw',
+        amount: amt,
+        desc: `Transaction: ${desc || (_txType === 'income' ? 'Revenu' : 'Dépense')}`,
+        date: new Date().toISOString()
+      }));
+      DB.update('txs', txs => txs.push({
+        id: Utils.uid(),
+        type: _txType,
+        amount: amt,
+        cat: _selectedCat,
+        desc: desc,
+        accountId: accountId,
+        linkedOpId: newOpId,
+        date: new Date().toISOString()
+      }));
+      btn.disabled = false;
+      btn.textContent = originalText;
+      this._isSubmitting = false;
+      Modals.close('txOverlay');
+      App.renderHome();
+      App.renderAccounts();
+      UI.toast(_txType === 'income' ? '✅ Revenu enregistré' : '✅ Dépense enregistrée', 'success');
+    } catch (e) {
+      console.error(e);
+      btn.disabled = false;
+      btn.textContent = originalText;
+      this._isSubmitting = false;
+      UI.toast('Erreur', 'error');
+    }
+  },
+
+  deleteTx(id) {
+    const tx = DB.get('txs').find(t => t.id === id);
+    if (!tx) return;
+    Modals.openConfirm('Supprimer la transaction', `Supprimer "${tx.desc || 'cette transaction'}" ?`, () => {
+      DB.update('txs', txs => { const i = txs.findIndex(t => t.id === id); if (i > -1) txs.splice(i, 1); });
+      if (tx.linkedOpId) {
+        DB.update('accountOps', ops => { const idx = ops.findIndex(o => o.id === tx.linkedOpId); if (idx > -1) ops.splice(idx, 1); });
+      } else if (tx.accountId) {
+        DB.update('accountOps', ops => {
+          const idx = ops.findIndex(o => o.accountId === tx.accountId && o.amount === tx.amount && Math.abs(new Date(o.date) - new Date(tx.date)) < 60000 && ((tx.type === 'income' && (o.type === 'deposit' || o.type === 'receive' || o.type === 'in')) || (tx.type === 'expense' && (o.type === 'withdraw' || o.type === 'send' || o.type === 'out'))));
+          if (idx > -1) ops.splice(idx, 1);
+        });
+      }
+      if (tx.accountId) {
+        const remainingOps = DB.get('accountOps').filter(o => o.accountId === tx.accountId);
+        let newBalance = 0;
+        remainingOps.forEach(op => {
+          const depositTypes = ['deposit', 'receive', 'in', 'deposit_sav', 'transfer_in', 'transfer_from_saving'];
+          const withdrawTypes = ['withdraw', 'send', 'out', 'cashout', 'withdraw_sav', 'transfer_out', 'transfer_to_saving'];
+          if (depositTypes.includes(op.type)) newBalance += op.amount;
+          else if (withdrawTypes.includes(op.type)) newBalance -= op.amount;
+        });
+        DB.update('accounts', accounts => { const ac = accounts.find(a => a.id === tx.accountId); if (ac) ac.balance = Math.round(newBalance * 100) / 100; });
+      }
+      App.renderHome();
+      App.renderAccounts();
+      if (Nav._detailType === 'account') Nav.refreshDetail();
+      UI.toast('Transaction supprimée');
+    });
+  },
+
+  // NOUVELLE FONCTION : Supprimer un transfert (un seul événement)
+  deleteTransfer(id) {
+    const transfer = DB.get('transfers').find(t => t.id === id);
+    if (!transfer) return;
+    Modals.openConfirm('Supprimer le transfert', `Supprimer ce transfert ?`, () => {
+      // Supprimer l'entrée de la collection transfers
+      DB.update('transfers', transfers => {
+        const idx = transfers.findIndex(t => t.id === id);
+        if (idx > -1) transfers.splice(idx, 1);
+      });
+      // Supprimer les opérations liées dans accountOps
+      DB.update('accountOps', ops => {
+        for (let i = ops.length-1; i >= 0; i--) {
+          if (ops[i].transferId === id) ops.splice(i, 1);
+        }
+      });
+      // Supprimer les opérations liées dans savingsOps
+      DB.update('savingsOps', ops => {
+        for (let i = ops.length-1; i >= 0; i--) {
+          if (ops[i].transferId === id) ops.splice(i, 1);
+        }
+      });
+      // Recalculer les soldes des comptes et épargnes impactés
+      if (transfer.fromType === 'account') {
+        const remainingOps = DB.get('accountOps').filter(o => o.accountId === transfer.fromAccountId);
+        let newBalance = 0;
+        remainingOps.forEach(o => {
+          const depositTypes = ['deposit', 'receive', 'in', 'deposit_sav', 'transfer_in', 'transfer_from_saving'];
+          const withdrawTypes = ['withdraw', 'send', 'out', 'cashout', 'withdraw_sav', 'transfer_out', 'transfer_to_saving'];
+          if (depositTypes.includes(o.type)) newBalance += o.amount;
+          else if (withdrawTypes.includes(o.type)) newBalance -= o.amount;
+        });
+        DB.update('accounts', accounts => {
+          const ac = accounts.find(a => a.id === transfer.fromAccountId);
+          if (ac) ac.balance = Math.round(newBalance * 100) / 100;
+        });
+      }
+      if (transfer.toType === 'account') {
+        const remainingOps = DB.get('accountOps').filter(o => o.accountId === transfer.toAccountId);
+        let newBalance = 0;
+        remainingOps.forEach(o => {
+          const depositTypes = ['deposit', 'receive', 'in', 'deposit_sav', 'transfer_in', 'transfer_from_saving'];
+          const withdrawTypes = ['withdraw', 'send', 'out', 'cashout', 'withdraw_sav', 'transfer_out', 'transfer_to_saving'];
+          if (depositTypes.includes(o.type)) newBalance += o.amount;
+          else if (withdrawTypes.includes(o.type)) newBalance -= o.amount;
+        });
+        DB.update('accounts', accounts => {
+          const ac = accounts.find(a => a.id === transfer.toAccountId);
+          if (ac) ac.balance = Math.round(newBalance * 100) / 100;
+        });
+      }
+      if (transfer.fromType === 'saving') {
+        const remainingOps = DB.get('savingsOps').filter(o => o.savingId === transfer.fromSavingId);
+        let newBalance = 0;
+        remainingOps.forEach(o => {
+          if (o.type === 'deposit' || o.type === 'transfer_from_saving') newBalance += o.amount;
+          else if (o.type === 'withdraw' || o.type === 'transfer_to_saving') newBalance -= o.amount;
+        });
+        DB.update('savings', savings => {
+          const sv = savings.find(s => s.id === transfer.fromSavingId);
+          if (sv) sv.balance = Math.round(newBalance * 100) / 100;
+        });
+      }
+      if (transfer.toType === 'saving') {
+        const remainingOps = DB.get('savingsOps').filter(o => o.savingId === transfer.toSavingId);
+        let newBalance = 0;
+        remainingOps.forEach(o => {
+          if (o.type === 'deposit' || o.type === 'transfer_from_saving') newBalance += o.amount;
+          else if (o.type === 'withdraw' || o.type === 'transfer_to_saving') newBalance -= o.amount;
+        });
+        DB.update('savings', savings => {
+          const sv = savings.find(s => s.id === transfer.toSavingId);
+          if (sv) sv.balance = Math.round(newBalance * 100) / 100;
+        });
+      }
+      App.renderHome();
+      App.renderAccounts();
+      App.renderSavings();
+      UI.toast('Transfert supprimé');
+    });
+  },
+
+  saveAccountOp() {
+    const amt = Utils.parseAmt(UI.$('acOpAmt').value);
+    if (amt <= 0) { UI.toast('Montant invalide', 'error'); return; }
+    const desc = UI.$('acOpDesc').value.trim();
+    const cfg = OP_CFG[_acOpType] || { sign: +1 };
+    if (cfg.sign === -1) {
+      const ac = DB.get('accounts').find(a => a.id === _acId);
+      if (ac && amt > ac.balance) { UI.toast(`Solde insuffisant (${Utils.fmtS(ac.balance)} F)`, 'error'); return; }
+    }
+    DB.update('accounts', acs => { const ac = acs.find(a => a.id === _acId); if (ac) ac.balance = Math.round((ac.balance + cfg.sign * amt) * 100) / 100; });
+    const newOpId = Utils.uid();
+    DB.update('accountOps', ops => ops.push({ id: newOpId, accountId: _acId, type: _acOpType, amount: amt, desc: desc, date: new Date().toISOString() }));
+    Modals.close('acOpOverlay');
+    App.renderHome();
+    if (Nav._detailType === 'account') Nav.refreshDetail();
+    else App.renderAccounts();
+    UI.toast('✅ Opération enregistrée', 'success');
+  },
+
+  deleteOp(id, collection) {
+    const op = DB.get(collection).find(o => o.id === id);
+    if (!op) return;
+    Modals.openConfirm('Supprimer', 'Cette opération sera supprimée.', () => {
+      DB.update(collection, ops => { const idx = ops.findIndex(o => o.id === id); if (idx > -1) ops.splice(idx, 1); });
+      if (collection === 'accountOps' && op.accountId) {
+        const remainingOps = DB.get('accountOps').filter(o => o.accountId === op.accountId);
+        let newBalance = 0;
+        remainingOps.forEach(o => {
+          const depositTypes = ['deposit', 'receive', 'in', 'deposit_sav', 'transfer_in', 'transfer_from_saving'];
+          const withdrawTypes = ['withdraw', 'send', 'out', 'cashout', 'withdraw_sav', 'transfer_out', 'transfer_to_saving'];
+          if (depositTypes.includes(o.type)) newBalance += o.amount;
+          else if (withdrawTypes.includes(o.type)) newBalance -= o.amount;
+        });
+        DB.update('accounts', accounts => { const ac = accounts.find(a => a.id === op.accountId); if (ac) ac.balance = Math.round(newBalance * 100) / 100; });
+        const linkedTx = DB.get('txs').find(t => t.accountId === op.accountId && t.amount === op.amount && Math.abs(new Date(t.date) - new Date(op.date)) < 60000);
+        if (linkedTx) {
+          DB.update('txs', txs => { const i = txs.findIndex(t => t.id === linkedTx.id); if (i > -1) txs.splice(i, 1); });
+        }
+      } else if (collection === 'savingsOps' && op.savingId) {
+        const remainingOps = DB.get('savingsOps').filter(o => o.savingId === op.savingId);
+        let newBalance = 0;
+        remainingOps.forEach(o => {
+          if (o.type === 'deposit' || o.type === 'transfer_from_saving') newBalance += o.amount;
+          else if (o.type === 'withdraw' || o.type === 'transfer_to_saving') newBalance -= o.amount;
+        });
+        DB.update('savings', savings => { const sv = savings.find(s => s.id === op.savingId); if (sv) sv.balance = Math.round(newBalance * 100) / 100; });
+      }
+      if (Nav._detailType === 'account' || Nav._detailType === 'saving') Nav.refreshDetail();
+      App.renderHome();
+      App.renderAccounts();
+      App.renderSavings();
+      UI.toast('Opération supprimée');
+    });
+  },
+
+  saveAccountForm() {
+    const name = UI.$('acFormName').value.trim();
+    if (!name) { UI.toast('Nom requis', 'error'); return; }
+    const icon = document.querySelector('#acFormEmojis .emoji-opt.sel')?.textContent || AC_ICONS[0];
+    const colorKey = document.querySelector('#acFormColors .color-opt.sel')?.dataset.color || COLORS[0];
+    const type = UI.$('acFormType').value || 'bank';
+    const showOnHome = UI.$('acFormShowOnHome')?.value === 'true';
+    const bal = Utils.parseAmt(UI.$('acFormBal').value);
+    if (_acSetupId) {
+      DB.update('accounts', acs => { const ac = acs.find(a => a.id === _acSetupId); if (ac) { ac.name = name; ac.icon = icon; ac.colorKey = colorKey; ac.type = type; ac.balance = bal; ac.showOnHome = showOnHome; } });
+      UI.toast('✅ Compte modifié', 'success');
+    } else {
+      DB.update('accounts', acs => acs.push({ id: 'acc-' + Utils.uid(), name, icon, colorKey, balance: bal, type, showOnHome }));
+      UI.toast('✅ Compte créé', 'success');
+    }
+    Modals.close('acFormOverlay');
+    App.renderHome();
+    App.renderAccounts();
+  },
+
+  saveMonthlyBudget() {
+    const amount = Utils.parseAmt(UI.$('budgetAmount').value);
+    const month = parseInt(UI.$('budgetMonth').value);
+    const year = parseInt(UI.$('budgetYear').value);
+    const settings = DB.get('settings');
+    const budgets = settings.monthlyBudget || {};
+    if (!budgets[year]) budgets[year] = {};
+    budgets[year][month] = amount;
+    DB.update('settings', s => { s.monthlyBudget = budgets; });
+    Modals.close('budgetModal');
+    App.renderHome();
+    UI.toast(amount > 0 ? `✅ Objectif ${Utils.fmtS(amount)} FCFA enregistré` : '❌ Objectif supprimé', 'success');
+  },
+
+  saveRename() {
+    const v = UI.$('renameInput').value.trim();
+    if (!v) { UI.toast('Nom requis', 'error'); return; }
+    if (_renameType === 'account') {
+      DB.update('accounts', acs => { const ac = acs.find(a => a.id === _renameId); if (ac) ac.name = v; });
+      App.renderAccounts();
+      App.renderHome();
+      if (Nav._detailType === 'account' && Nav._detailId === _renameId) UI.txt('detailTitle', v);
+    } else {
+      DB.update('savings', savs => { const sv = savs.find(s => s.id === _renameId); if (sv) sv.name = v; });
+      App.renderSavings();
+      if (Nav._detailType === 'saving' && Nav._detailId === _renameId) UI.txt('detailTitle', v);
+    }
+    Modals.close('renameOverlay');
+    UI.toast('✅ Renommé', 'success');
+  },
+
+  confirmDeleteAccount(id) {
+    const ac = DB.get('accounts').find(a => a.id === id);
+    Modals.openConfirm('🗑️ Supprimer', `Supprimer ${Utils.esc(ac?.name || 'ce compte')} ?`, () => {
+      DB.update('accounts', acs => { const i = acs.findIndex(a => a.id === id); if (i > -1) acs.splice(i, 1); });
+      DB.update('accountOps', ops => { let i; while ((i = ops.findIndex(o => o.accountId === id)) > -1) ops.splice(i, 1); });
+      if (Nav._detailType === 'account' && Nav._detailId === id) Nav.closeDetail();
+      App.renderHome();
+      App.renderAccounts();
+      UI.toast('Compte supprimé');
+    });
+  },
+
+  saveSavingForm() {
+    const name = UI.$('savFormName').value.trim();
+    if (!name) { UI.toast('Nom requis', 'error'); return; }
+    const emoji = document.querySelector('#savFormEmojis .emoji-opt.sel')?.textContent || '🐖';
+    const goal = Utils.parseAmt(UI.$('savFormGoal').value) || 0;
+    if (_acSetupId) {
+      DB.update('savings', savs => { const sv = savs.find(s => s.id === _acSetupId); if (sv) { sv.name = name; sv.emoji = emoji; sv.goal = goal; } });
+      UI.toast('✅ Épargne modifiée', 'success');
+    } else {
+      DB.update('savings', savs => savs.push({ id: 'sav-' + Utils.uid(), name, emoji, balance: 0, goal, createdAt: new Date().toISOString() }));
+      UI.toast('✅ Épargne créée', 'success');
+    }
+    Modals.close('savFormOverlay');
+    App.renderSavings();
+  },
+
+  saveSavingOp() {
+    const amt = Utils.parseAmt(UI.$('savOpAmt').value);
+    if (amt <= 0) { UI.toast('Montant invalide', 'error'); return; }
+    const desc = UI.$('savOpNote').value.trim();
+    if (_savOpType === 'withdraw') {
+      const sv = DB.get('savings').find(s => s.id === _savId);
+      if (sv && amt > sv.balance) { UI.toast(`Solde insuffisant (${Utils.fmtS(sv.balance)} F)`, 'error'); return; }
+    }
+    const sign = _savOpType === 'deposit' ? +1 : -1;
+    DB.update('savings', savs => { const sv = savs.find(s => s.id === _savId); if (sv) sv.balance = Math.round((sv.balance + sign * amt) * 100) / 100; });
+    DB.update('savingsOps', ops => ops.push({ id: Utils.uid(), savingId: _savId, type: _savOpType, amount: amt, desc, date: new Date().toISOString() }));
+    Modals.close('savOpOverlay');
+    App.renderSavings();
+    App.renderHome();
+    if (Nav._detailType === 'saving') Nav.refreshDetail();
+    UI.toast(_savOpType === 'deposit' ? '✅ Épargne mise à jour' : '✅ Retrait effectué', 'success');
+  },
+
+  confirmDeleteSaving(id) {
+    const sv = DB.get('savings').find(s => s.id === id);
+    Modals.openConfirm('🗑️ Supprimer', `Supprimer ${Utils.esc(sv?.name || 'cette épargne')} ?`, () => {
+      DB.update('savings', savs => { const i = savs.findIndex(s => s.id === id); if (i > -1) savs.splice(i, 1); });
+      DB.update('savingsOps', ops => { let i; while ((i = ops.findIndex(o => o.savingId === id)) > -1) ops.splice(i, 1); });
+      if (Nav._detailType === 'saving' && Nav._detailId === id) Nav.closeDetail();
+      App.renderSavings();
+      App.renderHome();
+      UI.toast('Épargne supprimée');
+    });
+  },
+
+  saveProfile() {
+    const name = UI.$('profileName').value.trim();
+    const cur = UI.$('currencySel').value;
+    DB.update('settings', s => { s.name = name; s.currency = cur; });
+    Modals.close('profileOverlay');
+    App.renderHome();
+    App.renderSettings();
+    UI.toast('✅ Profil enregistré', 'success');
+  }
+};
+
+// ==================================================
+// FORMULAIRES
+// ==================================================
+function _syncTxType() { UI.$('btnExp').className = 'type-btn' + (_txType === 'expense' ? ' ae' : ''); UI.$('btnInc').className = 'type-btn' + (_txType === 'income' ? ' ai' : ''); }
+function _buildCats() { const keys = _txType === 'income' ? ['salaire', 'autre'] : Object.keys(CATS).filter(k => k !== 'salaire'); if (!keys.includes(_selectedCat)) _selectedCat = keys[0]; UI.html('txCats', keys.map(k => { const c = CATS[k]; return `<div class="cat-chip ${_selectedCat === k ? 'sel' : ''}" onclick="_selCat('${k}')">${c.e} ${c.l}</div>`; }).join('')); }
+function _selCat(k) { _selectedCat = k; _buildCats(); }
+
+// ==================================================
+// GESTIONNAIRES D'ÉVÉNEMENTS
+// ==================================================
+const MODAL_IDS = ['txOverlay', 'acOpOverlay', 'acFormOverlay', 'renameOverlay', 'savFormOverlay', 'savOpOverlay', 'statsOverlay', 'profileOverlay', 'confirmOverlay', 'homeAccountsModal', 'budgetModal', 'transferModal', 'transferSavingModal'];
+
+MODAL_IDS.forEach(id => { const el = UI.$(id); if (!el) return; el.addEventListener('click', e => { if (e.target === el) Modals.close(id); }); el.addEventListener('touchstart', e => { if (e.target === el) e.preventDefault(); }, { passive: false }); });
+
+document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (UI.$('ctxOverlay').classList.contains('open')) { Modals.close('ctxOverlay'); return; } for (let i = MODAL_IDS.length - 1; i >= 0; i--) { const el = UI.$(MODAL_IDS[i]); if (el && el.classList.contains('open')) { Modals.close(MODAL_IDS[i]); return; } } if (UI.$('detailPanel').classList.contains('open')) Nav.closeDetail(); });
+
+// ==================================================
+// DÉMARRAGE
+// ==================================================
+App.init();
+
+(function handleDeepLink() { const hash = location.hash; if (!hash) return; const map = { '#savings': 'savings', '#accounts': 'accounts', '#expense': 'home' }; const tab = map[hash]; if (tab) { setTimeout(() => { Nav.go(tab); if (hash === '#expense') Modals.openTx('expense'); history.replaceState(null, '', location.pathname); }, 150); } })();
+</script>
+</body>
+</html>
