@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#0b0f1a" id="metaThemeColor"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Budget"/>
+<meta name="description" content="Gérez vos transactions, comptes et épargnes facilement."/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<title>💰 Budget</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div class="phone" id="phone">
+  <div class="pwa-update-bar" id="pwaUpdateBar"><span>⬆️ Mise à jour disponible</span><button onclick="PWA.applyUpdate()">Mettre à jour</button></div>
+  <div class="status-bar"><span id="clock">09:41</span><div style="display:flex;align-items:center;gap:8px"><span class="sync-dot sync-idle" id="syncDot"></span><span style="font-size:.65rem;opacity:.4">v7.0</span></div></div>
+  <div class="screen" id="screen">
+    <div class="tab-page active" id="tab-home">
+      <div class="page-header"><div><div class="page-title" id="welcomeMsg">Bonjour 👋</div><div class="page-sub" id="welcomeSub">Avril 2026</div></div><div class="month-nav"><button class="month-btn" onclick="App.changeMonth(-1)">‹</button><span class="month-lbl" id="monthLbl">Avril 2026</span><button class="month-btn" onclick="App.changeMonth(1)">›</button></div></div>
+      <div class="summary-strip">
+        <div class="sc main"><div class="sc-lbl">Solde total</div><div class="sc-val big" id="hBal">0 FCFA</div></div>
+        <div class="sc"><div class="sc-lbl">Revenus</div><div class="sc-val pos" id="hInc">+0</div></div>
+        <div class="sc"><div class="sc-lbl">Dépenses</div><div class="sc-val neg" id="hExp">-0</div></div>
+        <div class="sc" id="budgetGaugeContainer" style="display:none;grid-column:1/-1">
+          <div class="sc-lbl">Objectif mensuel</div>
+          <div class="sc-val" id="budgetGauge" style="font-size:.95rem"></div>
+          <div class="progress-track" style="margin-top:8px"><div class="progress-fill" id="budgetGaugeFill"></div></div>
+        </div>
+        <div class="sc" id="catBudgetCard" style="display:none;grid-column:1/-1"></div>
+      </div>
+      <div class="accounts-row" id="homeAccountsRow"></div>
+      <div class="qa-row">
+        <button class="qa-btn" onclick="Modals.openTx('expense')"><span class="qa-icon">💸</span>Dépense</button>
+        <button class="qa-btn" onclick="Modals.openTx('income')"><span class="qa-icon">💵</span>Revenu</button>
+        <button class="qa-btn" onclick="Modals.openTransfer()"><span class="qa-icon">🔄</span>Compte → Compte</button>
+        <button class="qa-btn" onclick="Modals.openTransferToSaving()"><span class="qa-icon">🔄💰</span>Compte ↔ Épargne</button>
+        <button class="qa-btn" onclick="Modals.openStats()"><span class="qa-icon">📊</span>Stats</button>
+      </div>
+      <div class="search-bar"><input type="text" id="txSearch" placeholder="🔍 Rechercher une transaction..."></div>
+      <div class="sec-head"><div class="sec-title">Transactions</div><div class="filter-row" id="homeFilter"><div class="f-pill active" onclick="App.setFilter('all',this)">Tout</div><div class="f-pill" onclick="App.setFilter('alimentation',this)">🍽️</div><div class="f-pill" onclick="App.setFilter('transport',this)">🚗</div><div class="f-pill" onclick="App.setFilter('logement',this)">🏠</div><div class="f-pill" onclick="App.setFilter('sante',this)">💊</div><div class="f-pill" onclick="App.setFilter('loisirs',this)">🎉</div><div class="f-pill" onclick="App.setFilter('salaire',this)">💼</div><div class="f-pill" onclick="App.setFilter('autre',this)">📦</div></div></div>
+      <div class="tx-list" id="homeTxList"></div>
+    </div>
+    <div class="tab-page" id="tab-accounts"><div class="page-header"><div><div class="page-title">Comptes</div><div class="page-sub" id="accountsSubtitle"></div></div></div><div id="accountsList"></div></div>
+    <div class="tab-page" id="tab-savings"><div class="page-header"><div><div class="page-title">Épargne 🐖</div><div class="page-sub" id="savingsSubtitle"></div></div></div><div id="savingsList"></div></div>
+    <div class="tab-page" id="tab-settings">
+      <div class="page-header"><div><div class="page-title">Paramètres</div></div></div>
+      <div class="settings-sec"><div style="text-align:center;padding:8px 0 18px"><div class="avatar" id="avatarLetter">?</div><div class="profile-name" id="profileNameEl">Utilisateur</div><div class="profile-sub">Compte personnel</div></div><div class="settings-group"><div class="srow" onclick="Modals.openProfile()"><span class="srow-icon">👤</span><div class="srow-info"><div class="srow-name">Modifier le profil</div><div class="srow-desc">Nom, devise</div></div><div class="srow-right">›</div></div></div></div>
+      <div class="settings-sec"><div class="settings-lbl">Apparence</div><div class="settings-group"><div class="srow"><span class="srow-icon">🌙</span><div class="srow-info"><div class="srow-name">Mode sombre</div><div class="srow-desc">Thème de l'application</div></div><label class="toggle"><input type="checkbox" id="darkToggle" onchange="App.toggleTheme(this.checked)"/><div class="toggle-track"></div></label></div></div></div>
+      
+      <div class="settings-sec">
+        <div class="settings-lbl">Personnalisation</div>
+        <div class="settings-group">
+          <div class="srow" onclick="Modals.openHomeAccountsSettings()">
+            <span class="srow-icon">🏠</span>
+            <div class="srow-info">
+              <div class="srow-name">Comptes sur l'accueil</div>
+              <div class="srow-desc">Choisir quels comptes afficher</div>
+            </div>
+            <div class="srow-right">›</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-sec">
+        <div class="settings-lbl">Budget</div>
+        <div class="settings-group">
+          <div class="srow" onclick="Modals.openBudgetSettings()">
+            <span class="srow-icon">🎯</span>
+            <div class="srow-info">
+              <div class="srow-name">Objectif mensuel</div>
+              <div class="srow-desc" id="budgetSummary">Aucun objectif défini</div>
+            </div>
+            <div class="srow-right">›</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-sec" id="pwaInstallSec"><div class="settings-lbl">Application</div><div id="pwaInstallArea"></div></div>
+      <div class="settings-sec"><div class="settings-lbl">Sauvegarde fichier</div><div id="fsyncSection"></div></div>
+      <div class="settings-sec"><div class="settings-lbl">Données</div><div class="settings-group">
+        <div class="srow" onclick="Modals.openCatBudgets()"><span class="srow-icon">🎯</span><div class="srow-info"><div class="srow-name">Budgets par catégorie</div><div class="srow-desc">Plafond mensuel et alertes</div></div><div class="srow-right">›</div></div>
+        <div class="srow" onclick="Modals.openRecurring()"><span class="srow-icon">🔁</span><div class="srow-info"><div class="srow-name">Transactions récurrentes</div><div class="srow-desc">Loyer, abonnements, salaire…</div></div><div class="srow-right">›</div></div>
+        <div class="srow" onclick="Actions.exportJSON()"><span class="srow-icon">💾</span><div class="srow-info"><div class="srow-name">Sauvegarde complète (JSON)</div><div class="srow-desc">Télécharger toutes les données</div></div><div class="srow-right">›</div></div>
+        <div class="srow" onclick="UI.$('importFile').click()"><span class="srow-icon">📥</span><div class="srow-info"><div class="srow-name">Restaurer une sauvegarde</div><div class="srow-desc">Importer un fichier JSON</div></div><div class="srow-right">›</div></div>
+        <input type="file" id="importFile" accept=".json,application/json" hidden onchange="Actions.importJSON(this.files[0]); this.value=''"/>
+        <div class="srow" onclick="Actions.exportCSV()"><span class="srow-icon">📤</span><div class="srow-info"><div class="srow-name">Exporter en CSV</div><div class="srow-desc">Télécharger les transactions</div></div><div class="srow-right">›</div></div>
+        <div class="srow" onclick="Modals.confirmReset()"><span class="srow-icon">🗑️</span><div class="srow-info"><div class="srow-name" style="color:var(--red)">Réinitialiser</div><div class="srow-desc">Supprimer toutes les données</div></div><div class="srow-right" style="color:var(--red)">›</div></div>
+      </div></div>
+      <div class="app-version">Budget App v7.0 · Export CSV · Graphique solde · Notifications · Accessibilité · Mode hors-ligne</div>
+    </div>
+  </div>
+  <div class="detail-panel" id="detailPanel"><div class="detail-topbar"><button class="detail-back" onclick="Nav.closeDetail()">‹ Retour</button><div class="detail-topbar-title" id="detailTitle"></div><div class="detail-topbar-right" id="detailTopRight"></div></div><div class="detail-body" id="detailBody"></div></div>
+  <div class="bottom-nav"><button class="nav-btn active" id="nav-home" onclick="Nav.go('home')" aria-label="Accueil"><span class="ni">🏠</span><span>Accueil</span></button><button class="nav-btn" id="nav-accounts" onclick="Nav.go('accounts')" aria-label="Comptes"><span class="ni">💳</span><span>Comptes</span></button><button class="nav-btn" id="nav-savings" onclick="Nav.go('savings')" aria-label="Épargne"><span class="ni">🐖</span><span>Épargne</span></button><button class="nav-btn" id="nav-settings" onclick="Nav.go('settings')" aria-label="Réglages"><span class="ni">⚙️</span><span>Réglages</span></button><button class="nav-add" id="navAdd" onclick="Nav.addAction()" aria-label="Ajouter">＋</button></div>
+  <div class="modal-overlay" id="catBudgetOverlay" role="dialog" aria-modal="true" aria-label="Budgets par catégorie"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text">🎯 Budgets par catégorie</span><button class="modal-close" onclick="Modals.close('catBudgetOverlay')">✕</button></div>
+    <div class="tx-meta" style="margin-bottom:10px">Plafond mensuel par catégorie. Laisse vide pour ne pas en fixer. Alerte à 80 % et au dépassement.</div>
+    <div id="catBudgetFields"></div>
+    <button class="btn-primary btn-blue" onclick="Actions.saveCatBudgets()">Enregistrer</button></div></div>
+  <div class="modal-overlay" id="recurOverlay" role="dialog" aria-modal="true" aria-label="Transactions récurrentes"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text">🔁 Récurrentes</span><button class="modal-close" onclick="Modals.close('recurOverlay')">✕</button></div>
+    <div id="recurList"></div>
+    <div class="field"><label>Nouvelle récurrence</label><select id="rcType"><option value="expense">💸 Dépense</option><option value="income">💵 Revenu</option></select></div>
+    <div class="field"><label>Montant</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="rcAmt" min="1"/></div></div>
+    <div class="field"><label>Description</label><input type="text" id="rcDesc" maxlength="60"/></div>
+    <div class="field"><label>Catégorie</label><select id="rcCat"></select></div>
+    <div class="field"><label>Compte</label><select id="rcAcc"></select></div>
+    <div class="field"><label>Jour du mois (1-31)</label><input type="number" id="rcDay" min="1" max="31" value="1"/></div>
+    <button class="btn-primary btn-blue" onclick="Actions.addRecurring()">Ajouter</button></div></div>
+  <div class="toast" id="toast"></div>
+
+  <!-- MODAL: Transfert entre comptes (original) -->
+  <div class="modal-overlay" id="transferModal" role="dialog" aria-modal="true" aria-label="Transfert entre comptes">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">
+        <span class="modal-title-text">🔄 Transfert entre comptes</span>
+        <button class="modal-close" onclick="Modals.close('transferModal')">✕</button>
+      </div>
+      <div class="field">
+        <label>Compte source (débité)</label>
+        <select id="transferFromAccount"></select>
+      </div>
+      <div class="field">
+        <label>Compte destination (crédité)</label>
+        <select id="transferToAccount"></select>
+      </div>
+      <div class="field">
+        <label>Montant</label>
+        <div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="transferAmount" placeholder="0" min="1"/></div>
+      </div>
+      <div class="field">
+        <label>Description (optionnel)</label>
+        <input type="text" id="transferDesc" placeholder="Ex: Virement" maxlength="80"/>
+      </div>
+      <button class="btn-primary btn-blue" onclick="Actions.saveTransfer()">Effectuer le transfert</button>
+    </div>
+  </div>
+
+  <!-- MODAL: Transfert vers épargne / depuis épargne -->
+  <div class="modal-overlay" id="transferSavingModal">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">
+        <span class="modal-title-text">🔄 Transfert compte ↔ épargne</span>
+        <button class="modal-close" onclick="Modals.close('transferSavingModal')">✕</button>
+      </div>
+      <div class="field">
+        <label>Direction</label>
+        <select id="transferDirection">
+          <option value="accountToSaving">Compte → Épargne</option>
+          <option value="savingToAccount">Épargne → Compte</option>
+        </select>
+      </div>
+      <div class="field" id="transferSourceAccountField">
+        <label>Compte source</label>
+        <select id="transferSourceAccount"></select>
+      </div>
+      <div class="field" id="transferSourceSavingField" style="display:none">
+        <label>Épargne source</label>
+        <select id="transferSourceSaving"></select>
+      </div>
+      <div class="field" id="transferDestAccountField">
+        <label>Compte destination</label>
+        <select id="transferDestAccount"></select>
+      </div>
+      <div class="field" id="transferDestSavingField" style="display:none">
+        <label>Épargne destination</label>
+        <select id="transferDestSaving"></select>
+      </div>
+      <div class="field">
+        <label>Montant</label>
+        <div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="transferSavingAmount" placeholder="0" min="1"/></div>
+      </div>
+      <div class="field">
+        <label>Description (optionnel)</label>
+        <input type="text" id="transferSavingDesc" placeholder="Ex: Alimenter épargne" maxlength="80"/>
+      </div>
+      <button class="btn-primary btn-blue" onclick="Actions.saveTransferToSaving()">Effectuer le transfert</button>
+    </div>
+  </div>
+
+  <!-- MODAL: Transaction avec sélecteur de compte -->
+  <div class="modal-overlay" id="txOverlay" role="dialog" aria-modal="true" aria-label="Nouvelle transaction">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title"><span class="modal-title-text">Nouvelle transaction</span><button class="modal-close" onclick="Modals.close('txOverlay')">✕</button></div>
+      <div class="type-toggle"><button class="type-btn ae" id="btnExp" onclick="Modals.setTxType('expense')">💸 Dépense</button><button class="type-btn" id="btnInc" onclick="Modals.setTxType('income')">💵 Revenu</button></div>
+      <div class="field"><label>Montant</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="txAmt" placeholder="0" min="1"/></div></div>
+      <div class="field"><label>Description</label><input type="text" id="txDesc" placeholder="Ex: Courses au marché" maxlength="80"/></div>
+      <div class="field"><label>Compte</label><select id="txAccountId"></select></div>
+      <div class="field"><label>Catégorie</label><div class="cat-picker" id="txCats"></div></div>
+      <button class="btn-primary btn-blue" id="txSaveBtn" onclick="Actions.saveTx()">Enregistrer</button>
+    </div>
+  </div>
+
+  <!-- MODAL: Account Operation -->
+  <div class="modal-overlay" id="acOpOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="acOpTitle">Opération</span><button class="modal-close" onclick="Modals.close('acOpOverlay')">✕</button></div><div class="warn-box" id="acOpWarn"></div><div class="field"><label>Montant</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="acOpAmt" placeholder="0" min="1"/></div></div><div class="field"><label id="acOpDescLbl">Description</label><input type="text" id="acOpDesc" maxlength="80"/></div><button class="btn-primary" id="acOpBtn" onclick="Actions.saveAccountOp()">Confirmer</button></div></div>
+
+  <!-- MODAL: Account Form -->
+  <div class="modal-overlay" id="acFormOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="acFormTitle">Nouveau compte</span><button class="modal-close" onclick="Modals.close('acFormOverlay')">✕</button></div><div class="field"><label>Nom</label><input type="text" id="acFormName" maxlength="40"/></div><div class="field"><label>Icône</label><div class="emoji-picker" id="acFormEmojis"></div></div><div class="field"><label>Couleur</label><div class="color-picker" id="acFormColors"></div></div><div class="field"><label>Type</label><select id="acFormType"><option value="bank">Banque</option><option value="mobile">Mobile Money</option><option value="cash">Espèces</option></select></div>
+      <div class="field"><label>Afficher sur l'accueil</label><select id="acFormShowOnHome"><option value="true">✅ Oui, afficher</option><option value="false">❌ Non, masquer</option></select></div>
+      <div class="field"><label>Solde initial</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="acFormBal" min="0"/></div></div>
+      <button class="btn-primary btn-blue" onclick="Actions.saveAccountForm()">Enregistrer</button></div></div>
+
+  <!-- MODAL: Rename -->
+  <div class="modal-overlay" id="renameOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="renameTitle">Renommer</span><button class="modal-close" onclick="Modals.close('renameOverlay')">✕</button></div><div class="field"><label>Nouveau nom</label><input type="text" id="renameInput" maxlength="40"/></div><button class="btn-primary btn-blue" onclick="Actions.saveRename()">Enregistrer</button></div></div>
+
+  <!-- MODAL: Saving Form -->
+  <div class="modal-overlay" id="savFormOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="savFormTitle">Nouvelle épargne</span><button class="modal-close" onclick="Modals.close('savFormOverlay')">✕</button></div><div class="field"><label>Nom</label><input type="text" id="savFormName" maxlength="40"/></div><div class="field"><label>Icône</label><div class="emoji-picker" id="savFormEmojis"></div></div><div class="field"><label>Objectif (optionnel)</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="savFormGoal" min="0"/></div></div><button class="btn-primary btn-blue" onclick="Actions.saveSavingForm()">Créer</button></div></div>
+
+  <!-- MODAL: Saving Operation -->
+  <div class="modal-overlay" id="savOpOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="savOpTitle">Mettre de côté</span><button class="modal-close" onclick="Modals.close('savOpOverlay')">✕</button></div><div class="warn-box" id="savOpWarn"></div><div class="field"><label>Montant</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="number" id="savOpAmt" min="1"/></div></div><div class="field"><label>Note</label><input type="text" id="savOpNote" maxlength="60"/></div><button class="btn-primary" id="savOpBtn" onclick="Actions.saveSavingOp()">Confirmer</button></div></div>
+
+  <!-- MODAL: Stats -->
+  <div class="modal-overlay" id="statsOverlay">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">
+        <span class="modal-title-text">Statistiques</span>
+        <div class="month-nav" style="gap:5px">
+          <button class="month-btn" id="statsMonthPrev">‹</button>
+          <span class="month-lbl" id="statsMonthLbl" style="min-width:78px;font-size:.73rem">Avril 2026</span>
+          <button class="month-btn" id="statsMonthNext">›</button>
+        </div>
+        <button class="modal-close" onclick="Modals.close('statsOverlay')" style="margin-left:8px">✕</button>
+      </div>
+      <div class="pie-card"><div class="pie-wrap"><canvas id="pieCanvas" width="120" height="120"></canvas><div class="pie-legend" id="pieLegend"></div></div></div>
+      <div class="prog-list" id="progList"></div>
+      <!-- Graphique évolution du solde -->
+      <div class="pie-card" style="margin-top:12px">
+        <div style="font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Évolution du solde (6 mois)</div>
+        <canvas id="balanceChartCanvas" width="320" height="110" style="width:100%;display:block"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Profile -->
+  <div class="modal-overlay" id="profileOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text">Mon profil</span><button class="modal-close" onclick="Modals.close('profileOverlay')">✕</button></div><div class="field"><label>Prénom</label><input type="text" id="profileName" maxlength="30"/></div><div class="field"><label>Devise</label><select id="currencySel"><option value="FCFA">FCFA</option><option value="EUR">EUR</option><option value="USD">USD</option></select></div><button class="btn-primary btn-blue" onclick="Actions.saveProfile()">Enregistrer</button></div></div>
+
+  <!-- MODAL: Confirm -->
+  <div class="modal-overlay" id="confirmOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="confirmTitle">Confirmer</span><button class="modal-close" onclick="Modals.close('confirmOverlay')">✕</button></div><div id="confirmMsg"></div><div class="confirm-row"><button class="btn-primary btn-blue" onclick="Modals.close('confirmOverlay')">Annuler</button><button class="btn-primary btn-red" id="confirmBtn">Confirmer</button></div></div></div>
+
+  <!-- MODAL: Gestion des comptes sur l'accueil -->
+  <div class="modal-overlay" id="homeAccountsModal">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">
+        <span class="modal-title-text">Comptes sur l'accueil</span>
+        <button class="modal-close" onclick="Modals.close('homeAccountsModal')">✕</button>
+      </div>
+      <div id="homeAccountsList" style="max-height: 400px; overflow-y: auto;"></div>
+      <button class="btn-primary btn-blue" onclick="Modals.close('homeAccountsModal'); App.renderHome();" style="margin-top:12px">Fermer</button>
+    </div>
+  </div>
+
+  <!-- MODAL: Objectif mensuel -->
+  <div class="modal-overlay" id="budgetModal">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">
+        <span class="modal-title-text">🎯 Objectif mensuel</span>
+        <button class="modal-close" onclick="Modals.close('budgetModal')">✕</button>
+      </div>
+      <div class="field">
+        <label>Budget maximum (FCFA)</label>
+        <div class="amt-wrap">
+          <span class="amt-sign">F</span>
+          <input type="number" id="budgetAmount" placeholder="0" min="0" step="1000"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>Mois</label>
+        <select id="budgetMonth">
+          <option value="0">Janvier</option><option value="1">Février</option><option value="2">Mars</option>
+          <option value="3">Avril</option><option value="4">Mai</option><option value="5">Juin</option>
+          <option value="6">Juillet</option><option value="7">Août</option><option value="8">Septembre</option>
+          <option value="9">Octobre</option><option value="10">Novembre</option><option value="11">Décembre</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Année</label>
+        <input type="number" id="budgetYear" value="2026" min="2024" max="2030" step="1"/>
+      </div>
+      <button class="btn-primary btn-blue" onclick="Actions.saveMonthlyBudget()">Enregistrer</button>
+    </div>
+  </div>
+
+  <!-- CONTEXT MENU -->
+  <div class="ctx-overlay" id="ctxOverlay" onclick="Modals.closeCtx(event)"><div class="ctx-menu"><div class="ctx-handle"></div><div class="ctx-title" id="ctxTitle"></div><div id="ctxItems"></div></div></div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
