@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8b6cff"/>
+      <stop offset="1" stop-color="#241f52"/>
+    </linearGradient>
+    <linearGradient id="coin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe27a"/>
+      <stop offset="1" stop-color="#ffb800"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <circle cx="256" cy="178" r="62" fill="url(#coin)"/>
+  <circle cx="256" cy="178" r="44" fill="none" stroke="#d99700" stroke-width="7"/>
+  <rect x="246" y="154" width="20" height="48" rx="10" fill="#d99700"/>
+  <rect x="112" y="224" width="288" height="150" rx="30" fill="#ece6ff"/>
+  <rect x="112" y="224" width="288" height="46" rx="30" fill="#c9bbff"/>
+  <rect x="112" y="248" width="288" height="22" fill="#c9bbff"/>
+  <rect x="320" y="272" width="104" height="70" rx="22" fill="#2b1a6e"/>
+  <circle cx="354" cy="307" r="13" fill="#ffd23f"/>
+</svg>
