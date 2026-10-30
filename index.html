@@ -1056,6 +1056,152 @@ body{background:radial-gradient(ellipse at 50% -10%,rgba(139,108,255,.16),transp
 .ac-card[data-color] .ac-card-btn{background:color-mix(in srgb,var(--ac-on,#fff) 17%,transparent);color:var(--ac-on,var(--text))}
 .ac-card[data-color] .main-account-tag{background:color-mix(in srgb,var(--ac-on,#fff) 20%,transparent);color:var(--ac-on,var(--text))}
 .ac-card[data-color] .ac-tool,.ac-card[data-color] .ac-tool.del{background:color-mix(in srgb,var(--ac-on,#fff) 17%,transparent);color:var(--ac-on,var(--text));border-color:color-mix(in srgb,var(--ac-on,#fff) 26%,transparent)}
+
+/* ==========================================================
+   LIQUID GLASS — couches flottantes (nav, fenêtres, messages, en-têtes)
+   Les cartes pleines et le bouton « + » ne changent pas.
+========================================================== */
+:root{--glass-a:62%;--glass-m:80%;--glass-edge:rgba(255,255,255,.16);--glass-line:rgba(255,255,255,.10);--glass-shadow:rgba(0,0,0,.55)}
+[data-theme="light"]{--glass-edge:rgba(255,255,255,.75);--glass-line:rgba(255,255,255,.55);--glass-shadow:rgba(40,28,110,.30)}
+/* repli sans flou ou transparence réduite : fonds presque opaques */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){:root{--glass-a:95%;--glass-m:98%}}
+@media (prefers-reduced-transparency:reduce){
+  :root{--glass-a:96%;--glass-m:98%}
+  #mainNav,.modal-overlay .modal,.toast,.detail-topbar{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+}
+
+/* Barre de navigation (mobile) : pastille flottante en verre */
+@media(max-width:799px){
+  #mainNav{
+    left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));padding:6px;border-radius:30px;
+    background:color-mix(in srgb,var(--surface) var(--glass-a),transparent);
+    -webkit-backdrop-filter:blur(22px) saturate(1.7);backdrop-filter:blur(22px) saturate(1.7);
+    border:1px solid var(--glass-line);
+    box-shadow:0 14px 34px -12px var(--glass-shadow),inset 0 1px 0 var(--glass-edge),inset 0 -1px 0 color-mix(in srgb,var(--glass-edge) 30%,transparent);
+    transition:left .4s cubic-bezier(.22,1,.36,1),right .4s cubic-bezier(.22,1,.36,1),padding .3s,border-radius .3s;
+  }
+  #mainNav .nav-btn{border-radius:24px;padding:7px 12px;transition:background .25s,color .25s,transform .45s cubic-bezier(.2,1.25,.3,1)}
+  #mainNav .nav-btn:active{transform:scale(.9)}
+  #mainNav .nav-btn.active{background:color-mix(in srgb,var(--blue) 20%,transparent);box-shadow:inset 0 1px 0 var(--glass-edge),0 4px 12px -6px color-mix(in srgb,var(--blue) 60%,transparent)}
+  #mainNav .nav-btn.active::before{display:none}
+  #mainNav .nav-btn>span:not(.ni){max-height:14px;overflow:hidden;transition:max-height .28s cubic-bezier(.22,1,.36,1),opacity .2s,margin .28s}
+  /* se réduit quand on descend dans une liste */
+  #mainNav.compact{left:46px;right:46px;padding:4px}
+  #mainNav.compact .nav-btn{padding:6px 12px}
+  #mainNav.compact .nav-btn>span:not(.ni){max-height:0;opacity:0;margin:-3px 0 0}
+}
+/* Barre latérale (PC) */
+@media(min-width:800px){
+  #mainNav{
+    background:color-mix(in srgb,var(--surface) var(--glass-a),transparent);
+    -webkit-backdrop-filter:blur(24px) saturate(1.7);backdrop-filter:blur(24px) saturate(1.7);
+    border-right:1px solid var(--glass-line);box-shadow:inset -1px 0 0 var(--glass-edge);
+  }
+  #mainNav .nav-btn.active{box-shadow:inset 0 1px 0 var(--glass-edge)}
+}
+
+/* Fenêtres (feuilles) en verre, ouverture fluide, fermeture plus vive */
+.modal-overlay{background:rgba(5,4,18,.42);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:opacity .3s}
+.modal-overlay .modal{
+  background:color-mix(in srgb,var(--surface) var(--glass-m),transparent);
+  -webkit-backdrop-filter:blur(28px) saturate(1.7);backdrop-filter:blur(28px) saturate(1.7);
+  border:1px solid var(--glass-line);border-bottom:0;
+  box-shadow:inset 0 1px 0 var(--glass-edge),0 -22px 50px -22px var(--glass-shadow);
+  transition:transform .55s cubic-bezier(.22,1,.36,1);
+}
+.modal-overlay:not(.open) .modal{transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.modal-handle{transition:background .2s,width .2s}
+.modal-overlay.open .modal-handle:active{width:54px}
+
+/* Messages en verre avec petit rebond */
+.toast{
+  background:color-mix(in srgb,var(--surface) 72%,transparent);
+  -webkit-backdrop-filter:blur(18px) saturate(1.6);backdrop-filter:blur(18px) saturate(1.6);
+  border:1px solid var(--glass-line);
+  box-shadow:inset 0 1px 0 var(--glass-edge),0 10px 26px -12px var(--glass-shadow);
+  bottom:calc(92px + env(safe-area-inset-bottom,0px));
+  transition:opacity .25s,transform .5s cubic-bezier(.2,1.25,.3,1);
+}
+
+/* En-tête des fiches : verre au-dessus du contenu qui défile */
+.detail-topbar{
+  position:absolute;top:0;left:0;right:0;z-index:3;border-bottom:1px solid var(--glass-line);
+  background:color-mix(in srgb,var(--bg) 62%,transparent);
+  -webkit-backdrop-filter:blur(20px) saturate(1.7);backdrop-filter:blur(20px) saturate(1.7);
+  box-shadow:inset 0 -1px 0 var(--glass-edge);
+}
+.detail-body{padding-top:76px}
+
+/* Transition entre onglets */
+::view-transition-old(root),::view-transition-new(root){animation-duration:.24s;animation-timing-function:cubic-bezier(.32,.72,0,1)}
+
+/* ==========================================================
+   ONGLET COMPTES, OBJECTIF D'ÉPARGNE, BOUTON « + »
+========================================================== */
+/* Résumé du patrimoine */
+.acs-summary{background:var(--surface);border:1px solid var(--border);border-radius:26px;padding:16px 18px 15px;margin:4px 0 8px;box-shadow:0 5px 0 var(--border2)}
+.acs-lbl{font:800 .62rem 'Nunito',system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+.acs-total{font:700 1.65rem 'Fredoka','Nunito',system-ui,sans-serif;color:var(--text);margin:3px 0 13px;letter-spacing:-.01em}
+.acs-bar{display:flex;gap:3px;height:9px;border-radius:99px;overflow:hidden}
+.acs-bar i{display:block;height:100%;min-width:8px;border-radius:99px}
+.acs-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:11px}
+.acs-legend span{display:flex;align-items:center;gap:6px;font:700 .7rem 'Nunito',system-ui,sans-serif;color:var(--text2)}
+.acs-legend span::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--c)}
+.acs-title{margin:20px 6px 10px}
+
+/* Carte de compte allégée */
+.ac-card[data-color]{padding:16px 16px 15px;border-radius:26px;margin-bottom:14px}
+.ac-card-header{gap:10px;align-items:flex-start;margin-bottom:0}
+.ac-card-brand{flex:1;min-width:0;align-items:center}
+.ac-card-id{min-width:0}
+.ac-card-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-card-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.ac-card-bal{flex-shrink:0}
+.ac-card-bal-val{font-size:1.1rem}
+.ac-more{width:32px;height:32px;flex-shrink:0;border:0;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.15rem;line-height:1;font-weight:800;padding:0 0 5px;
+  background:color-mix(in srgb,var(--ac-on,var(--text)) 16%,transparent);color:var(--ac-on,var(--text));transition:transform .35s cubic-bezier(.2,1.25,.3,1),background .2s}
+.ac-more:active{transform:scale(.88)}
+.ac-card-footer{margin-top:14px;gap:8px}
+.ac-card[data-color] .ac-card-btn{min-height:36px;height:36px;padding:0 10px;border-radius:99px;font-size:.72rem;font-weight:800;gap:7px;box-shadow:none;border:1px solid color-mix(in srgb,var(--ac-on,#fff) 18%,transparent)}
+.ac-card[data-color] .ac-card-btn:active{transform:scale(.95);box-shadow:none}
+.ac-card[data-color] .ac-action-mark{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;background:color-mix(in srgb,var(--ac-on,#fff) 22%,transparent)}
+.ac-card[data-color] .ac-card-footer .tx-meta{padding:2px 0 0!important;text-align:left!important;font-size:.7rem;grid-column:auto}
+
+/* Objectif sur la carte */
+.ac-goal{margin-top:14px;color:var(--ac-on,var(--text))}
+.ac-goal-top{display:flex;justify-content:space-between;align-items:baseline;font:800 .76rem 'Nunito',system-ui,sans-serif}
+.ac-goal-top b{font-family:'Fredoka','Nunito',sans-serif;font-size:.9rem}
+.ac-goal-bar{height:10px;border-radius:99px;margin:7px 0 6px;overflow:hidden;background:color-mix(in srgb,var(--ac-on,#fff) 22%,transparent)}
+.ac-goal-bar i{display:block;height:100%;border-radius:99px;background:var(--ac-on,#fff);transition:width .9s cubic-bezier(.22,1,.36,1)}
+.ac-goal-sub{font:700 .68rem 'Nunito',system-ui,sans-serif;opacity:.85}
+
+/* Mini-cartes Accueil */
+.mini-ac .mac-goal{height:5px;border-radius:99px;margin-top:7px;overflow:hidden;background:color-mix(in srgb,var(--ac-on,#fff) 24%,transparent)}
+.mini-ac .mac-goal i{display:block;height:100%;border-radius:99px;background:var(--ac-on,#fff)}
+
+/* Bloc objectif de la fiche */
+.goal-card{background:var(--surface);border:1px solid var(--border);border-radius:26px;padding:16px;margin:14px 0;box-shadow:0 5px 0 var(--border2)}
+.goal-top{display:flex;align-items:center;gap:16px}
+.goal-ring{position:relative;width:88px;height:88px;flex-shrink:0}
+.goal-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.goal-ring circle{fill:none;stroke-width:9;stroke-linecap:round}
+.gr-bg{stroke:var(--surface2)}
+.gr-fg{stroke:var(--account-card,var(--blue));transition:stroke-dashoffset .9s cubic-bezier(.22,1,.36,1)}
+.goal-ring span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 1.1rem 'Fredoka','Nunito',sans-serif;color:var(--text)}
+.goal-head{min-width:0}
+.goal-title{font:800 .78rem 'Nunito',system-ui,sans-serif;color:var(--text2)}
+.goal-main{font:700 1.3rem 'Fredoka','Nunito',sans-serif;color:var(--text);margin-top:3px}
+.goal-of{font:700 .74rem 'Nunito',system-ui,sans-serif;color:var(--text3)}
+.goal-lines{display:grid;gap:9px;margin-top:14px;padding-top:13px;border-top:1px dashed var(--border2)}
+.goal-line{display:flex;justify-content:space-between;gap:12px;font:700 .76rem 'Nunito',system-ui,sans-serif;color:var(--text2)}
+.goal-line b{color:var(--text);font-weight:800;text-align:right}
+.goal-edit{margin-top:13px;width:100%;height:38px;border-radius:99px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);font:800 .76rem 'Nunito',system-ui,sans-serif;cursor:pointer}
+.goal-edit:active{transform:scale(.97)}
+
+/* Bouton « + » plus discret (mobile) */
+@media(max-width:799px){
+  .nav-add{width:50px;height:50px;border-radius:18px;font-size:1.55rem;font-weight:700;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 88px);border-width:2px}
+}
 </style>
 </head>
 <body>
@@ -1228,7 +1374,8 @@ body{background:radial-gradient(ellipse at 50% -10%,rgba(139,108,255,.16),transp
   <!-- MODAL: Account Form -->
   <div class="modal-overlay" id="acFormOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="acFormTitle">Nouveau compte</span><button class="modal-close" onclick="Modals.close('acFormOverlay')">✕</button></div>
       <section class="form-section"><div class="form-section-head"><span class="form-section-icon">🏦</span><div><h3>Identité du compte</h3><p>Choisissez son nom et son icône.</p></div></div><div class="field"><label>Nom du compte</label><input type="text" id="acFormName" maxlength="40" autocomplete="off" autocorrect="off" spellcheck="false"/></div><div class="field"><label>Icônes proposées</label><div class="emoji-picker" id="acFormEmojis"></div><details class="emoji-custom-fold"><summary>Choisir mon propre emoji</summary><div class="custom-emoji-field"><input type="text" id="acFormCustomEmoji" aria-label="Votre emoji pour ce compte" placeholder="Saisissez un emoji" oninput="Modals.previewCustomEmoji(this,'acFormEmojiPreview','#acFormEmojis')"/><span class="emoji-preview" id="acFormEmojiPreview" aria-hidden="true">🏦</span></div></details></div></section>
-      <section class="form-section"><div class="form-section-head"><span class="form-section-icon">🎨</span><div><h3>Apparence</h3><p>Personnalisez la carte du compte.</p></div></div><div class="field"><label>Couleur de la carte</label><div class="color-picker" id="acFormColors"></div><details class="emoji-custom-fold color-custom-fold"><summary>Choisir une couleur personnalisée</summary><label class="custom-color-row"><span>Couleur de la carte</span><input type="color" id="acFormCustomColor" aria-label="Couleur personnalisée de la carte" oninput="Modals.pickCustomColor(this.value)"/></label></details></div><div class="field"><label>Type de compte</label><select id="acFormType"><option value="bank">Banque</option><option value="mobile">Mobile Money</option><option value="cash">Espèces</option><option value="savings">Épargne</option></select></div></section>
+      <section class="form-section"><div class="form-section-head"><span class="form-section-icon">🎨</span><div><h3>Apparence</h3><p>Personnalisez la carte du compte.</p></div></div><div class="field"><label>Couleur de la carte</label><div class="color-picker" id="acFormColors"></div><details class="emoji-custom-fold color-custom-fold"><summary>Choisir une couleur personnalisée</summary><label class="custom-color-row"><span>Couleur de la carte</span><input type="color" id="acFormCustomColor" aria-label="Couleur personnalisée de la carte" oninput="Modals.pickCustomColor(this.value)"/></label></details></div><div class="field"><label>Type de compte</label><select id="acFormType" onchange="Modals.toggleGoalSection()"><option value="bank">Banque</option><option value="mobile">Mobile Money</option><option value="cash">Espèces</option><option value="savings">Épargne</option></select></div></section>
+      <section class="form-section" id="acFormGoalSection" style="display:none"><div class="form-section-head"><span class="form-section-icon">🎯</span><div><h3>Objectif d’épargne</h3><p>Fixez le montant à atteindre, avec une date si vous le souhaitez.</p></div></div><div class="field"><label>Montant à atteindre</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="text" id="acFormGoalAmt" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="0"/></div></div><div class="field"><label>Date cible (facultatif)</label><input type="date" id="acFormGoalDate"/><div class="tx-meta">Laissez le montant vide pour ne pas définir d’objectif.</div></div></section>
       <section class="form-section"><div class="form-section-head"><span class="form-section-icon">⚙️</span><div><h3>Préférences</h3><p>Configurez son rôle et son affichage.</p></div></div><div class="field"><label>Compte principal</label><select id="acFormMain"></select><div class="tx-meta">Les revenus, dépenses et épargnes seront automatiquement rattachés à ce compte.</div></div><div class="field"><label>Afficher sur l’accueil</label><select id="acFormShowOnHome"><option value="true">✅ Oui, afficher</option><option value="false">❌ Non, masquer</option></select></div><div class="field"><label>Solde initial</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="text" id="acFormBal" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="0"/></div></div></section>
       <button class="btn-primary btn-blue" onclick="Actions.saveAccountForm()">Enregistrer</button></div></div>
 
@@ -1342,6 +1489,45 @@ function normalizeEmoji(value, fallback) {
   return /\p{Extended_Pictographic}|\p{Regional_Indicator}/u.test(emoji) ? emoji : fallback;
 }
 const accountColor = (ac, fallback = 'var(--blue)') => ac?.customColor || COLOR_CSS[ac?.colorKey] || fallback;
+
+// ---- Types de compte & objectif d'épargne ----
+const ACCOUNT_TYPE_INFO = {
+  bank:    { label: 'Banque',       icon: '🏦', col: '#5aa2ff' },
+  mobile:  { label: 'Mobile Money', icon: '📱', col: '#ff7a59' },
+  cash:    { label: 'Espèces',      icon: '💵', col: '#ffc233' },
+  savings: { label: 'Épargne',      icon: '🐖', col: '#34c58a' }
+};
+const accountTypeInfo = t => ACCOUNT_TYPE_INFO[t] || ACCOUNT_TYPE_INFO.bank;
+const fmtLongDate = iso => new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+// Infos d'objectif d'un compte d'épargne (null si pas d'objectif)
+const goalInfo = ac => {
+  if (!ac || ac.type !== 'savings' || !ac.goal || !(ac.goal.target > 0)) return null;
+  const target = ac.goal.target, bal = Math.max(0, ac.balance || 0);
+  const reached = bal >= target, remaining = Math.max(0, target - bal), pct = Math.min(100, bal / target * 100);
+  let daysLeft = null, overdue = false, monthlyNeeded = null;
+  if (ac.goal.date) {
+    daysLeft = Math.ceil((new Date(ac.goal.date + 'T23:59:59') - Date.now()) / 86400000);
+    overdue = daysLeft < 0;
+    if (!reached && !overdue) monthlyNeeded = Math.ceil(remaining / Math.max(1, Math.ceil(daysLeft / 30.44)));
+  }
+  // rythme actuel : solde net ajouté sur les 90 derniers jours, ramené au mois
+  const since = Date.now() - 90 * 86400000;
+  let net = 0; DB.get('accountOps').forEach(o => { if (o.accountId === ac.id && !o.internal && new Date(o.date).getTime() >= since) net += accountOpDelta(o); });
+  const pace = net / 3;
+  let etaMonths = null, eta = null;
+  if (!reached && pace > 0) { etaMonths = Math.ceil(remaining / pace); eta = new Date(); eta.setMonth(eta.getMonth() + etaMonths); }
+  return { target, bal, pct, remaining, reached, date: ac.goal.date || '', daysLeft, overdue, monthlyNeeded, pace, eta, etaMonths };
+};
+// Félicitations une seule fois quand un objectif vient d'être atteint
+const goalTick = () => {
+  const done = [];
+  DB.get('accounts').forEach(ac => { const g = goalInfo(ac); if (g && g.reached && !ac.goal.done) done.push(ac.id); });
+  const undone = DB.get('accounts').filter(ac => { const g = goalInfo(ac); return g && !g.reached && ac.goal.done; }).map(ac => ac.id);
+  if (!done.length && !undone.length) return;
+  DB.update('accounts', acs => acs.forEach(a => { if (done.includes(a.id)) a.goal.done = true; if (undone.includes(a.id)) a.goal.done = false; }));
+  done.forEach(id => { const a = DB.get('accounts').find(x => x.id === id); if (a) setTimeout(() => UI.toast('🎉 Objectif atteint : ' + a.name, 'success'), 400); });
+};
+
 const accountStyle = ac => {
   const c = accountColor(ac);
   let st = `--account-card:${c}`;
@@ -2126,6 +2312,7 @@ const App = {
   },
 
   renderHome() {
+    goalTick();
     const lbl = MONTHS[this._month] + ' ' + this._year;
     UI.txt('monthLbl', lbl);
     UI.txt('welcomeSub', lbl);
@@ -2152,7 +2339,8 @@ const App = {
       <div class="mini-ac" data-color="${ac.customColor ? 'custom' : ac.colorKey}" style="${accountStyle(ac)};--ac-custom:${ac.customColor || 'transparent'}" onclick="if(!_lpFired)Nav.openDetail('account','${ac.id}')">
         <div class="mac-badge"><div class="mac-icon">${Utils.esc(ac.icon)}</div>${Utils.esc(ac.name)}</div>
         <div class="mac-bal" style="color:${ac.balance < 0 ? 'var(--red)' : 'var(--text)'}">${ac.balance < 0 ? '-' : ''}${Utils.fmtS(Math.abs(ac.balance))} F</div>
-        <div class="mac-sub">Solde</div>
+        <div class="mac-sub">${goalInfo(ac) ? 'Objectif · ' + Math.floor(goalInfo(ac).pct) + '%' : 'Solde'}</div>
+        ${goalInfo(ac) ? `<div class="mac-goal"><i style="width:${goalInfo(ac).pct.toFixed(1)}%"></i></div>` : ''}
       </div>
     `).join(''));
 
@@ -2328,33 +2516,54 @@ const App = {
   },
 
   renderAccounts() {
+    goalTick();
     const acs = DB.get('accounts');
     const total = acs.reduce((s, a) => s + a.balance, 0);
     UI.txt('accountsSubtitle', acs.length + ' compte' + (acs.length > 1 ? 's' : '') + ' · Total : ' + Utils.fmt(total));
     if (!acs.length) { UI.html('accountsList', emptyState('💳', 'Créez votre compte principal', 'Un compte principal est nécessaire pour enregistrer vos revenus, dépenses et épargnes.', `<button class="btn-primary btn-blue es-btn" onclick="Modals.openAccountForm()">＋ Créer le compte principal</button>`)); return; }
     const ops = DB.get('accountOps');
-    UI.html('accountsList', acs.map(ac => {
+    const card = ac => {
       const btns = this._acButtons(ac);
       const lpKey = LP.register(() => Modals.openCtxMenu('account', ac.id, ac.name));
-      const recentOp = ops.filter(o => o.accountId === ac.id && !o.internal).sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-      const lastTxt = recentOp ? 'Dernière op. : ' + Utils.fmtDate(recentOp.date) : 'Aucune opération';
+      const g = goalInfo(ac);
+      const goalHTML = g ? `<div class="ac-goal${g.reached ? ' done' : ''}">
+          <div class="ac-goal-top"><span>${g.reached ? '🎉 Objectif atteint' : '🎯 Objectif · ' + Utils.fmt(g.target)}</span><b>${Math.floor(g.pct)}%</b></div>
+          <div class="ac-goal-bar"><i style="width:${g.pct.toFixed(1)}%"></i></div>
+          <div class="ac-goal-sub">${g.reached ? 'Bravo, ' + Utils.fmt(g.target) + ' épargnés' : 'Reste ' + Utils.fmt(g.remaining) + (g.date ? (g.overdue ? ' · date dépassée' : ' · avant le ' + fmtLongDate(g.date)) : '')}</div>
+        </div>` : '';
       return `<div class="ac-card" data-color="${ac.customColor ? 'custom' : ac.colorKey}" style="${accountStyle(ac)}" data-lp="${lpKey}" onclick="if(!_lpFired)Nav.openDetail('account','${ac.id}')">
         <div class="ac-card-header">
           <div class="ac-card-brand">
             <div class="ac-card-logo">${Utils.esc(ac.icon)}</div>
-            <div><div class="ac-card-name">${Utils.esc(ac.name)}${ac.id === getMainAccountId() ? ' <small class="main-account-tag">Principal</small>' : ''}</div><div class="ac-card-sub">${lastTxt}</div></div>
+            <div class="ac-card-id"><div class="ac-card-name">${Utils.esc(ac.name)}</div><div class="ac-card-sub">${ac.id === getMainAccountId() ? '<small class="main-account-tag">Principal</small> ' : ''}${accountTypeInfo(ac.type).label}</div></div>
           </div>
           <div class="ac-card-bal">
             <div class="ac-card-bal-val" style="${ac.balance < 0 ? 'color:var(--red)' : ''}">${Utils.fmt(ac.balance)}</div>
             <div class="ac-card-bal-lbl">Solde</div>
           </div>
+          <button class="ac-more" aria-label="Plus d’actions pour ${Utils.esc(ac.name)}" onclick="event.stopPropagation();App.openAccountMenu('${ac.id}')">⋯</button>
         </div>
+        ${goalHTML}
         <div class="ac-card-footer">${btns}</div>
-        <div class="ac-tools"><button class="ac-tool" aria-label="Modifier ${Utils.esc(ac.name)}" onclick="event.stopPropagation();Modals.openAccountForm('${ac.id}')">✏️ Modifier</button><button class="ac-tool del" aria-label="Supprimer ${Utils.esc(ac.name)}" onclick="event.stopPropagation();Actions.confirmDeleteAccount('${ac.id}')">🗑️ Supprimer</button></div>
       </div>`;
-    }).join(''));
+    };
+    // Résumé du patrimoine, réparti par type
+    const byType = {};
+    acs.forEach(a => { const t = a.type || 'bank'; byType[t] = (byType[t] || 0) + a.balance; });
+    const keys = Object.keys(byType);
+    const posSum = keys.reduce((s, k) => s + Math.max(0, byType[k]), 0);
+    const seg = keys.filter(k => byType[k] > 0).map(k => `<i style="flex:${(byType[k] / posSum).toFixed(4)};background:${accountTypeInfo(k).col}"></i>`).join('');
+    const legend = keys.map(k => `<span style="--c:${accountTypeInfo(k).col}">${accountTypeInfo(k).label} · ${Utils.fmtS(byType[k])}</span>`).join('');
+    const summary = `<div class="acs-summary"><div class="acs-lbl">Patrimoine total</div><div class="acs-total">${Utils.fmt(total)}</div>${posSum > 0 ? `<div class="acs-bar">${seg}</div>` : ''}<div class="acs-legend">${legend}</div></div>`;
+    const plain = acs.filter(a => a.type !== 'savings'), saving = acs.filter(a => a.type === 'savings');
+    const grouped = plain.length && saving.length;
+    UI.html('accountsList', summary
+      + (grouped ? '<div class="sec-title acs-title">Comptes</div>' : '') + plain.map(card).join('')
+      + (grouped ? '<div class="sec-title acs-title">Épargne</div>' : '') + saving.map(card).join(''));
     LP.bindAll();
   },
+
+  openAccountMenu(id) { const ac = DB.get('accounts').find(a => a.id === id); if (ac) Modals.openCtxMenu('account', ac.id, ac.name); },
 
   _acButtons(ac) {
     if (ac.id === getMainAccountId()) return '<div class="tx-meta" style="grid-column:1/-1;text-align:center;padding:10px">Les opérations courantes sont gérées depuis l’accueil.</div>';
@@ -2371,8 +2580,24 @@ const App = {
     if (!ac) return;
     UI.txt('detailTitle', ac.name);
     UI.html('detailTopRight', '');
+    goalTick();
     const ops = DB.get('accountOps').filter(o => o.accountId === id && !o.internal).sort((a, b) => new Date(b.date) - new Date(a.date));
     const btns = this._detailButtons(ac);
+    const g = goalInfo(ac), C = 2 * Math.PI * 34;
+    const goalCard = g ? `<div class="goal-card" style="${accountStyle(ac)}">
+        <div class="goal-top">
+          <div class="goal-ring"><svg viewBox="0 0 80 80" aria-hidden="true"><circle class="gr-bg" cx="40" cy="40" r="34"/><circle class="gr-fg" cx="40" cy="40" r="34" stroke-dasharray="${C.toFixed(2)}" stroke-dashoffset="${(C * (1 - g.pct / 100)).toFixed(2)}"/></svg><span>${Math.floor(g.pct)}%</span></div>
+          <div class="goal-head"><div class="goal-title">${g.reached ? '🎉 Objectif atteint' : '🎯 Objectif d’épargne'}</div><div class="goal-main">${Utils.fmt(g.bal)}</div><div class="goal-of">sur ${Utils.fmt(g.target)}</div></div>
+        </div>
+        <div class="goal-lines">
+          ${g.reached ? '' : `<div class="goal-line"><span>Reste à épargner</span><b>${Utils.fmt(g.remaining)}</b></div>`}
+          ${g.date ? `<div class="goal-line"><span>Date cible</span><b>${fmtLongDate(g.date)}${g.reached ? '' : g.overdue ? ' · dépassée' : ' · J-' + g.daysLeft}</b></div>` : ''}
+          ${g.monthlyNeeded ? `<div class="goal-line"><span>Versement conseillé</span><b>${Utils.fmt(g.monthlyNeeded)} / mois</b></div>` : ''}
+          ${!g.reached && g.eta ? `<div class="goal-line"><span>Au rythme actuel</span><b>${g.eta.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</b></div>` : ''}
+          ${!g.reached && !g.eta ? `<div class="goal-line"><span>Au rythme actuel</span><b>Pas encore d’estimation</b></div>` : ''}
+        </div>
+        <button class="goal-edit" onclick="Modals.openAccountForm('${ac.id}')">Modifier l’objectif</button>
+      </div>` : '';
     UI.html('detailBody', `
       <div class="detail-hero" data-color="${ac.customColor ? 'custom' : ac.colorKey}" style="${accountStyle(ac)}">
         <div class="detail-hero-icon">${Utils.esc(ac.icon)}</div>
@@ -2380,6 +2605,7 @@ const App = {
         <div class="detail-hero-bal" style="${ac.balance < 0 ? 'color:var(--red)' : ''}">${Utils.fmt(ac.balance)}</div>
         <div class="detail-hero-sub">Solde disponible</div>
       </div>
+      ${goalCard}
       ${btns ? `<div class="detail-actions-row">${btns}</div>` : ''}
       <div class="sec-title" style="margin-bottom:10px">Historique</div>
       <div class="detail-ops">${ops.length ? ops.map(o => this._opRow(o, 'accountOps')).join('') : '<div class="empty"><div class="empty-icon">📋</div>Aucune opération</div>'}</div>
@@ -2647,6 +2873,10 @@ const Modals = {
     UI.$('acFormName').value = ac ? ac.name : '';
     UI.$('acFormBal').value = ac ? ac.balance : '';
     UI.$('acFormType').value = ac ? (ac.type || 'bank') : 'bank';
+    UI.$('acFormGoalAmt').value = ac?.goal?.target || '';
+    UI.$('acFormGoalDate').value = ac?.goal?.date || '';
+    UI.$('acFormGoalDate').min = new Date().toISOString().slice(0, 10);
+    this.toggleGoalSection();
     const showSelect = UI.$('acFormShowOnHome');
     if (showSelect) {
       showSelect.value = ac ? (ac.showOnHome !== false ? 'true' : 'false') : 'true';
@@ -2663,6 +2893,8 @@ const Modals = {
     if (colorFold) colorFold.open = !!ac?.customColor;
     this.open('acFormOverlay');
   },
+
+  toggleGoalSection() { const sec = UI.$('acFormGoalSection'); if (sec) sec.style.display = UI.$('acFormType').value === 'savings' ? '' : 'none'; },
 
   _pickAcEmoji(e, el) { document.querySelectorAll('#acFormEmojis .emoji-opt').forEach(x => x.classList.remove('sel')); el.classList.add('sel'); UI.$('acFormCustomEmoji').value = ''; UI.txt('acFormEmojiPreview', e); },
   previewCustomEmoji(input, previewId, selector) { const options = document.querySelectorAll(`${selector} .emoji-opt`), preview = normalizeEmoji(input.value, ''); if (preview) { options.forEach(x => x.classList.remove('sel')); UI.txt(previewId, preview); } else UI.txt(previewId, document.querySelector(`${selector} .emoji-opt.sel`)?.textContent || options[0]?.textContent || '✨'); },
@@ -3427,14 +3659,22 @@ const Actions = {
     const type = UI.$('acFormType').value || 'bank';
     const showOnHome = UI.$('acFormShowOnHome')?.value === 'true';
     const bal = Utils.parseAmt(UI.$('acFormBal').value);
+    let goal = null;
+    if (type === 'savings') {
+      const gt = Utils.parseAmt(UI.$('acFormGoalAmt').value), gd = UI.$('acFormGoalDate').value || '';
+      if (gt > 0) {
+        if (gd && new Date(gd + 'T23:59:59') < new Date()) { UI.toast('La date cible doit être dans le futur', 'error'); return; }
+        goal = { target: gt, date: gd, done: bal >= gt };
+      } else if (gd) { UI.toast('Indiquez le montant de l’objectif', 'error'); return; }
+    }
     const mainChoice = UI.$('acFormMain').value;
     let savedAccountId = _acSetupId;
     if (_acSetupId) {
-      DB.update('accounts', acs => { const ac = acs.find(a => a.id === _acSetupId); if (ac) { ac.name = name; ac.icon = icon; ac.colorKey = colorKey; if (customColor) ac.customColor = customColor; else delete ac.customColor; ac.type = type; ac.balance = bal; ac.showOnHome = showOnHome; } });
+      DB.update('accounts', acs => { const ac = acs.find(a => a.id === _acSetupId); if (ac) { ac.name = name; ac.icon = icon; ac.colorKey = colorKey; if (customColor) ac.customColor = customColor; else delete ac.customColor; ac.type = type; ac.balance = bal; ac.showOnHome = showOnHome; if (goal) ac.goal = goal; else delete ac.goal; } });
       UI.toast('✅ Compte modifié', 'success');
     } else {
       savedAccountId = 'acc-' + Utils.uid();
-      DB.update('accounts', acs => acs.push({ id: savedAccountId, name, icon, colorKey, ...(customColor ? { customColor } : {}), balance: bal, type, showOnHome, isMain: false }));
+      DB.update('accounts', acs => acs.push({ id: savedAccountId, name, icon, colorKey, ...(customColor ? { customColor } : {}), balance: bal, type, showOnHome, isMain: false, ...(goal ? { goal } : {}) }));
       if (bal > 0) DB.update('accountOps', ops => ops.push({ id: Utils.uid(), accountId: savedAccountId, type: 'deposit', amount: bal, desc: 'Solde initial', date: new Date().toISOString() }));
       UI.toast('✅ Compte créé', 'success');
     }
@@ -4210,6 +4450,92 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) Acti
   }, {passive:true});
 })();
 
+
+/* ==========================================================
+   LIQUID GLASS — comportements (nav qui se réduit, glisser pour fermer,
+   transitions entre onglets, petit retour haptique)
+========================================================== */
+(function () {
+  const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mobile = () => matchMedia('(max-width:799px)').matches;
+
+  // 1) Transition fluide entre onglets (uniquement quand on touche la barre de navigation)
+  const _go = Nav.go.bind(Nav);
+  Nav.go = function (tab) {
+    if (this._vt && document.startViewTransition && !reduce() && this._tab !== tab) {
+      this._vt = false;
+      try { document.startViewTransition(() => _go(tab)); return; } catch (e) { /* repli ci-dessous */ }
+    }
+    this._vt = false;
+    _go(tab);
+  };
+  document.addEventListener('pointerdown', e => {
+    if (e.target.closest && e.target.closest('.nav-btn')) { Nav._vt = true; setTimeout(() => { Nav._vt = false; }, 500); }
+    if (!reduce() && e.target.closest && e.target.closest('.nav-btn,.nav-add,.ac-card-btn') && navigator.vibrate) navigator.vibrate(6);
+  }, true);
+
+  // 2) La barre de navigation se réduit en descendant, revient en remontant
+  const nav = document.getElementById('mainNav'), scr = document.getElementById('screen');
+  if (nav && scr) {
+    let last = 0, acc = 0;
+    scr.addEventListener('scroll', () => {
+      if (!mobile()) { nav.classList.remove('compact'); return; }
+      const y = scr.scrollTop, d = y - last; last = y;
+      if (y < 40) { acc = 0; nav.classList.remove('compact'); return; }
+      acc = (Math.sign(d) === Math.sign(acc)) ? acc + d : d;
+      if (acc > 28) nav.classList.add('compact');
+      else if (acc < -14) nav.classList.remove('compact');
+    }, { passive: true });
+  }
+
+  // 3) Glisser une feuille vers le bas pour la fermer (depuis n'importe où dans la feuille)
+  const SHEET = '.modal, .ctx-menu', OVERLAY = '.modal-overlay, .ctx-overlay';
+  const scrolledInside = (el, sheet) => {
+    for (; el && el !== sheet.parentElement; el = el.parentElement) {
+      if (el.scrollHeight > el.clientHeight + 1 && /(auto|scroll)/.test(getComputedStyle(el).overflowY) && el.scrollTop > 0) return true;
+    }
+    return false;
+  };
+  let drag = null;
+  document.addEventListener('touchstart', e => {
+    drag = null;
+    if (!mobile() || !e.target.closest || e.touches.length !== 1) return;
+    const sheet = e.target.closest(SHEET), ov = sheet && sheet.closest(OVERLAY);
+    if (!sheet || !ov || !ov.classList.contains('open')) return;
+    if (e.target.closest('input,select,textarea,[contenteditable]')) return;
+    drag = { sheet, ov, x0: e.touches[0].clientX, y0: e.touches[0].clientY, t0: Date.now(), dy: 0, active: false, target: e.target };
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    if (!drag) return;
+    const t = e.touches[0], dy = t.clientY - drag.y0, dx = Math.abs(t.clientX - drag.x0);
+    if (!drag.active) {
+      if (dy < -6 || dx > 14) { drag = null; return; }                 // défilement vers le haut ou geste horizontal
+      if (dy < 9 || dy < dx * 1.2) return;                            // pas encore un vrai geste vers le bas
+      if (scrolledInside(drag.target, drag.sheet)) { drag = null; return; } // le contenu défile encore : on laisse faire
+      drag.active = true; drag.sheet.style.transition = 'none'; drag.ov.style.transition = 'none';
+    }
+    drag.dy = Math.max(0, dy);
+    drag.sheet.style.transform = 'translateY(' + drag.dy + 'px)';
+    const p = Math.min(1, drag.dy / Math.max(1, drag.sheet.offsetHeight));
+    drag.ov.style.background = 'rgba(5,4,18,' + (0.42 * (1 - p)).toFixed(3) + ')';
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+  const endDrag = () => {
+    if (!drag) return;
+    const { sheet, ov, dy, t0, active } = drag; drag = null;
+    if (!active) return;
+    sheet.style.transition = ''; ov.style.transition = '';
+    const v = dy / Math.max(1, Date.now() - t0);
+    const clear = () => { sheet.style.transform = ''; ov.style.background = ''; };
+    if (dy > 110 || (dy > 40 && v > 0.6)) {
+      if (ov.classList.contains('ctx-overlay')) Modals.close(ov.id);
+      else { const c = ov.querySelector('.modal-close'); if (c) c.click(); else Modals.close(ov.id); }
+      requestAnimationFrame(clear);
+    } else clear();
+  };
+  document.addEventListener('touchend', endDrag, { passive: true });
+  document.addEventListener('touchcancel', endDrag, { passive: true });
+})();
 </script>
 </body>
 </html>
