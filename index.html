@@ -1320,6 +1320,25 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
 }
 @media (min-width:800px) and (max-width:1050px){.bottom-nav{width:196px}.screen{padding-left:224px;padding-right:24px}}
 
+
+/* Note personnelle — carte de saisie élégante */
+.tx-notes-block{margin:16px 0 18px!important;padding:0!important;border:0!important}
+.tx-notes-block>label{display:flex;align-items:center;gap:7px;margin-bottom:9px;color:var(--text2);font-size:.7rem;font-weight:900;letter-spacing:.045em;text-transform:uppercase}
+.tx-note-label-icon{display:inline-grid;place-items:center;width:25px;height:25px;border-radius:8px;background:var(--blue-dim);color:var(--blue);font-size:1rem}
+.tx-note-optional{margin-left:auto;color:var(--text3);font-size:.57rem;letter-spacing:.1em}
+.tx-note-shell{position:relative;padding:12px 13px 9px 39px;border:1.5px solid var(--border2);border-radius:16px;background:linear-gradient(145deg,var(--surface2),var(--surface));box-shadow:inset 0 1px 0 rgba(255,255,255,.035);transition:border-color .18s,box-shadow .18s,background .18s}
+.tx-note-shell:focus-within{border-color:var(--blue);background:var(--surface);box-shadow:0 0 0 4px var(--blue-dim)}
+.tx-note-mark{position:absolute;left:13px;top:8px;color:var(--blue);font:800 2.5rem Georgia,serif;line-height:1;opacity:.8}
+.tx-note-shell textarea{display:block;width:100%;min-height:76px;resize:vertical;border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important;color:var(--text);font:500 .84rem/1.55 'DM Sans',sans-serif;padding:2px 0 8px!important}
+.tx-note-shell textarea::placeholder{color:var(--text3);opacity:.8}
+.tx-note-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--border);color:var(--text3);font-size:.59rem}
+#txNoteCount{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:800}
+/* Clavier mobile : conserver la coque à la hauteur réellement visible */
+@media(max-width:420px){.phone{height:var(--nova-vh,100dvh)!important;min-height:0;max-height:var(--nova-vh,100dvh)}}
+.amt-wrap{gap:10px;padding-inline:13px}
+.amt-sign{min-width:48px;height:29px;padding:0 8px;font-size:.68rem;letter-spacing:.04em}
+.amt-wrap input::placeholder{opacity:.62;letter-spacing:.015em}
+
 </style>
 </head>
 <body>
