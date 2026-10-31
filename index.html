@@ -377,9 +377,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .field label{display:block;font-size:.66rem;color:var(--text3);text-transform:uppercase;margin-bottom:4px}
 .field input,.field select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-size:.9rem;outline:none}
 .field input:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-dim)}
-.amt-wrap{position:relative}
-.amt-wrap input{padding-left:32px;font-size:1.05rem;font-weight:700}
-.amt-sign{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3)}
+/* Champs de montant : symbole en flux normal, jamais superposé à la saisie. */
+.amt-wrap{position:relative;display:flex;align-items:center;gap:10px}
+.amt-wrap .amt-sign{position:static;inset:auto;transform:none;flex:0 0 auto}
+.amt-wrap input{position:relative;z-index:1;min-width:0;padding-left:2px!important}
 .type-toggle{display:flex;background:var(--surface2);border-radius:10px;padding:3px;margin-bottom:13px}
 .type-btn{flex:1;padding:7px;border:none;background:none;color:var(--text3);font-size:.8rem;font-weight:500;border-radius:8px;cursor:pointer}
 .type-btn.ae{background:var(--red);color:#fff}
