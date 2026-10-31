@@ -366,7 +366,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 ================================================== */
 .modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .18s}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--surface);border-radius:26px 26px 0 0;padding:14px 17px 34px;width:100%;transform:translateY(100%);transition:transform .3s;border-top:1px solid var(--border2);max-height:88vh;overflow-y:auto}
+.modal{background:var(--surface);border-radius:26px 26px 0 0;padding:14px 17px 34px;width:100%;transform:translateY(100%);transition:transform .3s;border-top:1px solid var(--border2);max-height:min(88vh,calc(var(--nova-vh,100dvh) - 18px));overflow-y:auto;-webkit-overflow-scrolling:touch}
 .modal-overlay.open .modal{transform:translateY(0)}
 .modal-handle{width:30px;height:3px;background:var(--border2);border-radius:99px;margin:0 auto 12px}
 .modal-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
@@ -1454,7 +1454,7 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
         <div class="srow" onclick="Modals.openCatBudgets()"><span class="srow-icon">🎯</span><div class="srow-info"><div class="srow-name">Budgets par catégorie</div><div class="srow-desc">Plafond mensuel et alertes</div></div><div class="srow-right">›</div></div>
         <div class="srow" onclick="Modals.openRecurring()"><span class="srow-icon">🔁</span><div class="srow-info"><div class="srow-name">Transactions récurrentes</div><div class="srow-desc">Loyer, abonnements, salaire…</div></div><div class="srow-right">›</div></div>
         <div class="srow" onclick="Actions.exportPDF()"><span class="srow-icon">📑</span><div class="srow-info"><div class="srow-name">Exporter en PDF</div><div class="srow-desc">Télécharger le rapport du mois</div></div><div class="srow-right">›</div></div>
-        <div class="srow" onclick="Actions.exportJSON()"><span class="srow-icon">💾</span><div class="srow-info"><div class="srow-name">Exporter une sauvegarde complète</div><div class="srow-desc">Comptes, transactions, rappels, notes et justificatifs</div></div><div class="srow-right">›</div></div>
+        <div class="srow" onclick="Actions.exportJSON()"><span class="srow-icon">💾</span><div class="srow-info"><div class="srow-name">Exporter une sauvegarde complète</div><div class="srow-desc">Comptes, transactions, rappels, notes et budgets</div></div><div class="srow-right">›</div></div>
         <div class="srow" onclick="Actions.exportCSV()"><span class="srow-icon">📊</span><div class="srow-info"><div class="srow-name">Exporter les transactions en CSV</div><div class="srow-desc">Pour Excel et les tableurs</div></div><div class="srow-right">›</div></div>
         <div class="srow" onclick="Modals.confirmReset()"><span class="srow-icon">🗑️</span><div class="srow-info"><div class="srow-name" style="color:var(--red)">Réinitialiser</div><div class="srow-desc">Supprimer toutes les données</div></div><div class="srow-right" style="color:var(--red)">›</div></div>
       </div></div>
@@ -1548,7 +1548,7 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
       <div class="field" id="txSavingDestinationField" style="display:none"><label>Compte de destination</label><select id="txSavingDestination"></select><div class="tx-meta">Le montant sera transféré du compte principal vers ce compte.</div></div>
       <div class="field"><label>Date</label><div class="date-row"><button type="button" class="day-chip" id="dayToday" onclick="Modals.setTxDay(0)">Aujourd'hui</button><button type="button" class="day-chip" id="dayYest" onclick="Modals.setTxDay(-1)">Hier</button><input type="date" id="txDate" onchange="Modals._syncDayChips()"/></div></div>
       <div class="field"><label>Description (facultatif)</label><input type="text" id="txDesc" placeholder="Ex: Courses au marché" maxlength="80" autocomplete="off" autocorrect="off" spellcheck="false"/></div>
-      <div class="field tx-notes-block"><label>📝 Note personnelle (facultatif)</label><textarea id="txNote" rows="2" maxlength="500" placeholder="Précision, contexte, détail utile…"></textarea></div>
+      <div class="field tx-notes-block"><label for="txNote"><span class="tx-note-label-icon">✎</span> Note personnelle <span class="tx-note-optional">FACULTATIF</span></label><div class="tx-note-shell"><span class="tx-note-mark" aria-hidden="true">“</span><textarea id="txNote" rows="3" maxlength="500" placeholder="Ajoutez un détail, un contexte ou un petit mémo…"></textarea><div class="tx-note-foot"><span>Cette note reste privée dans vos données locales.</span><span id="txNoteCount">0 / 500</span></div></div></div>
       <div class="field"><label>📎 Justificatif (image ou PDF, 5 Mo max.)</label><input type="file" id="txReceipt" accept="image/*,application/pdf"/><div class="tx-meta" id="txReceiptInfo">Aucun justificatif ajouté.</div></div>
       <button class="btn-primary btn-blue" id="txSaveBtn" onclick="Actions.saveTx()">Enregistrer</button>
     </div>
@@ -1928,61 +1928,6 @@ const UI = {
 // ==================================================
 // FILE SYNC (version lisible)
 // ==================================================
-// JUSTIFICATIFS — IndexedDB (séparé du localStorage pour éviter le quota)
-// ==================================================
-const AttachmentStore = (() => {
-  const DB_NAME = 'nova_finance_receipts_v1', STORE = 'receipts';
-  function open() {
-    return new Promise((resolve, reject) => {
-      const req = indexedDB.open(DB_NAME, 1);
-      req.onupgradeneeded = e => { if (!e.target.result.objectStoreNames.contains(STORE)) e.target.result.createObjectStore(STORE, { keyPath: 'txId' }); };
-      req.onsuccess = e => resolve(e.target.result);
-      req.onerror = e => reject(e.target.error);
-    });
-  }
-  async function put(txId, file) {
-    if (!file) return;
-    if (!/^image\//.test(file.type) && file.type !== 'application/pdf') throw new Error('Format non pris en charge');
-    if (file.size > 5 * 1024 * 1024) throw new Error('Le justificatif dépasse 5 Mo');
-    const db = await open();
-    await new Promise((resolve, reject) => { const tx = db.transaction(STORE, 'readwrite'); tx.objectStore(STORE).put({ txId, name: file.name, type: file.type, size: file.size, blob: file }); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); });
-    db.close();
-  }
-  async function get(txId) {
-    const db = await open();
-    const result = await new Promise((resolve, reject) => { const req = db.transaction(STORE, 'readonly').objectStore(STORE).get(txId); req.onsuccess = () => resolve(req.result || null); req.onerror = () => reject(req.error); });
-    db.close(); return result;
-  }
-  async function remove(txId) {
-    const db = await open(); await new Promise((resolve, reject) => { const tx = db.transaction(STORE, 'readwrite'); tx.objectStore(STORE).delete(txId); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); }); db.close();
-  }
-  async function clear() {
-    const db = await open(); await new Promise((resolve, reject) => { const tx = db.transaction(STORE, 'readwrite'); tx.objectStore(STORE).clear(); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); }); db.close();
-  }
-  async function all() {
-    const db = await open();
-    const result = await new Promise((resolve, reject) => { const req = db.transaction(STORE, 'readonly').objectStore(STORE).getAll(); req.onsuccess = () => resolve(req.result || []); req.onerror = () => reject(req.error); });
-    db.close(); return result;
-  }
-  const toDataURL = blob => new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(r.result); r.onerror = () => reject(r.error); r.readAsDataURL(blob); });
-  function fromDataURL(url) {
-    if (typeof url !== 'string' || !/^data:[^;,]+;base64,/.test(url)) throw new Error('Justificatif invalide');
-    const parts = url.split(','), mime = parts[0].slice(5).split(';')[0], binary = atob(parts[1]), bytes = new Uint8Array(binary.length);
-    for (let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
-    return new Blob([bytes], { type: mime });
-  }
-  async function exportAll() { const list = await all(); const out = []; for (const item of list) out.push({ txId: item.txId, name: item.name, type: item.type, size: item.size, data: await toDataURL(item.blob) }); return out; }
-  async function importAll(items) {
-    const db = await open();
-    await new Promise((resolve, reject) => { const tx = db.transaction(STORE, 'readwrite'), store = tx.objectStore(STORE); store.clear(); (items || []).forEach(item => { if (item && typeof item.txId === 'string' && typeof item.data === 'string') { const blob = fromDataURL(item.data); if (blob.size <= 5*1024*1024 && (/^image\//.test(blob.type) || blob.type === 'application/pdf')) store.put({ txId: item.txId, name: String(item.name || 'justificatif'), type: blob.type, size: blob.size, blob }); } }); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); }); db.close();
-  }
-  async function download(txId) {
-    const item = await get(txId); if (!item) { UI.toast('Aucun justificatif disponible', 'info'); return; }
-    const url = URL.createObjectURL(item.blob), a = document.createElement('a'); a.href = url; a.download = item.name || 'justificatif'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
-  }
-  return { put, get, remove, clear, all, exportAll, importAll, download };
-})();
-
 // ==================================================
 const FileSync = (() => {
   let _handle = null;
@@ -2145,13 +2090,12 @@ const FileSync = (() => {
         UI.toast('Fichier JSON invalide', 'error');
         return;
       }
-      const OK = ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'recurring', 'reminders'].every(k => data[k] === undefined || Array.isArray(data[k])) && (data.attachments === undefined || Array.isArray(data.attachments)) && (data.settings === undefined || (data.settings && typeof data.settings === 'object' && !Array.isArray(data.settings)));
+      const OK = ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'recurring', 'reminders'].every(k => data[k] === undefined || Array.isArray(data[k])) && (data.settings === undefined || (data.settings && typeof data.settings === 'object' && !Array.isArray(data.settings)));
       if (!OK) { UI.toast('Format non reconnu', 'error'); return; }
       Modals.openConfirm('📂 Charger ce fichier', `Les données actuelles seront remplacées. Continuer ?`, async () => {
         ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'recurring', 'reminders', 'settings'].forEach(k => {
           if (data[k] !== undefined) DB.set(k, data[k]);
         });
-        if (Array.isArray(data.attachments)) { try { await AttachmentStore.importAll(data.attachments); } catch (e) { console.warn('Import des justificatifs impossible', e); } }
         _handle = h;
         await _IDB.save(h);
         _setStatus('saved');
@@ -3144,12 +3088,14 @@ const OP_CFG = {
 
 const Modals = {
   _seq: 0,
+  _screenScrollTop: 0,
   statsMonth: new Date().getMonth(),
   statsYear: new Date().getFullYear(),
 
   open(id) {
     const el = UI.$(id);
     if (!el) return;
+    const screen = UI.$('screen'); if (screen) this._screenScrollTop = screen.scrollTop;
     el.classList.add('open');
     el._seq = ++Modals._seq;
     el._touchHandler = e => { if (e.target === el) e.preventDefault(); };
@@ -3159,8 +3105,18 @@ const Modals = {
   close(id) {
     const el = UI.$(id);
     if (!el) return;
+    const focused = el.contains(document.activeElement) ? document.activeElement : null;
+    if (focused && typeof focused.blur === 'function') focused.blur();
     el.classList.remove('open');
     if (el._touchHandler) el.removeEventListener('touchmove', el._touchHandler);
+    const restore = () => {
+      const screen = UI.$('screen');
+      if (screen) screen.scrollTop = Math.min(this._screenScrollTop || 0, screen.scrollHeight);
+      window.scrollTo(0, 0);
+      if (window.visualViewport) document.documentElement.style.setProperty('--nova-vh', window.visualViewport.height + 'px');
+    };
+    requestAnimationFrame(() => { restore(); requestAnimationFrame(restore); });
+    setTimeout(restore, 180);
   },
 
   closeCtx(e) { if (e.target === UI.$('ctxOverlay')) this.close('ctxOverlay'); },
@@ -4213,7 +4169,6 @@ const Actions = {
     try {
       const data = { app: 'nova-finance', version: 2, exportedAt: new Date().toISOString() };
       ['txs','accounts','accountOps','savings','savingsOps','transfers','recurring','reminders','settings'].forEach(k => data[k] = DB.get(k));
-      data.attachments = await AttachmentStore.exportAll();
       const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
       const a = document.createElement('a'); a.href = url; a.download = 'nova_finance_sauvegarde_' + new Date().toISOString().slice(0, 10) + '.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
       UI.toast('✅ Sauvegarde téléchargée', 'success');
@@ -5087,6 +5042,21 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) { Ac
   };
   document.addEventListener('touchend', endDrag, { passive: true });
   document.addEventListener('touchcancel', endDrag, { passive: true });
+})();
+
+// Synchronise the app shell with the *visual* viewport when a mobile keyboard opens/closes.
+(function(){
+  const vv=window.visualViewport;
+  const sync=()=>{
+    const height=vv&&vv.height?vv.height:window.innerHeight;
+    document.documentElement.style.setProperty('--nova-vh',height+'px');
+  };
+  sync();
+  if(vv){vv.addEventListener('resize',sync,{passive:true});vv.addEventListener('scroll',sync,{passive:true});}
+  window.addEventListener('resize',sync,{passive:true});
+  document.addEventListener('focusout',()=>setTimeout(sync,120),{passive:true});
+  const note= document.getElementById('txNote'), count=document.getElementById('txNoteCount');
+  if(note&&count){const update=()=>count.textContent=note.value.length+' / 500';note.addEventListener('input',update);update();}
 })();
 </script>
 </body>
