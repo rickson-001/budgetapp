@@ -33,6 +33,59 @@
 @media(max-width:600px){.amt-wrap{min-height:52px;border-radius:14px}.field .amt-wrap input{height:49px;font-size:1.08rem!important}.amt-sign{min-width:29px;height:27px}.nova-field input.money-input,.nova-field input#reminderAmount,.nova-field input#calcMonthly{min-height:50px;font-size:1rem}}
 @media(prefers-reduced-motion:reduce){.amt-wrap,.nova-field input.money-input,.nova-field input#reminderAmount,.nova-field input#calcMonthly{transition:none}}
 
+
+
+/* ==========================================================
+   FINITION VISUELLE — ONGLET COMPTES
+========================================================== */
+#accountsList{display:flex;flex-direction:column;gap:16px;min-width:0}
+#accountsList .acs-summary{position:relative;overflow:hidden;margin:0;padding:19px 20px 17px;border-radius:24px;background:radial-gradient(circle at 100% 0%,color-mix(in srgb,var(--blue) 15%,transparent),transparent 42%),linear-gradient(145deg,color-mix(in srgb,var(--surface) 94%,var(--blue) 6%),var(--surface));border:1px solid color-mix(in srgb,var(--blue) 20%,var(--border));box-shadow:0 14px 32px -25px var(--shadow),inset 0 1px 0 rgba(255,255,255,.07)}
+.acs-summary-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#accountsList .acs-total{font-size:clamp(1.7rem,5vw,2.15rem);line-height:1.15;margin:6px 0 3px;font-weight:800}
+.acs-summary-note,.acs-section-hint{font-size:.67rem;color:var(--text3);line-height:1.4}
+#accountsList .acs-bar{height:10px;margin-top:14px;background:var(--surface3);gap:3px}
+#accountsList .acs-legend{gap:8px 14px;margin-top:12px}
+#accountsList .acs-legend span{font-size:.68rem;font-weight:800}
+.acs-count{flex:none;padding:5px 9px;border:1px solid var(--border);border-radius:99px;background:var(--surface2);color:var(--text2);font-size:.62rem;font-weight:900;white-space:nowrap}
+.acs-section{min-width:0}
+.acs-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 2px 11px}
+.acs-section-head .acs-title{margin:0 0 3px;font-size:.76rem;letter-spacing:.06em;color:var(--text)}
+.acs-card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:13px;align-items:stretch}
+.acs-card-grid .ac-card{height:100%;min-width:0;min-height:142px;margin:0;display:flex;flex-direction:column;isolation:isolate;border-radius:23px;box-shadow:0 13px 26px -22px var(--shadow),inset 0 1px 0 rgba(255,255,255,.1);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.acs-card-grid .ac-card[data-color]{background:radial-gradient(circle at 100% 0%,color-mix(in srgb,var(--account-card) 26%,transparent),transparent 39%),linear-gradient(145deg,color-mix(in srgb,var(--account-card) 17%,var(--surface)),color-mix(in srgb,var(--surface) 94%,var(--account-card) 6%) 72%)}
+.acs-card-grid .ac-card::after{content:'';position:absolute;z-index:-1;pointer-events:none;width:150px;height:150px;right:-85px;top:-94px;border:1px solid color-mix(in srgb,var(--account-card,var(--blue)) 26%,transparent);border-radius:50%;box-shadow:0 0 0 17px color-mix(in srgb,var(--account-card,var(--blue)) 5%,transparent),0 0 0 35px color-mix(in srgb,var(--account-card,var(--blue)) 3%,transparent)}
+.acs-card-grid .ac-card-header{position:relative;z-index:1;align-items:center;gap:9px}
+.acs-card-grid .ac-card-logo{width:42px;height:42px;border-radius:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.16)}
+.acs-card-grid .ac-card-name{font-family:'Fredoka','Nunito',sans-serif;font-size:.96rem;font-weight:750}
+.acs-card-grid .ac-card-bal-val{font-size:clamp(1.12rem,3vw,1.42rem);line-height:1.15}
+.acs-card-grid .ac-card-footer{position:relative;z-index:1;margin-top:auto;padding-top:15px;flex-wrap:wrap}
+.acs-card-grid .ac-card-footer .ac-card-btn{flex:1 1 0;min-width:0}
+.acs-card-grid .ac-goal{position:relative;z-index:1;margin-top:15px;padding:12px 13px;border:1px solid color-mix(in srgb,var(--ac-on,var(--text)) 13%,transparent);border-radius:16px;background:color-mix(in srgb,var(--ac-on,var(--text)) 6%,transparent);color:var(--ac-on,var(--text))}
+.acs-card-grid .ac-goal-top{font-size:.72rem;align-items:center}
+.acs-card-grid .ac-goal-top b{font-size:.94rem;font-variant-numeric:tabular-nums}
+.acs-card-grid .ac-goal-target{margin-top:3px;font-size:.63rem;opacity:.76;font-weight:700}
+.acs-card-grid .ac-goal-bar{height:8px;margin:9px 0 8px;background:color-mix(in srgb,var(--ac-on,var(--text)) 17%,transparent)}
+.acs-card-grid .ac-goal-bar i{background:linear-gradient(90deg,var(--ac-on,var(--text)),color-mix(in srgb,var(--ac-on,var(--text)) 70%,transparent));box-shadow:0 0 10px color-mix(in srgb,var(--ac-on,var(--text)) 25%,transparent)}
+.acs-card-grid .ac-goal-foot{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:.62rem;line-height:1.4}
+.acs-card-grid .ac-goal-foot span{opacity:.78}
+.acs-card-grid .ac-goal-foot strong{font-size:.66rem;text-align:right}
+.acs-card-grid .ac-goal-date{margin-top:5px;font-size:.59rem;opacity:.7}
+.acs-card-grid .ac-goal.done{background:color-mix(in srgb,var(--green) 11%,transparent);border-color:color-mix(in srgb,var(--green) 30%,transparent)}
+@media(hover:hover) and (pointer:fine){
+  .acs-card-grid .ac-card:hover{transform:translateY(-3px);box-shadow:0 19px 34px -23px var(--shadow),inset 0 1px 0 rgba(255,255,255,.12);border-color:color-mix(in srgb,var(--account-card,var(--blue)) 55%,var(--border))}
+}
+@media(max-width:520px){
+  #accountsList{gap:14px}
+  #accountsList .acs-summary{padding:16px;border-radius:21px}
+  .acs-card-grid{grid-template-columns:minmax(0,1fr);gap:10px}
+  .acs-card-grid .ac-card{padding:15px;border-radius:21px}
+  .acs-card-grid .ac-card-bal-val{font-size:1.12rem}
+  .acs-section-head{margin-bottom:9px}
+}
+@media(prefers-reduced-motion:reduce){
+  .acs-card-grid .ac-card,.acs-card-grid .ac-goal-bar i{transition:none!important}
+}
+
 </style>
 <style>
 /* ==================================================
@@ -2738,9 +2791,11 @@ const App = {
       const lpKey = LP.register(() => Modals.openCtxMenu('account', ac.id, ac.name));
       const g = goalInfo(ac);
       const goalHTML = g ? `<div class="ac-goal${g.reached ? ' done' : ''}">
-          <div class="ac-goal-top"><span>${g.reached ? '🎉 Objectif atteint' : '🎯 Objectif · ' + Utils.fmt(g.target)}</span><b>${Math.floor(g.pct)}%</b></div>
-          <div class="ac-goal-bar"><i style="width:${g.pct.toFixed(1)}%"></i></div>
-          <div class="ac-goal-sub">${g.reached ? 'Bravo, ' + Utils.fmt(g.target) + ' épargnés' : 'Reste ' + Utils.fmt(g.remaining) + (g.date ? (g.overdue ? ' · date dépassée' : ' · avant le ' + fmtLongDate(g.date)) : '')}</div>
+          <div class="ac-goal-top"><span>${g.reached ? '🎉 Objectif atteint' : '🎯 Objectif d’épargne'}</span><b>${Math.floor(g.pct)}%</b></div>
+          <div class="ac-goal-target">Cible : ${Utils.fmt(g.target)}</div>
+          <div class="ac-goal-bar" role="progressbar" aria-label="Progression de l’objectif d’épargne" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.floor(g.pct)}"><i style="width:${Math.min(100, Math.max(0, g.pct)).toFixed(1)}%"></i></div>
+          <div class="ac-goal-foot"><span>${Utils.fmt(g.bal)} économisés</span><strong>${g.reached ? 'Objectif atteint' : 'Reste ' + Utils.fmt(g.remaining)}</strong></div>
+          ${g.date ? `<div class="ac-goal-date">${g.reached ? 'Objectif atteint' : g.overdue ? 'Échéance dépassée' : 'Échéance · ' + fmtLongDate(g.date)}</div>` : ''}
         </div>` : '';
       return `<div class="ac-card" data-color="${ac.customColor ? 'custom' : ac.colorKey}" style="${accountStyle(ac)}" data-lp="${lpKey}" onclick="if(!_lpFired)Nav.openDetail('account','${ac.id}')">
         <div class="ac-card-header">
@@ -2765,11 +2820,20 @@ const App = {
     const posSum = keys.reduce((s, k) => s + Math.max(0, byType[k]), 0);
     const seg = keys.filter(k => byType[k] > 0).map(k => `<i style="flex:${(byType[k] / posSum).toFixed(4)};background:${accountTypeInfo(k).col}"></i>`).join('');
     const legend = keys.map(k => `<span style="--c:${accountTypeInfo(k).col}">${accountTypeInfo(k).label} · ${Utils.fmtS(byType[k])}</span>`).join('');
-    const summary = `<div class="acs-summary"><div class="acs-lbl">Patrimoine total</div><div class="acs-total" style="color:${total < 0 ? 'var(--red)' : 'var(--text)'}">${Utils.fmt(Math.abs(total))}</div>${posSum > 0 ? `<div class="acs-bar">${seg}</div>` : ''}<div class="acs-legend">${legend}</div></div>`;
+    const summary = `<section class="acs-summary" aria-label="Résumé du patrimoine">
+      <div class="acs-summary-head"><div class="acs-lbl">Patrimoine total</div><span class="acs-count">${acs.length} compte${acs.length > 1 ? 's' : ''}</span></div>
+      <div class="acs-total" style="color:${total < 0 ? 'var(--red)' : 'var(--text)'}">${Utils.fmt(Math.abs(total))}</div>
+      <div class="acs-summary-note">${keys.length} catégorie${keys.length > 1 ? 's' : ''} de comptes</div>
+      ${posSum > 0 ? `<div class="acs-bar" role="img" aria-label="Répartition du patrimoine par type de compte">${seg}</div>` : ''}
+      <div class="acs-legend">${legend}</div>
+    </section>`;
     const plain = acs.filter(a => a.type !== 'savings'), saving = acs.filter(a => a.type === 'savings');
-    const grouped = plain.length && saving.length;
-    const regularCards = plain.length ? (grouped ? '<div class="sec-title acs-title">Comptes</div>' : '') + `<div id="regularAccountsGroup">${plain.map(card).join('')}</div>` : '';
-    const savingsCards = saving.length ? (grouped || !plain.length ? '<div class="sec-title acs-title">Épargne</div>' : '') + `<div id="savingsAccountsGroup">${saving.map(card).join('')}</div>` : '';
+    const section = (label, hint, items, id) => items.length ? `<section class="acs-section">
+      <div class="acs-section-head"><div><div class="sec-title acs-title">${label}</div><div class="acs-section-hint">${hint}</div></div><span class="acs-count">${items.length} compte${items.length > 1 ? 's' : ''}</span></div>
+      <div class="acs-card-grid" id="${id}">${items.map(card).join('')}</div>
+    </section>` : '';
+    const regularCards = section('Comptes du quotidien', 'Banque, mobile money et espèces', plain, 'regularAccountsGroup');
+    const savingsCards = section('Épargne', 'Réserves et progression de vos objectifs', saving, 'savingsAccountsGroup');
     UI.html('accountsList', summary + regularCards + savingsCards);
     LP.bindAll();
   },
