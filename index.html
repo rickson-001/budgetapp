@@ -1467,7 +1467,7 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
   </div></div>
   <div class="modal-overlay" id="calculatorOverlay" role="dialog" aria-modal="true" aria-label="Calculatrice financière"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text">🧮 Calculatrice financière</span><button class="modal-close" onclick="Modals.close('calculatorOverlay')">✕</button></div>
     <p class="tools-intro">Calculs rapides et estimation d'une épargne régulière.</p>
-    <div class="nova-calc-display"><input id="novaCalcInput" type="text" inputmode="decimal" value="" placeholder="0" aria-label="Expression à calculer"/><div class="nova-calc-result" id="novaCalcResult" aria-live="polite">Saisis une opération</div></div>
+    <div class="nova-calc-display"><input id="novaCalcInput" type="text" inputmode="none" readonly autocomplete="off" value="" placeholder="0" aria-label="Expression à calculer"/><div class="nova-calc-result" id="novaCalcResult" aria-live="polite">Saisis une opération</div></div>
     <div class="nova-calc-grid">
       <button class="operator" onclick="FinancialTools.calcClear()">C</button><button class="operator" onclick="FinancialTools.calcBackspace()">⌫</button><button class="operator" onclick="FinancialTools.calcInsert('%')">%</button><button class="operator" onclick="FinancialTools.calcInsert('/')">÷</button>
       <button onclick="FinancialTools.calcInsert('7')">7</button><button onclick="FinancialTools.calcInsert('8')">8</button><button onclick="FinancialTools.calcInsert('9')">9</button><button class="operator" onclick="FinancialTools.calcInsert('*')">×</button>
