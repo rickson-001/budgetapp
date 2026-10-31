@@ -17,6 +17,9 @@
 <style>
 @font-face{font-family:'Fredoka';font-style:normal;font-weight:300 700;font-display:swap;src:url(fonts/fredoka-latin-wght-normal.woff2) format('woff2')}
 @font-face{font-family:'Nunito';font-style:normal;font-weight:200 1000;font-display:swap;src:url(fonts/nunito-latin-wght-normal.woff2) format('woff2')}
+
+.nova-forecast-card{margin:0 0 14px;padding:15px 17px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(135deg,var(--surface),var(--surface2));box-shadow:0 8px 24px rgba(15,23,42,.045)}.nova-forecast-card .nf-title{font-size:.76rem;font-weight:800;color:var(--text2);margin-bottom:8px}.nova-forecast-card .nf-main{font:800 1.2rem 'Nunito',sans-serif;color:var(--text)}.nova-forecast-card .nf-sub{font-size:.7rem;color:var(--text3);margin-top:4px;line-height:1.45}.nova-forecast-card .nf-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}.nova-forecast-card .nf-cell{padding:9px;border-radius:12px;background:var(--surface);min-width:0}.nova-forecast-card .nf-cell small{display:block;color:var(--text3);font-size:.62rem}.nova-forecast-card .nf-cell b{display:block;margin-top:3px;font-size:.76rem;overflow-wrap:anywhere}
+
 </style>
 <style>
 /* ==================================================
@@ -1137,20 +1140,214 @@ body{background:radial-gradient(ellipse at 50% -10%,rgba(139,108,255,.16),transp
 .modal,.ctx-menu{overscroll-behavior:contain}
 .sc.main::after{left:-80%;animation:nfShineT 7s ease-in-out infinite;will-change:transform}
 @keyframes nfShineT{0%,65%{transform:translateX(0) rotate(22deg)}85%,100%{transform:translateX(420%) rotate(22deg)}}
+
+/* ==================================================
+   NOVA FINANCE — modernisation essentielle
+================================================== */
+:root{--r:16px;--r2:22px;--r3:28px}
+body{background:radial-gradient(ellipse at 15% 0%,color-mix(in srgb,var(--blue) 13%,transparent),transparent 44%),var(--bg)}
+.phone{border:1px solid var(--border);box-shadow:0 28px 90px rgba(0,0,0,.22),0 0 0 1px color-mix(in srgb,var(--border2) 65%,transparent)}
+.page-title{letter-spacing:-.035em}
+.sc,.tx-item,.mini-ac,.ac-card,.pie-card,.prog-item,.insight,.settings-group,.fsync-card,.op-row{box-shadow:0 8px 24px -17px var(--shadow);border-width:1px}
+.sc,.tx-item,.mini-ac,.ac-card,.pie-card,.prog-item,.insight,.settings-group,.fsync-card,.op-row{border-color:var(--border)}
+.settings-group{overflow:hidden}
+.srow{min-height:62px}
+.btn-primary,.fsync-btn,.pwa-install-btn{border-radius:14px}
+.modal{border-radius:26px 26px 18px 18px}
+.modal-overlay{backdrop-filter:blur(8px)}
+input,textarea,select{accent-color:var(--blue)}
+button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 72%,white);outline-offset:2px}
+.tools-intro{font-size:.74rem;color:var(--text2);line-height:1.5;margin:-2px 0 12px}
+.nova-tool-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px;margin:10px 0;box-shadow:0 8px 24px -19px var(--shadow)}
+.nova-tool-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;font-weight:800;font-size:.82rem}
+.nova-inline-btn{border:1px solid var(--border2);background:var(--surface2);color:var(--text);border-radius:11px;padding:9px 12px;min-height:40px;font:700 .72rem 'DM Sans',sans-serif;cursor:pointer}
+.nova-primary-btn{background:var(--blue);color:white;border-color:transparent}
+.nova-field{display:flex;flex-direction:column;gap:5px;margin:10px 0}
+.nova-field label{font-size:.69rem;font-weight:700;color:var(--text2)}
+.nova-field input,.nova-field select,.nova-field textarea{width:100%;min-height:43px;padding:10px 12px;border:1px solid var(--border2);border-radius:12px;background:var(--surface2);color:var(--text);font:500 .8rem 'DM Sans',sans-serif;outline:none}
+.nova-field textarea{resize:vertical;min-height:76px}
+.nova-calendar-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0 12px}
+.nova-calendar-label{font-weight:800;font-size:.94rem}
+.nova-weekdays,.nova-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.nova-weekdays span{text-align:center;color:var(--text3);font-size:.62rem;font-weight:800;padding:5px 0}
+.nova-day{position:relative;min-height:43px;border:1px solid transparent;border-radius:12px;background:var(--surface2);color:var(--text);font:700 .72rem 'DM Sans',sans-serif;cursor:pointer}
+.nova-day.muted{opacity:.34}.nova-day.today{border-color:var(--blue)}.nova-day.selected{background:var(--blue);color:white}.nova-day.has-reminder:after{content:"";position:absolute;width:5px;height:5px;border-radius:50%;background:var(--gold);bottom:5px;left:calc(50% - 2.5px)}.nova-day.selected.has-reminder:after{background:white}
+.nova-agenda-item{display:flex;align-items:center;gap:9px;padding:10px 0;border-top:1px solid var(--border)}
+.nova-agenda-item:first-child{border-top:0}
+.nova-agenda-main{flex:1;min-width:0}.nova-agenda-title{font-size:.76rem;font-weight:800;overflow-wrap:anywhere}.nova-agenda-meta{font-size:.64rem;color:var(--text3);margin-top:3px}
+.nova-agenda-actions{display:flex;gap:5px;flex-shrink:0}.nova-agenda-actions button{border:1px solid var(--border);background:var(--surface2);color:var(--text2);border-radius:9px;width:34px;height:34px;cursor:pointer}
+.nova-agenda-actions .done{color:var(--green)}.nova-agenda-actions .delete{color:var(--red)}
+.nova-empty{padding:15px 8px;text-align:center;color:var(--text3);font-size:.72rem}
+.nova-calc-display{background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:13px;margin-bottom:10px}
+.nova-calc-display input{width:100%;border:0;background:transparent;color:var(--text);text-align:right;font:700 1.35rem 'DM Sans',sans-serif;outline:none}
+.nova-calc-result{text-align:right;color:var(--text2);font-size:.68rem;min-height:17px;margin-top:4px}
+.nova-calc-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.nova-calc-grid button{min-height:45px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);color:var(--text);font:800 .92rem 'DM Sans',sans-serif;cursor:pointer}
+.nova-calc-grid button.operator{color:var(--blue);background:var(--blue-dim)}.nova-calc-grid button.equals{background:var(--blue);color:white}
+.nova-save-state{display:flex;align-items:center;gap:9px;padding:12px 14px;border:1px solid var(--border);border-radius:15px;background:var(--surface);font-size:.73rem}
+.nova-save-state .state-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px var(--green-dim);flex:none}
+.nova-save-state.error .state-dot{background:var(--red);box-shadow:0 0 0 4px var(--red-dim)}
+.tx-notes-block{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.tx-notes-block .tx-meta{line-height:1.5}
+@media(min-width:700px){.phone{width:min(100%,560px);height:min(94dvh,980px);border-radius:32px}.screen{padding-left:22px;padding-right:22px}.modal{max-width:520px}.nova-day{min-height:48px}}
+@media(max-width:420px){.phone{width:100%;height:100dvh;border-radius:0}.nova-day{min-height:39px}.nova-calendar-grid{gap:4px}.nova-calendar-head{margin-top:3px}}
+@media(max-width:350px){.nova-agenda-actions button{width:30px;height:30px}.nova-day{min-height:35px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+
+/* ==================================================
+   NOVA FINANCE — finition premium et navigation latérale
+   Une seule couche de finition pour les cartes et le menu.
+================================================== */
+.home-page-header{gap:12px;min-width:0}
+.page-header:has(>.nova-menu-trigger){gap:10px;min-width:0}
+.page-header:has(>.nova-menu-trigger)>.nova-menu-trigger{align-self:center}
+.page-header:has(>.nova-menu-trigger)>div:first-of-type{min-width:0;flex:1}
+.home-header-main{display:flex;align-items:center;gap:11px;min-width:0;flex:1}
+.home-welcome{min-width:0}
+.home-welcome .page-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nova-menu-trigger{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border:1px solid var(--border2);border-radius:15px;background:linear-gradient(145deg,var(--surface2),var(--surface));color:var(--text);font:700 1.2rem 'Nunito',sans-serif;box-shadow:0 7px 18px -13px var(--shadow);cursor:pointer;transition:transform .18s ease,background .18s ease,border-color .18s ease}
+.nova-menu-trigger:hover{border-color:var(--blue);background:var(--blue-dim)}
+.nova-menu-trigger:active{transform:scale(.94)}
+.nova-drawer-overlay{position:absolute;inset:0;z-index:180;background:rgba(6,8,18,.58);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .24s ease,visibility .24s ease}
+.nova-drawer-overlay.open{opacity:1;visibility:visible;pointer-events:auto}
+.nova-drawer-panel{position:absolute;inset:0 auto 0 0;width:min(372px,89%);max-height:100%;overflow-y:auto;overscroll-behavior:contain;padding:calc(env(safe-area-inset-top) + 17px) 17px calc(env(safe-area-inset-bottom) + 16px);display:flex;flex-direction:column;background:linear-gradient(160deg,color-mix(in srgb,var(--surface) 97%,var(--blue) 3%),var(--bg) 88%);border-right:1px solid var(--border2);border-radius:0 26px 26px 0;box-shadow:24px 0 70px rgba(0,0,0,.26);transform:translateX(-105%);transition:transform .34s cubic-bezier(.22,.82,.25,1)}
+.nova-drawer-overlay.open .nova-drawer-panel{transform:translateX(0)}
+.nova-drawer-panel::-webkit-scrollbar{width:5px}.nova-drawer-panel::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:99px}
+.nova-drawer-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:22px}
+.nova-drawer-brand{display:flex;align-items:center;gap:10px;color:var(--text);font:800 1.05rem 'Fredoka','Nunito',sans-serif;letter-spacing:-.02em}
+.nova-drawer-brand-mark{width:36px;height:36px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,var(--blue),var(--accent2));color:#fff;font:800 1.05rem 'Fredoka','Nunito',sans-serif;box-shadow:0 8px 18px -10px var(--blue)}
+.nova-drawer-close{width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--border);border-radius:12px;background:var(--surface2);color:var(--text2);font-size:.9rem;cursor:pointer}
+.nova-drawer-profile{display:flex;align-items:center;gap:11px;padding:13px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(120deg,color-mix(in srgb,var(--blue) 12%,var(--surface)),var(--surface));margin-bottom:22px}
+.nova-drawer-avatar{width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:var(--blue);color:#fff;font:800 1.08rem 'Fredoka','Nunito',sans-serif;flex:none}
+.nova-drawer-profile-copy{display:flex;flex-direction:column;gap:2px;min-width:0}.nova-drawer-profile-copy strong{font-size:.84rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nova-drawer-profile-copy small{font-size:.68rem;color:var(--text3)}
+.nova-drawer-label{margin:0 5px 9px;color:var(--text3);font-size:.64rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.nova-drawer-links{display:grid;gap:7px}
+.nova-drawer-link{width:100%;min-height:58px;display:flex;align-items:center;gap:11px;padding:9px 11px;border:1px solid transparent;border-radius:16px;background:transparent;color:var(--text);text-align:left;cursor:pointer;transition:background .18s ease,border-color .18s ease,transform .18s ease}
+.nova-drawer-link:hover{background:var(--surface2);border-color:var(--border)}
+.nova-drawer-link:active{transform:scale(.985)}
+.nova-drawer-link.active{background:color-mix(in srgb,var(--blue) 14%,var(--surface));border-color:color-mix(in srgb,var(--blue) 35%,var(--border));box-shadow:inset 3px 0 0 var(--blue)}
+.nova-drawer-icon{width:38px;height:38px;flex:none;display:grid;place-items:center;border-radius:13px;background:var(--surface2);color:var(--blue);font:700 1.2rem 'Nunito',sans-serif}
+.nova-drawer-link.active .nova-drawer-icon{background:var(--blue);color:#fff}
+.nova-drawer-link>span:nth-child(2){display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.nova-drawer-link strong{font-size:.79rem;font-weight:850;line-height:1.2}
+.nova-drawer-link small{font-size:.63rem;color:var(--text3);line-height:1.3}
+.nova-drawer-arrow{color:var(--text3);font-size:1.25rem;padding:0 3px}
+.nova-drawer-footer{display:flex;align-items:center;gap:8px;margin-top:auto;padding:18px 5px 2px;color:var(--text3);font-size:.64rem}
+.nova-drawer-footer-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px var(--green-dim)}
+.nova-report-export{height:34px;padding:0 11px;border:1px solid color-mix(in srgb,var(--blue) 42%,var(--border));border-radius:11px;background:var(--blue-dim);color:var(--blue);font:800 .66rem 'Nunito',sans-serif;cursor:pointer;white-space:nowrap}
+.nova-report-export span{margin-left:3px}
+
+/* Summary cards: hiérarchie claire, sans relief dur ni bordures épaisses. */
+.summary-strip{gap:10px}
+.sc{position:relative;isolation:isolate;min-width:0;padding:14px 15px;border:1px solid var(--border);border-radius:21px;background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 94%,var(--blue) 6%),var(--surface));box-shadow:0 12px 28px -23px var(--shadow),inset 0 1px 0 rgba(255,255,255,.035);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease,background .2s ease}
+.sc:not(.main)::after{content:'';position:absolute;inset:0 14px auto;height:2px;border-radius:99px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--blue) 45%,transparent),transparent);opacity:.75;pointer-events:none}
+.sc-lbl{font-size:.62rem;letter-spacing:.075em;font-weight:850;color:var(--text3);margin-bottom:7px}
+.sc-val{font-variant-numeric:tabular-nums;letter-spacing:-.025em;font-size:clamp(.9rem,3.2vw,1.1rem);line-height:1.22;overflow-wrap:anywhere}
+.sc-val.big{font-size:clamp(1.65rem,6vw,2.15rem);letter-spacing:-.045em;line-height:1.08}
+.sc.main{padding:18px 20px;border:1px solid color-mix(in srgb,var(--hero-border) 70%,transparent);border-radius:25px;background:radial-gradient(circle at 90% 10%,rgba(255,255,255,.16),transparent 35%),linear-gradient(135deg,var(--hero-a),color-mix(in srgb,var(--hero-a) 75%,#15112f));box-shadow:0 18px 40px -24px var(--hero-shadow),inset 0 1px 0 rgba(255,255,255,.18)}
+.sc.main::before{content:'';position:absolute;width:190px;height:190px;right:-92px;top:-112px;border:1px solid rgba(255,255,255,.12);border-radius:50%;box-shadow:0 0 0 22px rgba(255,255,255,.035),0 0 0 44px rgba(255,255,255,.025);pointer-events:none;z-index:-1}
+.sc.main .sc-lbl{font-size:.65rem;color:color-mix(in srgb,var(--on-hero) 78%,transparent)}
+.sc.main .sc-val{font-weight:900;text-shadow:0 1px 10px rgba(0,0,0,.08)}
+.sc-sub{font-size:.68rem;line-height:1.4}
+.mini-ac,.ac-card,.tx-item,.pie-card,.prog-item,.insight,.acs-summary{border:1px solid var(--border);border-radius:20px;box-shadow:0 12px 28px -24px var(--shadow),inset 0 1px 0 rgba(255,255,255,.035)}
+.mini-ac{padding:14px;background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 90%,var(--account-card) 10%),var(--surface));transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.mini-ac[data-color]{box-shadow:0 12px 24px -22px var(--shadow),inset 0 1px 0 rgba(255,255,255,.045);border-color:color-mix(in srgb,var(--account-card) 32%,var(--border))}
+.mac-bal{font-variant-numeric:tabular-nums;letter-spacing:-.025em;font-size:1.02rem}
+.ac-card{padding:17px;background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 92%,var(--account-card) 8%),var(--surface));border-color:color-mix(in srgb,var(--account-card) 25%,var(--border));box-shadow:0 14px 30px -25px var(--shadow),inset 0 1px 0 rgba(255,255,255,.045);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.ac-card[data-color]{background:linear-gradient(145deg,color-mix(in srgb,var(--account-card) 15%,var(--surface)),var(--surface) 72%);border-color:color-mix(in srgb,var(--account-card) 38%,var(--border));box-shadow:0 14px 30px -24px var(--shadow),inset 0 1px 0 rgba(255,255,255,.05)}
+.ac-card-bal-val,.acs-total,.detail-hero-bal{font-variant-numeric:tabular-nums;letter-spacing:-.035em}
+.ac-card-bal-val{font-size:1.38rem}
+.ac-card-btn{min-height:42px;border:1px solid color-mix(in srgb,currentColor 16%,transparent);border-radius:13px;box-shadow:none;font-weight:800}
+.ac-card-btn:active{transform:scale(.98);box-shadow:none}
+.tx-item{padding:12px 14px;background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--surface) 94%,var(--blue) 6%));box-shadow:0 10px 24px -22px var(--shadow);transition:transform .18s ease,border-color .18s ease,background .18s ease}
+.pie-card{padding:15px;background:linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--surface) 94%,var(--blue) 6%))}
+.prog-item{padding:13px 14px;background:var(--surface);box-shadow:0 8px 22px -22px var(--shadow)}
+.insight{padding:15px;background:linear-gradient(145deg,color-mix(in srgb,var(--blue) 8%,var(--surface)),var(--surface));box-shadow:0 12px 26px -24px var(--shadow)}
+.acs-summary{padding:17px;background:linear-gradient(140deg,color-mix(in srgb,var(--blue) 9%,var(--surface)),var(--surface))}
+.stats-compare{display:block;margin-top:7px;font-size:.62rem;line-height:1.35;color:var(--text3)}
+.stats-compare b{font-weight:850}
+
+@media(hover:hover) and (pointer:fine){
+  .sc:not(.main):hover,.mini-ac:hover,.ac-card:hover,.tx-item:hover,.prog-item:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--blue) 38%,var(--border));box-shadow:0 16px 30px -24px var(--shadow)}
+  .nova-menu-trigger:hover,.nova-drawer-close:hover{transform:translateY(-1px)}
+}
+@media(max-width:520px){
+  .toast{max-width:calc(100% - 28px);white-space:normal;text-align:center;line-height:1.3;border-radius:16px;bottom:78px}
+  .home-page-header{flex-wrap:wrap;row-gap:7px}
+  .home-header-main{flex:1 1 100%;gap:10px}
+  .home-welcome .page-title{white-space:nowrap;overflow:visible;text-overflow:clip}
+  .month-nav{margin-left:auto;gap:5px}
+}
+@media(max-width:380px){
+  .home-header-main{gap:8px}.nova-menu-trigger{width:38px;height:38px;flex-basis:38px;border-radius:13px}
+  .month-nav{gap:4px}.month-btn{width:32px;height:32px}.month-lbl{min-width:70px;font-size:.69rem}
+  .nova-drawer-panel{width:min(350px,91%);padding-left:14px;padding-right:14px}
+  .sc{padding:12px}.sc.main{padding:16px}
+}
+@media(prefers-reduced-motion:reduce){
+  .nova-drawer-overlay,.nova-drawer-panel,.nova-menu-trigger,.nova-drawer-link,.sc,.mini-ac,.ac-card,.tx-item,.prog-item{transition:none!important}
+}
+
+
+/* Réglages de largeur séparés tablette / ordinateur : évite de conserver une coque téléphone sur grand écran. */
+@media (min-width:700px) and (max-width:799px){
+  .phone{width:min(560px,calc(100vw - 32px));height:min(94dvh,980px);border-radius:28px}
+  .screen{padding-left:22px;padding-right:22px}
+}
+@media (min-width:800px){
+  body{padding:24px;background:radial-gradient(ellipse at 20% 0%,color-mix(in srgb,var(--surface3) 45%,var(--bg)),var(--bg) 65%)}
+  .phone{width:min(1380px,calc(100vw - 48px));height:min(960px,calc(100dvh - 48px));border-radius:28px}
+  .status-bar{position:absolute;z-index:60;top:0;right:0;height:44px;padding:0 30px}
+  .screen{padding:54px 34px 34px 264px;scrollbar-width:thin;scrollbar-color:var(--surface3) transparent}
+  .screen::-webkit-scrollbar{display:block;width:8px}
+  .screen::-webkit-scrollbar-thumb{background:var(--surface3);border:2px solid var(--bg);border-radius:99px}
+  .sc.main>*{position:relative;z-index:1}
+}
+@media (min-width:800px) and (max-width:1050px){.bottom-nav{width:196px}.screen{padding-left:224px;padding-right:24px}}
+
 </style>
 </head>
 <body>
 <div class="phone" id="phone">
   <div class="pwa-update-bar" id="pwaUpdateBar"><span>⬆️ Mise à jour disponible</span><button onclick="PWA.applyUpdate()">Mettre à jour</button></div>
   <div class="status-bar" style="justify-content:flex-end"><span class="sync-dot sync-idle" id="syncDot"></span></div>
+  <div class="nova-drawer-overlay" id="novaDrawerOverlay" aria-hidden="true" onclick="NovaMenu.close()">
+    <aside class="nova-drawer-panel" id="novaDrawer" role="dialog" aria-modal="true" aria-label="Menu de navigation" onclick="event.stopPropagation()">
+      <div class="nova-drawer-top">
+        <div class="nova-drawer-brand"><span class="nova-drawer-brand-mark">N</span><span>Nova Finance</span></div>
+        <button type="button" class="nova-drawer-close" onclick="NovaMenu.close()" aria-label="Fermer le menu">✕</button>
+      </div>
+      <div class="nova-drawer-profile"><span class="nova-drawer-avatar" id="drawerAvatar">N</span><span class="nova-drawer-profile-copy"><strong id="drawerProfileName">Mon espace</strong><small>Votre espace financier</small></span></div>
+      <div class="nova-drawer-label">Navigation</div>
+      <nav class="nova-drawer-links" aria-label="Rubriques Nova Finance">
+        <button type="button" class="nova-drawer-link" data-destination="overview" onclick="NovaMenu.go('overview')"><span class="nova-drawer-icon">⌂</span><span><strong>Vue d'ensemble</strong><small>Votre situation en un coup d'œil</small></span><span class="nova-drawer-arrow">›</span></button>
+        <button type="button" class="nova-drawer-link" data-destination="transactions" onclick="NovaMenu.go('transactions')"><span class="nova-drawer-icon">⇄</span><span><strong>Transaction</strong><small>Historique des mouvements</small></span><span class="nova-drawer-arrow">›</span></button>
+        <button type="button" class="nova-drawer-link" data-destination="accounts" onclick="NovaMenu.go('accounts')"><span class="nova-drawer-icon">▣</span><span><strong>Mes comptes</strong><small>Soldes et portefeuilles</small></span><span class="nova-drawer-arrow">›</span></button>
+        <button type="button" class="nova-drawer-link" data-destination="budget" onclick="NovaMenu.go('budget')"><span class="nova-drawer-icon">◷</span><span><strong>Budget</strong><small>Objectif mensuel et plafonds</small></span><span class="nova-drawer-arrow">›</span></button>
+        <button type="button" class="nova-drawer-link" data-destination="savings" onclick="NovaMenu.go('savings')"><span class="nova-drawer-icon">◎</span><span><strong>Objectifs d'épargne</strong><small>Suivi de vos objectifs</small></span><span class="nova-drawer-arrow">›</span></button>
+        <button type="button" class="nova-drawer-link" data-destination="recurring" onclick="NovaMenu.go('recurring')"><span class="nova-drawer-icon">⟳</span><span><strong>Récurrences</strong><small>Opérations programmées</small></span><span class="nova-drawer-arrow">›</span></button>
+        <button type="button" class="nova-drawer-link" data-destination="report" onclick="NovaMenu.go('report')"><span class="nova-drawer-icon">▤</span><span><strong>Rapport</strong><small>Statistiques et export PDF</small></span><span class="nova-drawer-arrow">›</span></button>
+        <button type="button" class="nova-drawer-link" data-destination="settings" onclick="NovaMenu.go('settings')"><span class="nova-drawer-icon">⚙</span><span><strong>Réglages</strong><small>Préférences et sauvegardes</small></span><span class="nova-drawer-arrow">›</span></button>
+      </nav>
+      <div class="nova-drawer-footer"><span class="nova-drawer-footer-dot"></span><span>Vos données restent sur cet appareil</span></div>
+    </aside>
+  </div>
   <main class="screen" id="screen" aria-label="Nova Finance">
     <div class="tab-page active" id="tab-home">
-      <div class="page-header"><div><div class="page-title" id="welcomeMsg">Bonjour 👋</div><div class="page-sub" id="welcomeSub">Avril 2026</div></div><div class="month-nav"><button class="month-btn" onclick="App.changeMonth(-1)">‹</button><span class="month-lbl" id="monthLbl">Avril 2026</span><button class="month-btn" onclick="App.changeMonth(1)">›</button></div></div>
+      <div class="page-header home-page-header">
+        <div class="home-header-main">
+          <button type="button" class="nova-menu-trigger" id="novaMenuTrigger" onclick="NovaMenu.open()" aria-label="Ouvrir le menu de navigation" aria-controls="novaDrawer" aria-expanded="false"><span aria-hidden="true">☰</span></button>
+          <div class="home-welcome"><div class="page-title" id="welcomeMsg">Bonjour 👋</div><div class="page-sub" id="welcomeSub">Avril 2026</div></div>
+        </div>
+        <div class="month-nav"><button class="month-btn" onclick="App.changeMonth(-1)" aria-label="Mois précédent">‹</button><span class="month-lbl" id="monthLbl">Avril 2026</span><button class="month-btn" onclick="App.changeMonth(1)" aria-label="Mois suivant">›</button></div>
+      </div>
       <div class="summary-strip">
         <div class="sc main"><div class="sc-lbl">Balance du mois</div><div class="sc-val big" id="hBal">0 FCFA</div><div class="sc-sub" id="hBalSub"></div><canvas id="heroSpark" class="spark" height="46" aria-hidden="true"></canvas><button class="eye-btn" id="eyeBtn" onclick="App.toggleHide()" aria-label="Masquer les montants" aria-pressed="false">👁️</button></div>
-        <div class="sc"><div class="sc-lbl">Revenus</div><div class="sc-val pos" id="hInc">+0</div></div>
-        <div class="sc"><div class="sc-lbl">Dépenses</div><div class="sc-val neg" id="hExp">-0</div></div>
-        <div class="sc"><div class="sc-lbl">Épargner</div><div class="sc-val" id="hSav" style="color:var(--gold)">-0</div></div>
+        <div class="sc"><div class="sc-lbl">Revenus</div><div class="sc-val pos" id="hInc">0</div></div>
+        <div class="sc"><div class="sc-lbl">Dépenses</div><div class="sc-val neg" id="hExp">0</div></div>
+        <div class="sc"><div class="sc-lbl">Épargne</div><div class="sc-val" id="hSav" style="color:var(--gold)">0</div></div>
         <div class="sc" id="budgetGaugeContainer" style="display:none;grid-column:1/-1">
           <div class="sc-lbl">Objectif mensuel</div>
           <div class="sc-val" id="budgetGauge" style="font-size:.95rem"></div>
@@ -1159,14 +1356,15 @@ body{background:radial-gradient(ellipse at 50% -10%,rgba(139,108,255,.16),transp
         <div class="sc" id="catBudgetCard" style="display:none;grid-column:1/-1"></div>
       </div>
       <div class="insight" id="insightCard" style="display:none"></div>
+      <div class="nova-forecast-card" id="novaForecastCard" style="display:none" aria-live="polite"></div>
       <div class="accounts-row" id="homeAccountsRow"></div>
       <div class="search-bar"><input type="text" id="txSearch" placeholder="🔍 Rechercher une transaction..." autocomplete="off" autocorrect="off" spellcheck="false"></div>
       <div class="sec-head"><div class="sec-title">Transactions</div><select class="home-category-select" id="homeFilter" aria-label="Filtrer les transactions par catégorie" onchange="App.setFilter(this.value,this)"><option value="all">Toutes catégories</option></select></div>
       <div class="tx-list" id="homeTxList"></div>
     </div>
-    <div class="tab-page" id="tab-accounts"><div class="page-header"><div><div class="page-title">Comptes</div><div class="page-sub" id="accountsSubtitle"></div></div></div><div id="accountsList"></div></div>
+    <div class="tab-page" id="tab-accounts"><div class="page-header"><button type="button" class="nova-menu-trigger nova-menu-trigger-shared" onclick="NovaMenu.open()" aria-label="Ouvrir le menu de navigation" aria-controls="novaDrawer" aria-expanded="false"><span aria-hidden="true">☰</span></button><div><div class="page-title">Comptes</div><div class="page-sub" id="accountsSubtitle"></div></div></div><div id="accountsList"></div></div>
     <div class="tab-page" id="tab-flux">
-      <div class="page-header"><div><div class="page-title">Flux</div><div class="page-sub" id="fluxSub">Historique complet</div></div><div class="month-nav"><button class="month-btn" id="fluxPrev" onclick="Flux.shift(-1)" aria-label="Mois précédent">‹</button><span class="month-lbl" id="fluxMonthLbl">Avril 2026</span><button class="month-btn" id="fluxNext" onclick="Flux.shift(1)" aria-label="Mois suivant">›</button></div></div>
+      <div class="page-header"><button type="button" class="nova-menu-trigger nova-menu-trigger-shared" onclick="NovaMenu.open()" aria-label="Ouvrir le menu de navigation" aria-controls="novaDrawer" aria-expanded="false"><span aria-hidden="true">☰</span></button><div><div class="page-title">Flux</div><div class="page-sub" id="fluxSub">Historique complet</div></div><div class="month-nav"><button class="month-btn" id="fluxPrev" onclick="Flux.shift(-1)" aria-label="Mois précédent">‹</button><span class="month-lbl" id="fluxMonthLbl">Avril 2026</span><button class="month-btn" id="fluxNext" onclick="Flux.shift(1)" aria-label="Mois suivant">›</button></div></div>
       <div id="fluxSummary" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px"></div>
       <div class="flux-searchrow"><div class="search-bar"><input type="search" id="fluxSearch" placeholder="🔍 Rechercher (nom, catégorie, compte, montant)" oninput="Flux.search(this.value)" aria-label="Rechercher dans l'historique" autocomplete="off" autocorrect="off" spellcheck="false"></div><button class="f-pill" id="fluxAll" onclick="Flux.toggleAll()" aria-pressed="false" title="Afficher tout l'historique, tous mois confondus">📅 Tout</button></div>
       <div class="filter-row flux-row" id="fluxTypeRow"><div class="f-pill active" data-v="all" onclick="Flux.setType('all')">Tout</div><div class="f-pill" data-v="expense" onclick="Flux.setType('expense')">💸 Dépenses</div><div class="f-pill" data-v="income" onclick="Flux.setType('income')">💵 Revenus</div><div class="f-pill" data-v="saving" onclick="Flux.setType('saving')">🐖 Épargne</div><div class="f-pill" data-v="deposit" onclick="Flux.setType('deposit')">＋ Ajouts</div><div class="f-pill" data-v="withdraw" onclick="Flux.setType('withdraw')">− Retraits</div><div class="f-pill" data-v="transfer" onclick="Flux.setType('transfer')">🔄 Transferts</div></div>
@@ -1176,8 +1374,14 @@ body{background:radial-gradient(ellipse at 50% -10%,rgba(139,108,255,.16),transp
       <div class="tx-list" id="fluxList"></div>
     </div>
     <div class="tab-page" id="tab-stats">
-      <div class="page-header"><div><div class="page-title">Statistiques</div><div class="page-sub">Aperçu rapide de l'évolution</div></div><div class="month-nav"><button class="month-btn" id="statsMonthPrev" aria-label="Mois précédent">‹</button><span class="month-lbl" id="statsMonthLbl">Avril 2026</span><button class="month-btn" id="statsMonthNext" aria-label="Mois suivant">›</button></div></div>
+      <div class="page-header"><button type="button" class="nova-menu-trigger nova-menu-trigger-shared" onclick="NovaMenu.open()" aria-label="Ouvrir le menu de navigation" aria-controls="novaDrawer" aria-expanded="false"><span aria-hidden="true">☰</span></button><div><div class="page-title">Statistiques</div><div class="page-sub">Aperçu rapide de l'évolution</div></div><div class="month-nav stats-header-actions"><button type="button" class="nova-report-export" onclick="Actions.exportPDF()" aria-label="Exporter le rapport PDF">PDF <span aria-hidden="true">↗</span></button><button class="month-btn" id="statsMonthPrev" aria-label="Mois précédent">‹</button><span class="month-lbl" id="statsMonthLbl">Avril 2026</span><button class="month-btn" id="statsMonthNext" aria-label="Mois suivant">›</button></div></div>
       <div id="statsSummary" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px"></div>
+      <section id="intelligentReport" aria-live="polite" style="margin:14px 0 18px;padding:16px;border:1px solid var(--border);border-radius:20px;background:var(--surface);box-shadow:0 8px 24px rgba(20,35,60,.06)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px"><div><div style="font-weight:900;font-size:1rem">✦ Bilan financier intelligent</div><div id="irPeriod" style="font-size:.75rem;color:var(--text3);margin-top:3px">Analyse de votre mois</div></div><button type="button" class="nova-report-export" onclick="Modals.exportIntelligentReport()">Exporter le bilan</button></div>
+        <div id="irNarrative" style="font-size:.85rem;line-height:1.6;color:var(--text2);margin-bottom:12px"></div>
+        <div id="irMetrics" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px"></div>
+        <div id="irAdvice" style="margin-top:12px;padding:11px 12px;border-radius:13px;background:var(--surface2);font-size:.8rem;line-height:1.55"></div>
+      </section>
       <div class="seg-toggle" id="statsToggle"><button class="seg-btn on" data-t="expense" onclick="Modals.setStatsType('expense')">Dépenses</button><button class="seg-btn" data-t="income" onclick="Modals.setStatsType('income')">Revenus</button></div>
       <div class="sec-head"><div class="sec-title" id="statsPieTitle">Dépenses par catégorie</div></div>
       <div class="pie-card" style="text-align:center"><canvas id="pieCanvas" width="440" height="440" style="width:230px;height:230px;max-width:72%"></canvas><div class="pie-legend" id="pieLegend"></div></div>
@@ -1185,7 +1389,7 @@ body{background:radial-gradient(ellipse at 50% -10%,rgba(139,108,255,.16),transp
       <div id="statsCatDetail" style="display:none;margin:12px 0 20px"></div>
     </div>
     <div class="tab-page" id="tab-settings">
-      <div class="page-header"><div><div class="page-title">Paramètres</div></div></div>
+      <div class="page-header"><button type="button" class="nova-menu-trigger nova-menu-trigger-shared" onclick="NovaMenu.open()" aria-label="Ouvrir le menu de navigation" aria-controls="novaDrawer" aria-expanded="false"><span aria-hidden="true">☰</span></button><div><div class="page-title">Paramètres</div></div></div>
       <div class="settings-sec"><div style="text-align:center;padding:8px 0 18px"><div class="avatar" id="avatarLetter">?</div><div class="profile-name" id="profileNameEl">Utilisateur</div><div class="profile-sub">Compte personnel</div></div><div class="settings-group"><div class="srow" onclick="Modals.openProfile()"><span class="srow-icon">👤</span><div class="srow-info"><div class="srow-name">Modifier le profil</div><div class="srow-desc">Nom, devise</div></div><div class="srow-right">›</div></div></div></div>
       <div class="settings-sec"><div class="settings-lbl">Apparence</div><div class="settings-group"><div class="srow"><span class="srow-icon">🌙</span><div class="srow-info"><div class="srow-name">Mode sombre</div><div class="srow-desc">Thème de l'application</div></div><label class="toggle"><input type="checkbox" id="darkToggle" onchange="App.toggleTheme(this.checked)"/><div class="toggle-track"></div></label></div><div class="srow" onclick="Modals.openPalette()"><span class="srow-icon">🎨</span><div class="srow-info"><div class="srow-name">Palette de couleurs</div><div class="srow-desc" id="paletteSummary">Forêt</div></div><div class="srow-right">›</div></div></div></div>
       
@@ -1211,6 +1415,11 @@ body{background:radial-gradient(ellipse at 50% -10%,rgba(139,108,255,.16),transp
         </div>
       </div>
 
+      <div class="settings-sec"><div class="settings-lbl">Outils financiers</div><div class="settings-group">
+        <div class="srow" onclick="FinancialTools.openCalendar()"><span class="srow-icon">🗓️</span><div class="srow-info"><div class="srow-name">Calendrier et rappels</div><div class="srow-desc">Factures, échéances et paiements à venir</div></div><div class="srow-right">›</div></div>
+        <div class="srow" onclick="FinancialTools.openCalculator()"><span class="srow-icon">🧮</span><div class="srow-info"><div class="srow-name">Calculatrice financière</div><div class="srow-desc">Calculs, pourcentages et projections d’épargne</div></div><div class="srow-right">›</div></div>
+      </div></div>
+
       <div class="settings-sec">
         <div class="settings-lbl">Budget</div>
         <div class="settings-group">
@@ -1226,18 +1435,49 @@ body{background:radial-gradient(ellipse at 50% -10%,rgba(139,108,255,.16),transp
       </div>
 
       <div class="settings-sec" id="pwaInstallSec"><div class="settings-lbl">Application</div><div id="pwaInstallArea"></div></div>
+      <div class="settings-sec"><div class="settings-lbl">Sauvegarde automatique</div><div id="localSaveStatus" class="nova-save-state"><span class="state-dot"></span><div><strong id="localSaveTitle">Enregistrement sur cet appareil</strong><div class="tx-meta" id="localSaveTime">Sauvegarde locale active</div></div></div></div>
       <div class="settings-sec"><div class="settings-lbl">Sauvegarde fichier</div><div id="fsyncSection"></div></div>
       <div class="settings-sec"><div class="settings-lbl">Données</div><div class="settings-group">
         <div class="srow" onclick="Modals.openCatBudgets()"><span class="srow-icon">🎯</span><div class="srow-info"><div class="srow-name">Budgets par catégorie</div><div class="srow-desc">Plafond mensuel et alertes</div></div><div class="srow-right">›</div></div>
         <div class="srow" onclick="Modals.openRecurring()"><span class="srow-icon">🔁</span><div class="srow-info"><div class="srow-name">Transactions récurrentes</div><div class="srow-desc">Loyer, abonnements, salaire…</div></div><div class="srow-right">›</div></div>
         <div class="srow" onclick="Actions.exportPDF()"><span class="srow-icon">📑</span><div class="srow-info"><div class="srow-name">Exporter en PDF</div><div class="srow-desc">Télécharger le rapport du mois</div></div><div class="srow-right">›</div></div>
+        <div class="srow" onclick="Actions.exportJSON()"><span class="srow-icon">💾</span><div class="srow-info"><div class="srow-name">Exporter une sauvegarde complète</div><div class="srow-desc">Comptes, transactions, rappels, notes et justificatifs</div></div><div class="srow-right">›</div></div>
+        <div class="srow" onclick="Actions.exportCSV()"><span class="srow-icon">📊</span><div class="srow-info"><div class="srow-name">Exporter les transactions en CSV</div><div class="srow-desc">Pour Excel et les tableurs</div></div><div class="srow-right">›</div></div>
         <div class="srow" onclick="Modals.confirmReset()"><span class="srow-icon">🗑️</span><div class="srow-info"><div class="srow-name" style="color:var(--red)">Réinitialiser</div><div class="srow-desc">Supprimer toutes les données</div></div><div class="srow-right" style="color:var(--red)">›</div></div>
       </div></div>
-  <div class="app-version">Budget · Interface adaptative · Accessibilité renforcée</div>
+  <div class="app-version">Nova Finance · Version modernisée · Données conservées sur cet appareil</div>
     </div>
   </main>
   <div class="detail-panel" id="detailPanel"><div class="detail-topbar"><button class="detail-back" onclick="Nav.closeDetail()">‹ Retour</button><div class="detail-topbar-title" id="detailTitle"></div><div class="detail-topbar-right" id="detailTopRight"></div></div><div class="detail-body" id="detailBody"></div></div>
   <nav class="bottom-nav" id="mainNav" aria-label="Navigation principale"><div class="nav-brand"><span class="brand-mark" aria-hidden="true">💰</span><span>Nova Finance</span></div><button class="nav-btn active" id="nav-home" aria-current="page" onclick="Nav.go('home')" aria-label="Accueil"><span class="ni">🏠</span><span>Accueil</span></button><button class="nav-btn" id="nav-accounts" onclick="Nav.go('accounts')" aria-label="Comptes"><span class="ni">💳</span><span>Comptes</span></button><button class="nav-btn" id="nav-flux" onclick="Nav.go('flux')" aria-label="Flux"><span class="ni">🧾</span><span>Flux</span></button><button class="nav-btn" id="nav-stats" onclick="Nav.go('stats')" aria-label="Statistiques"><span class="ni">📊</span><span>Stats</span></button><button class="nav-btn" id="nav-settings" onclick="Nav.go('settings')" aria-label="Réglages"><span class="ni">⚙️</span><span>Réglages</span></button></nav><button class="nav-add" id="navAdd" onclick="Nav.addAction()" aria-label="Ajouter">＋</button>
+  <div class="modal-overlay" id="remindersOverlay" role="dialog" aria-modal="true" aria-label="Calendrier et rappels financiers"><div class="modal nova-wide-modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text">🗓️ Calendrier financier</span><button class="modal-close" onclick="Modals.close('remindersOverlay')">✕</button></div>
+    <p class="tools-intro">Planifie tes factures, échéances et paiements. Les alertes du navigateur s'affichent lorsque Nova Finance est ouvert.</p>
+    <div class="nova-calendar-head"><button class="month-btn" onclick="FinancialTools.changeCalendarMonth(-1)" aria-label="Mois précédent">‹</button><div class="nova-calendar-label" id="remMonthLabel"></div><button class="month-btn" onclick="FinancialTools.changeCalendarMonth(1)" aria-label="Mois suivant">›</button></div>
+    <div class="nova-weekdays"><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span></div><div class="nova-calendar-grid" id="remCalendarGrid"></div>
+    <div class="nova-tool-card"><div class="nova-tool-heading"><span id="remAgendaTitle">Échéances</span><button class="nova-inline-btn nova-primary-btn" onclick="FinancialTools.openReminderForm()">＋ Ajouter</button></div><div id="reminderAgenda"></div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="nova-inline-btn" id="remNotifyBtn" onclick="FinancialTools.requestNotifications()">🔔 Activer les notifications</button><span class="tx-meta" id="remNotifyInfo" style="align-self:center">Rappels visibles dans l'application.</span></div>
+  </div></div>
+  <div class="modal-overlay" id="reminderFormOverlay" role="dialog" aria-modal="true" aria-label="Ajouter une échéance"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="reminderFormTitle">Nouvelle échéance</span><button class="modal-close" onclick="Modals.close('reminderFormOverlay')">✕</button></div>
+    <div class="nova-field"><label for="reminderTitle">Intitulé</label><input id="reminderTitle" type="text" maxlength="80" placeholder="Ex. Loyer, facture d'électricité"/></div>
+    <div class="nova-field"><label for="reminderDate">Date d'échéance</label><input id="reminderDate" type="date"/></div>
+    <div class="nova-field"><label for="reminderAmount">Montant (facultatif)</label><input id="reminderAmount" type="number" min="0" step="any" inputmode="decimal" placeholder="0"/></div>
+    <div class="nova-field"><label for="reminderRepeat">Répétition</label><select id="reminderRepeat"><option value="none">Aucune</option><option value="monthly">Tous les mois</option><option value="yearly">Tous les ans</option></select></div>
+    <div class="nova-field"><label for="reminderNote">Note (facultatif)</label><textarea id="reminderNote" maxlength="300" placeholder="Référence, bénéficiaire, moyen de paiement…"></textarea></div>
+    <button class="btn-primary btn-blue" onclick="FinancialTools.saveReminder()">Enregistrer l'échéance</button>
+  </div></div>
+  <div class="modal-overlay" id="calculatorOverlay" role="dialog" aria-modal="true" aria-label="Calculatrice financière"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text">🧮 Calculatrice financière</span><button class="modal-close" onclick="Modals.close('calculatorOverlay')">✕</button></div>
+    <p class="tools-intro">Calculs rapides et estimation d'une épargne régulière.</p>
+    <div class="nova-calc-display"><input id="novaCalcInput" type="text" inputmode="decimal" value="" placeholder="0" aria-label="Expression à calculer"/><div class="nova-calc-result" id="novaCalcResult" aria-live="polite">Saisis une opération</div></div>
+    <div class="nova-calc-grid">
+      <button class="operator" onclick="FinancialTools.calcClear()">C</button><button class="operator" onclick="FinancialTools.calcBackspace()">⌫</button><button class="operator" onclick="FinancialTools.calcInsert('%')">%</button><button class="operator" onclick="FinancialTools.calcInsert('/')">÷</button>
+      <button onclick="FinancialTools.calcInsert('7')">7</button><button onclick="FinancialTools.calcInsert('8')">8</button><button onclick="FinancialTools.calcInsert('9')">9</button><button class="operator" onclick="FinancialTools.calcInsert('*')">×</button>
+      <button onclick="FinancialTools.calcInsert('4')">4</button><button onclick="FinancialTools.calcInsert('5')">5</button><button onclick="FinancialTools.calcInsert('6')">6</button><button class="operator" onclick="FinancialTools.calcInsert('-')">−</button>
+      <button onclick="FinancialTools.calcInsert('1')">1</button><button onclick="FinancialTools.calcInsert('2')">2</button><button onclick="FinancialTools.calcInsert('3')">3</button><button class="operator" onclick="FinancialTools.calcInsert('+')">+</button>
+      <button onclick="FinancialTools.calcInsert('0')">0</button><button onclick="FinancialTools.calcInsert('.')">,</button><button onclick="FinancialTools.calcInsert('(')">(</button><button class="equals" onclick="FinancialTools.calcEvaluate()">=</button>
+    </div>
+    <div class="nova-tool-card" style="margin-top:16px"><div class="nova-tool-heading">Projection d'épargne</div><div class="nova-field"><label for="calcMonthly">Épargne mensuelle (devise de l’application)</label><input id="calcMonthly" type="number" min="0" step="any" placeholder="Ex. 25000"/></div><div class="nova-field"><label for="calcMonths">Durée (mois)</label><input id="calcMonths" type="number" min="1" step="1" value="12"/></div><button class="nova-inline-btn nova-primary-btn" onclick="FinancialTools.calculateSavings()">Calculer la projection</button><div class="nova-calc-result" id="calcSavingsResult" style="text-align:left;margin-top:9px"></div></div>
+  </div></div>
+
   <div class="modal-overlay" id="catBudgetOverlay" role="dialog" aria-modal="true" aria-label="Budgets par catégorie"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text">🎯 Budgets par catégorie</span><button class="modal-close" onclick="Modals.close('catBudgetOverlay')">✕</button></div>
     <div class="tx-meta" style="margin-bottom:10px">Plafond mensuel par catégorie. Laisse vide pour ne pas en fixer. Alerte à 80 % et au dépassement.</div>
     <div id="catBudgetFields"></div>
@@ -1295,6 +1535,8 @@ body{background:radial-gradient(ellipse at 50% -10%,rgba(139,108,255,.16),transp
       <div class="field" id="txSavingDestinationField" style="display:none"><label>Compte de destination</label><select id="txSavingDestination"></select><div class="tx-meta">Le montant sera transféré du compte principal vers ce compte.</div></div>
       <div class="field"><label>Date</label><div class="date-row"><button type="button" class="day-chip" id="dayToday" onclick="Modals.setTxDay(0)">Aujourd'hui</button><button type="button" class="day-chip" id="dayYest" onclick="Modals.setTxDay(-1)">Hier</button><input type="date" id="txDate" onchange="Modals._syncDayChips()"/></div></div>
       <div class="field"><label>Description (facultatif)</label><input type="text" id="txDesc" placeholder="Ex: Courses au marché" maxlength="80" autocomplete="off" autocorrect="off" spellcheck="false"/></div>
+      <div class="field tx-notes-block"><label>📝 Note personnelle (facultatif)</label><textarea id="txNote" rows="2" maxlength="500" placeholder="Précision, contexte, détail utile…"></textarea></div>
+      <div class="field"><label>📎 Justificatif (image ou PDF, 5 Mo max.)</label><input type="file" id="txReceipt" accept="image/*,application/pdf"/><div class="tx-meta" id="txReceiptInfo">Aucun justificatif ajouté.</div></div>
       <button class="btn-primary btn-blue" id="txSaveBtn" onclick="Actions.saveTx()">Enregistrer</button>
     </div>
   </div>
@@ -1374,6 +1616,7 @@ body{background:radial-gradient(ellipse at 50% -10%,rgba(139,108,255,.16),transp
         <input type="text" id="budgetYear" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" value="2026"/>
       </div>
       <button class="btn-primary btn-blue" onclick="Actions.saveMonthlyBudget()">Enregistrer</button>
+      <button type="button" class="btn-secondary-cat" style="width:100%;margin-top:10px" onclick="Modals.close('budgetModal');setTimeout(()=>Modals.openCatBudgets(),100)">Gérer les budgets par catégorie</button>
     </div>
   </div>
 
@@ -1485,6 +1728,7 @@ const DB = (() => {
     savingsOps: [],
     transfers: [],
     recurring: [],
+    reminders: [],
     settings: { name: '', currency: 'FCFA', theme: 'light', monthlyBudget: {}, mainAccountId: null }
   };
 
@@ -1500,9 +1744,16 @@ const DB = (() => {
     } catch { return null; }
   }
 
+  let _lastSaveAt = null;
+  let _saveError = false;
   function _save(k, v) {
-    try { localStorage.setItem('b5_' + k, JSON.stringify(v)); }
-    catch (e) { console.warn('DB save failed', k, e); }
+    try { localStorage.setItem('b5_' + k, JSON.stringify(v)); _lastSaveAt = new Date(); _saveError = false;
+      window.dispatchEvent(new CustomEvent('nova:storage', { detail: { status: 'saved', key: k, time: _lastSaveAt } }));
+      return true;
+    } catch (e) { _saveError = true; console.warn('DB save failed', k, e);
+      window.dispatchEvent(new CustomEvent('nova:storage', { detail: { status: 'error', key: k, error: e } }));
+      return false;
+    }
   }
 
   const S = {};
@@ -1555,7 +1806,8 @@ const DB = (() => {
   return {
     get: k => S[k],
     set: (k, v) => { S[k] = v; _save(k, v); try { FileSync.scheduleSave(); } catch (_) { } },
-    update: (k, fn) => { fn(S[k]); _save(k, S[k]); try { FileSync.scheduleSave(); } catch (_) { } }
+    update: (k, fn) => { fn(S[k]); _save(k, S[k]); try { FileSync.scheduleSave(); } catch (_) { } },
+    getSaveInfo: () => ({ lastSaved: _lastSaveAt, error: _saveError })
   };
 })();
 
@@ -1569,6 +1821,31 @@ const ACCOUNT_CREDIT_TYPES = new Set(['deposit','receive','in','deposit_sav','tr
 const ACCOUNT_DEBIT_TYPES = new Set(['withdraw','send','out','cashout','withdraw_sav','transfer_out','transfer_to_saving']);
 const accountOpDelta = op => ACCOUNT_CREDIT_TYPES.has(op.type) ? op.amount : ACCOUNT_DEBIT_TYPES.has(op.type) ? -op.amount : 0;
 const transferIncomeForMonth = (month, year) => DB.get('transfers').filter(t => t.toType === 'account' && t.toAccountId === getMainAccountId() && (() => { const d = new Date(t.date); return d.getMonth() === month && d.getFullYear() === year; })()).reduce((sum, t) => sum + t.amount, 0);
+
+// Source unique des indicateurs mensuels : le récapitulatif et le bilan intelligent
+// partagent les mêmes totaux pour éviter les écarts entre les deux vues.
+const getMonthlyFinancialSummary = (txs, month, year) => {
+  const sum = (items, type) => items.filter(t => t.type === type).reduce((total, t) => total + Number(t.amount || 0), 0);
+  const previousMonth = month === 0 ? 11 : month - 1;
+  const previousYear = month === 0 ? year - 1 : year;
+  const previousTransactions = DB.get('txs').filter(t => { const d = new Date(t.date); return d.getMonth() === previousMonth && d.getFullYear() === previousYear; });
+  const totals = items => {
+    const income = sum(items, 'income');
+    const expense = sum(items, 'expense');
+    const saving = sum(items, 'saving');
+    return { income, expense, saving, balance: income - expense - saving };
+  };
+  const current = totals(txs);
+  current.income += transferIncomeForMonth(month, year);
+  current.balance += transferIncomeForMonth(month, year);
+  const previous = totals(previousTransactions);
+  previous.income += transferIncomeForMonth(previousMonth, previousYear);
+  previous.balance += transferIncomeForMonth(previousMonth, previousYear);
+  const expensesByCategory = {};
+  txs.filter(t => t.type === 'expense').forEach(t => { const cat = t.cat || 'autre'; expensesByCategory[cat] = (expensesByCategory[cat] || 0) + Number(t.amount || 0); });
+  const topCategory = Object.entries(expensesByCategory).sort((a, b) => b[1] - a[1])[0] || null;
+  return { month, year, previousMonth, previousYear, transactions: txs, previousTransactions, current, previous, hasPreviousData: previousTransactions.length > 0 || transferIncomeForMonth(previousMonth, previousYear) !== 0, expensesByCategory, topCategory };
+};
 
 // ==================================================
 // UTILS
@@ -1638,6 +1915,62 @@ const UI = {
 // ==================================================
 // FILE SYNC (version lisible)
 // ==================================================
+// JUSTIFICATIFS — IndexedDB (séparé du localStorage pour éviter le quota)
+// ==================================================
+const AttachmentStore = (() => {
+  const DB_NAME = 'nova_finance_receipts_v1', STORE = 'receipts';
+  function open() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = e => { if (!e.target.result.objectStoreNames.contains(STORE)) e.target.result.createObjectStore(STORE, { keyPath: 'txId' }); };
+      req.onsuccess = e => resolve(e.target.result);
+      req.onerror = e => reject(e.target.error);
+    });
+  }
+  async function put(txId, file) {
+    if (!file) return;
+    if (!/^image\//.test(file.type) && file.type !== 'application/pdf') throw new Error('Format non pris en charge');
+    if (file.size > 5 * 1024 * 1024) throw new Error('Le justificatif dépasse 5 Mo');
+    const db = await open();
+    await new Promise((resolve, reject) => { const tx = db.transaction(STORE, 'readwrite'); tx.objectStore(STORE).put({ txId, name: file.name, type: file.type, size: file.size, blob: file }); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); });
+    db.close();
+  }
+  async function get(txId) {
+    const db = await open();
+    const result = await new Promise((resolve, reject) => { const req = db.transaction(STORE, 'readonly').objectStore(STORE).get(txId); req.onsuccess = () => resolve(req.result || null); req.onerror = () => reject(req.error); });
+    db.close(); return result;
+  }
+  async function remove(txId) {
+    const db = await open(); await new Promise((resolve, reject) => { const tx = db.transaction(STORE, 'readwrite'); tx.objectStore(STORE).delete(txId); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); }); db.close();
+  }
+  async function clear() {
+    const db = await open(); await new Promise((resolve, reject) => { const tx = db.transaction(STORE, 'readwrite'); tx.objectStore(STORE).clear(); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); }); db.close();
+  }
+  async function all() {
+    const db = await open();
+    const result = await new Promise((resolve, reject) => { const req = db.transaction(STORE, 'readonly').objectStore(STORE).getAll(); req.onsuccess = () => resolve(req.result || []); req.onerror = () => reject(req.error); });
+    db.close(); return result;
+  }
+  const toDataURL = blob => new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(r.result); r.onerror = () => reject(r.error); r.readAsDataURL(blob); });
+  function fromDataURL(url) {
+    if (typeof url !== 'string' || !/^data:[^;,]+;base64,/.test(url)) throw new Error('Justificatif invalide');
+    const parts = url.split(','), mime = parts[0].slice(5).split(';')[0], binary = atob(parts[1]), bytes = new Uint8Array(binary.length);
+    for (let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
+    return new Blob([bytes], { type: mime });
+  }
+  async function exportAll() { const list = await all(); const out = []; for (const item of list) out.push({ txId: item.txId, name: item.name, type: item.type, size: item.size, data: await toDataURL(item.blob) }); return out; }
+  async function importAll(items) {
+    const db = await open();
+    await new Promise((resolve, reject) => { const tx = db.transaction(STORE, 'readwrite'), store = tx.objectStore(STORE); store.clear(); (items || []).forEach(item => { if (item && typeof item.txId === 'string' && typeof item.data === 'string') { const blob = fromDataURL(item.data); if (blob.size <= 5*1024*1024 && (/^image\//.test(blob.type) || blob.type === 'application/pdf')) store.put({ txId: item.txId, name: String(item.name || 'justificatif'), type: blob.type, size: blob.size, blob }); } }); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); }); db.close();
+  }
+  async function download(txId) {
+    const item = await get(txId); if (!item) { UI.toast('Aucun justificatif disponible', 'info'); return; }
+    const url = URL.createObjectURL(item.blob), a = document.createElement('a'); a.href = url; a.download = item.name || 'justificatif'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+  return { put, get, remove, clear, all, exportAll, importAll, download };
+})();
+
+// ==================================================
 const FileSync = (() => {
   let _handle = null;
   let _saveTimer = null;
@@ -1698,9 +2031,9 @@ const FileSync = (() => {
     return { save, load, clear };
   })();
 
-  function _build() {
+  async function _build() {
     return JSON.stringify({
-      version: '6.9',
+      version: '7.0',
       savedAt: new Date().toISOString(),
       txs: DB.get('txs'),
       accounts: DB.get('accounts'),
@@ -1709,6 +2042,8 @@ const FileSync = (() => {
       savingsOps: DB.get('savingsOps'),
       transfers: DB.get('transfers'),
       recurring: DB.get('recurring'),
+      reminders: DB.get('reminders'),
+      attachments: await AttachmentStore.exportAll(),
       settings: DB.get('settings')
     }, null, 2);
   }
@@ -1720,7 +2055,7 @@ const FileSync = (() => {
       if (perm === 'prompt') perm = await _handle.requestPermission({ mode: 'readwrite' });
       if (perm !== 'granted') { _setStatus('error'); return; }
       const writable = await _handle.createWritable();
-      await writable.write(_build());
+      await writable.write(await _build());
       await writable.close();
       _lastSaved = new Date();
       _setStatus('saved');
@@ -1797,12 +2132,13 @@ const FileSync = (() => {
         UI.toast('Fichier JSON invalide', 'error');
         return;
       }
-      const OK = ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers'].every(k => data[k] === undefined || Array.isArray(data[k]));
+      const OK = ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'recurring', 'reminders'].every(k => data[k] === undefined || Array.isArray(data[k])) && (data.attachments === undefined || Array.isArray(data.attachments)) && (data.settings === undefined || (data.settings && typeof data.settings === 'object' && !Array.isArray(data.settings)));
       if (!OK) { UI.toast('Format non reconnu', 'error'); return; }
       Modals.openConfirm('📂 Charger ce fichier', `Les données actuelles seront remplacées. Continuer ?`, async () => {
-        ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'recurring', 'settings'].forEach(k => {
+        ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'recurring', 'reminders', 'settings'].forEach(k => {
           if (data[k] !== undefined) DB.set(k, data[k]);
         });
+        if (Array.isArray(data.attachments)) { try { await AttachmentStore.importAll(data.attachments); } catch (e) { console.warn('Import des justificatifs impossible', e); } }
         _handle = h;
         await _IDB.save(h);
         _setStatus('saved');
@@ -2094,7 +2430,8 @@ const LP = {
 // ==================================================
 const Nav = {
   _tab: 'home',
-  go(tab) {
+  go(tab, fromMenu = false) {
+    if (!fromMenu && typeof NovaMenu !== 'undefined') NovaMenu._lastDestination = null;
     if (tab === 'savings') tab = 'accounts';
     this._tab = tab;
     document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
@@ -2148,7 +2485,111 @@ const Nav = {
 };
 
 // ==================================================
-// APP - Rendu principal avec correction des doublons
+// MENU LATÉRAL — navigation vers les vues et outils existants
+// ==================================================
+const NovaMenu = {
+  _returnFocus: null,
+  _keydown: null,
+  _lastDestination: null,
+  open() {
+    const overlay = UI.$('novaDrawerOverlay');
+    const triggers = document.querySelectorAll('.nova-menu-trigger');
+    if (!overlay || overlay.classList.contains('open')) return;
+    this._returnFocus = document.activeElement;
+    this._syncProfile();
+    this._syncActive();
+    // Le panneau est modal : rendre le reste de l'application inerte le temps de la navigation.
+    this._inertNodes = [...overlay.parentElement.children].filter(node => node !== overlay).map(node => ({ node, wasInert: node.inert }));
+    this._inertNodes.forEach(({ node }) => { node.inert = true; });
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    triggers.forEach(trigger => trigger.setAttribute('aria-expanded', 'true'));
+    this._keydown = e => {
+      if (e.key === 'Escape') { e.preventDefault(); this.close(); return; }
+      if (e.key !== 'Tab') return;
+      const focusables = [...overlay.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')]
+        .filter(el => el.getClientRects().length > 0 && !el.closest('[inert]'));
+      if (!focusables.length) return;
+      const first = focusables[0], last = focusables[focusables.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !overlay.contains(document.activeElement))) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !overlay.contains(document.activeElement))) {
+        e.preventDefault(); first.focus();
+      }
+    };
+    document.addEventListener('keydown', this._keydown);
+    const first = overlay.querySelector('.nova-drawer-close');
+    if (first) setTimeout(() => { if (overlay.classList.contains('open')) first.focus({ preventScroll: true }); }, 0);
+  },
+  close() {
+    const overlay = UI.$('novaDrawerOverlay');
+    const triggers = document.querySelectorAll('.nova-menu-trigger');
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    triggers.forEach(trigger => trigger.setAttribute('aria-expanded', 'false'));
+    if (this._keydown) document.removeEventListener('keydown', this._keydown);
+    this._keydown = null;
+    (this._inertNodes || []).forEach(({ node, wasInert }) => { node.inert = wasInert; });
+    this._inertNodes = null;
+    const back = this._returnFocus; this._returnFocus = null;
+    if (back && typeof back.focus === 'function') requestAnimationFrame(() => back.focus({ preventScroll: true }));
+  },
+  _syncProfile() {
+    const name = DB.get('settings').name || 'Mon espace';
+    UI.txt('drawerProfileName', name);
+    UI.txt('drawerAvatar', (name.trim()[0] || 'N').toUpperCase());
+  },
+  _syncActive() {
+    const current = ({ home: 'overview', flux: 'transactions', accounts: 'accounts', stats: 'report', settings: 'settings' })[Nav._tab] || 'overview';
+    const special = this._lastDestination;
+    const useSpecial = ((special === 'budget' || special === 'recurring') && Nav._tab === 'settings')
+      || (special === 'savings' && Nav._tab === 'accounts');
+    const activeDestination = useSpecial ? special : current;
+    document.querySelectorAll('.nova-drawer-link').forEach(el => {
+      const selected = el.dataset.destination === activeDestination;
+      el.classList.toggle('active', selected);
+      if (selected) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
+    });
+  },
+  go(destination) {
+    this._lastDestination = destination;
+    this.close();
+    if (destination === 'overview') { Nav.go('home', true); return; }
+    if (destination === 'transactions') { Nav.go('flux', true); return; }
+    if (destination === 'accounts') { Nav.go('accounts', true); return; }
+    if (destination === 'budget') {
+      Nav.go('settings', true);
+      requestAnimationFrame(() => Modals.openBudgetSettings());
+      return;
+    }
+    if (destination === 'savings') {
+      Nav.go('accounts', true);
+      requestAnimationFrame(() => {
+        const section = UI.$('savingsAccountsGroup');
+        if (!section) {
+          Modals.openAccountForm();
+          const type = UI.$('acFormType'); if (type) { type.value = 'savings'; Modals.toggleGoalSection(); }
+          UI.toast('Créez un compte épargne pour définir votre premier objectif.', 'info');
+          return;
+        }
+        const target = [...section.querySelectorAll('.ac-card')].find(card => card.querySelector('.ac-goal')) || section;
+        target.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' });
+      });
+      return;
+    }
+    if (destination === 'recurring') {
+      Nav.go('settings', true);
+      requestAnimationFrame(() => Modals.openRecurring());
+      return;
+    }
+    if (destination === 'report') { Nav.go('stats', true); return; }
+    if (destination === 'settings') { Nav.go('settings', true); return; }
+  }
+};
+
+// ==================================================
+// APP - Rendu principal
 // ==================================================
 const App = {
   _month: new Date().getMonth(),
@@ -2259,9 +2700,9 @@ const App = {
     UI.txt('hBalSub', 'Revenus − Dépenses − Épargne · ' + lbl);
     this._animateBal(UI.$('hBal'), bal);
     this._drawSpark(mt, DB.get('transfers'));
-    UI.txt('hInc', '+' + Utils.fmtS(inc));
-    UI.txt('hExp', '-' + Utils.fmtS(exp));
-    UI.txt('hSav', '-' + Utils.fmtS(sav));
+    UI.txt('hInc', Utils.fmtS(inc));
+    UI.txt('hExp', Utils.fmtS(exp));
+    UI.txt('hSav', Utils.fmtS(sav));
 
     const h = new Date().getHours();
     const g = h < 5 ? 'Bonne nuit' : h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
@@ -2273,7 +2714,7 @@ const App = {
     UI.html('homeAccountsRow', acs.map(ac => `
       <div class="mini-ac" data-color="${ac.customColor ? 'custom' : ac.colorKey}" style="${accountStyle(ac)};--ac-custom:${ac.customColor || 'transparent'}" onclick="if(!_lpFired)Nav.openDetail('account','${ac.id}')">
         <div class="mac-badge"><div class="mac-icon">${Utils.esc(ac.icon)}</div>${Utils.esc(ac.name)}</div>
-        <div class="mac-bal" style="color:${ac.balance < 0 ? 'var(--red)' : 'var(--text)'}">${ac.balance < 0 ? '-' : ''}${Utils.fmtS(Math.abs(ac.balance))} F</div>
+        <div class="mac-bal" style="color:${ac.balance < 0 ? 'var(--red)' : 'var(--text)'}">${Utils.fmtS(Math.abs(ac.balance))} F</div>
         <div class="mac-sub">${goalInfo(ac) ? 'Objectif · ' + Math.floor(goalInfo(ac).pct) + '%' : 'Solde'}</div>
         ${goalInfo(ac) ? `<div class="mac-goal"><i style="width:${goalInfo(ac).pct.toFixed(1)}%"></i></div>` : ''}
       </div>
@@ -2282,8 +2723,25 @@ const App = {
     this.renderBudgetGauge();
     this.renderCatBudgets();
     this.renderInsights(exp, mt);
+    this.renderForecast(mt, inc, exp, sav);
     this.renderTxList();
     this.renderSettings();
+  },
+
+  renderForecast(mt, income, expenses, savings) {
+    const el = UI.$('novaForecastCard'); if (!el) return;
+    const now = new Date(), current = this._year === now.getFullYear() && this._month === now.getMonth();
+    if (!current) { el.style.display = 'none'; return; }
+    const elapsed = Math.max(1, now.getDate());
+    const days = new Date(this._year, this._month + 1, 0).getDate();
+    const projected = Math.round((expenses / elapsed) * days);
+    const net = income - expenses - savings;
+    const rate = income > 0 ? Math.round((savings / income) * 100) : 0;
+    const prior = DB.get('txs').filter(t => { const d = new Date(t.date); return d.getFullYear() === (this._month === 0 ? this._year - 1 : this._year) && d.getMonth() === (this._month + 11) % 12; });
+    const priorExp = prior.filter(t => t.type === 'expense').reduce((a,t) => a + Number(t.amount || 0), 0);
+    const trend = priorExp ? (projected > priorExp ? `en hausse de ${Math.round((projected-priorExp)/priorExp*100)} %` : `en baisse de ${Math.round((priorExp-projected)/priorExp*100)} %`) : 'pas encore de comparaison disponible';
+    el.innerHTML = `<div class="nf-title">✨ Prévision et bilan du mois</div><div class="nf-main">${Utils.fmtS(projected)} ${Utils.cur()}</div><div class="nf-sub">Dépenses estimées à la fin du mois · tendance ${trend} par rapport au mois précédent</div><div class="nf-grid"><div class="nf-cell"><small>Balance actuelle</small><b>${Utils.fmtS(net)}</b></div><div class="nf-cell"><small>Taux d’épargne</small><b>${rate} %</b></div><div class="nf-cell"><small>Jours écoulés</small><b>${elapsed} / ${days}</b></div></div>`;
+    el.style.display = '';
   },
 
   renderCatBudgets() {
@@ -2473,7 +2931,7 @@ const App = {
             <div class="ac-card-id"><div class="ac-card-name">${Utils.esc(ac.name)}</div><div class="ac-card-sub">${ac.id === getMainAccountId() ? '<small class="main-account-tag">Principal</small> ' : ''}${accountTypeInfo(ac.type).label}</div></div>
           </div>
           <div class="ac-card-bal">
-            <div class="ac-card-bal-val" style="${ac.balance < 0 ? 'color:var(--red)' : ''}">${Utils.fmt(ac.balance)}</div>
+            <div class="ac-card-bal-val" style="${ac.balance < 0 ? 'color:var(--red)' : ''}">${Utils.fmt(Math.abs(ac.balance))}</div>
             <div class="ac-card-bal-lbl">Solde</div>
           </div>
           <button class="ac-more" aria-label="Plus d’actions pour ${Utils.esc(ac.name)}" onclick="event.stopPropagation();App.openAccountMenu('${ac.id}')">⋯</button>
@@ -2489,12 +2947,12 @@ const App = {
     const posSum = keys.reduce((s, k) => s + Math.max(0, byType[k]), 0);
     const seg = keys.filter(k => byType[k] > 0).map(k => `<i style="flex:${(byType[k] / posSum).toFixed(4)};background:${accountTypeInfo(k).col}"></i>`).join('');
     const legend = keys.map(k => `<span style="--c:${accountTypeInfo(k).col}">${accountTypeInfo(k).label} · ${Utils.fmtS(byType[k])}</span>`).join('');
-    const summary = `<div class="acs-summary"><div class="acs-lbl">Patrimoine total</div><div class="acs-total">${Utils.fmt(total)}</div>${posSum > 0 ? `<div class="acs-bar">${seg}</div>` : ''}<div class="acs-legend">${legend}</div></div>`;
+    const summary = `<div class="acs-summary"><div class="acs-lbl">Patrimoine total</div><div class="acs-total" style="color:${total < 0 ? 'var(--red)' : 'var(--text)'}">${Utils.fmt(Math.abs(total))}</div>${posSum > 0 ? `<div class="acs-bar">${seg}</div>` : ''}<div class="acs-legend">${legend}</div></div>`;
     const plain = acs.filter(a => a.type !== 'savings'), saving = acs.filter(a => a.type === 'savings');
     const grouped = plain.length && saving.length;
-    UI.html('accountsList', summary
-      + (grouped ? '<div class="sec-title acs-title">Comptes</div>' : '') + plain.map(card).join('')
-      + (grouped ? '<div class="sec-title acs-title">Épargne</div>' : '') + saving.map(card).join(''));
+    const regularCards = plain.length ? (grouped ? '<div class="sec-title acs-title">Comptes</div>' : '') + `<div id="regularAccountsGroup">${plain.map(card).join('')}</div>` : '';
+    const savingsCards = saving.length ? (grouped || !plain.length ? '<div class="sec-title acs-title">Épargne</div>' : '') + `<div id="savingsAccountsGroup">${saving.map(card).join('')}</div>` : '';
+    UI.html('accountsList', summary + regularCards + savingsCards);
     LP.bindAll();
   },
 
@@ -2537,7 +2995,7 @@ const App = {
       <div class="detail-hero" data-color="${ac.customColor ? 'custom' : ac.colorKey}" style="${accountStyle(ac)}">
         <div class="detail-hero-icon">${Utils.esc(ac.icon)}</div>
         <div class="detail-hero-name">${Utils.esc(ac.name)}${ac.id === getMainAccountId() ? ' <small class="main-account-tag">Principal</small>' : ''}</div>
-        <div class="detail-hero-bal" style="${ac.balance < 0 ? 'color:var(--red)' : ''}">${Utils.fmt(ac.balance)}</div>
+        <div class="detail-hero-bal" style="${ac.balance < 0 ? 'color:var(--red)' : ''}">${Utils.fmt(Math.abs(ac.balance))}</div>
         <div class="detail-hero-sub">Solde disponible</div>
       </div>
       ${goalCard}
@@ -2578,6 +3036,14 @@ const App = {
     </div>`;
   },
 
+  renderLocalSaveStatus() {
+    const info = DB.getSaveInfo(), state = UI.$('localSaveStatus');
+    if (!state) return;
+    state.classList.toggle('error', !!info.error);
+    UI.txt('localSaveTitle', info.error ? 'Échec de la sauvegarde locale' : 'Enregistrement sur cet appareil');
+    UI.txt('localSaveTime', info.error ? 'Vérifie l’espace disponible dans le navigateur.' : (info.lastSaved ? 'Dernière sauvegarde : ' + info.lastSaved.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit',second:'2-digit'}) : 'Sauvegarde locale active'));
+  },
+
   renderSettings() {
     const s = DB.get('settings');
     const n = s.name || 'Utilisateur';
@@ -2587,6 +3053,7 @@ const App = {
     if (tog) tog.checked = s.theme !== 'light';
     UI.txt('paletteSummary', Theme.label());
     try { PWA.renderInstallSection(); } catch (_) { }
+    this.renderLocalSaveStatus();
 
     const sec = UI.$('fsyncSection');
     if (!sec) return;
@@ -2630,15 +3097,9 @@ const App = {
     this._lastBudgetAlert = null;
     FileSync.init();
     PWA.init();
+    FinancialTools.init();
     this.renderHome();
     this.initSearch();
-
-    // Demande de permission de notifications (non bloquant, au 1er load)
-    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
-      setTimeout(() => {
-        Notification.requestPermission().catch(() => {});
-      }, 3000);
-    }
 
     const statsPrev = document.getElementById('statsMonthPrev');
     const statsNext = document.getElementById('statsMonthNext');
@@ -2737,6 +3198,10 @@ const Modals = {
     const _tt = document.querySelector('#txOverlay .modal-title-text'); if (_tt) _tt.textContent = 'Modifier la transaction';
     UI.$('txAmt').value = tx.amount;
     UI.$('txDesc').value = tx.desc || '';
+    UI.$('txNote').value = tx.note || '';
+    UI.$('txReceipt').value = '';
+    UI.txt('txReceiptInfo', 'Vérification du justificatif…');
+    AttachmentStore.get(tx.id).then(item => { if (Actions._editId === id) UI.html('txReceiptInfo', item ? `Justificatif : ${Utils.esc(item.name)} · <button type="button" class="nova-inline-btn" onclick="AttachmentStore.download('${id}')">Télécharger</button>` : 'Aucun justificatif associé.'); }).catch(() => UI.txt('txReceiptInfo', 'Justificatif indisponible.'));
     this._setTxDate(tx.date); this._renderAmt();
   },
 
@@ -2751,6 +3216,9 @@ const Modals = {
     _txType = type;
     UI.$('txAmt').value = '';
     UI.$('txDesc').value = '';
+    UI.$('txNote').value = '';
+    UI.$('txReceipt').value = '';
+    UI.txt('txReceiptInfo', 'Aucun justificatif ajouté.');
     this._setTxDate(null); this._renderAmt();
 
     const main = getMainAccount();
@@ -2844,27 +3312,21 @@ const Modals = {
   },
 
   _renderRecap(txs) {
-    const inc = txs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0) + transferIncomeForMonth(this.statsMonth, this.statsYear);
-    const exp = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-    const sav = txs.filter(t => t.type === 'saving').reduce((s, t) => s + t.amount, 0), bal = inc - exp - sav;
-    const pm = this.statsMonth === 0 ? 11 : this.statsMonth - 1, py = this.statsMonth === 0 ? this.statsYear - 1 : this.statsYear;
-    const prev = DB.get('txs').filter(t => { const d = new Date(t.date); return d.getMonth() === pm && d.getFullYear() === py; });
-    const prevInc = prev.filter(t => t.type === 'income').reduce((s,t) => s+t.amount,0) + transferIncomeForMonth(pm, py);
-    const prevExp = prev.filter(t => t.type === 'expense').reduce((s,t) => s+t.amount,0);
-    const prevSav = prev.filter(t => t.type === 'saving').reduce((s,t) => s+t.amount,0), prevBal = prevInc-prevExp-prevSav;
-    const compare = (current, before, kind) => {
-      if (!prev.length && !transferIncomeForMonth(pm, py)) return `<small class="stats-compare neutral">Pas de données en ${MONTHS[pm].toLowerCase()}</small>`;
-      const delta = current - before, pct = before ? Math.round(Math.abs(delta) / before * 100) : null;
+    const summary = getMonthlyFinancialSummary(txs, this.statsMonth, this.statsYear);
+    const { current, previous, previousMonth } = summary;
+    const compare = (value, before, kind) => {
+      if (!summary.hasPreviousData) return `<small class="stats-compare neutral">Pas de données en ${MONTHS[previousMonth].toLowerCase()}</small>`;
+      const delta = value - before, pct = before ? Math.round(Math.abs(delta) / Math.abs(before) * 100) : null;
       const favorable = kind === 'expense' ? delta <= 0 : delta >= 0;
       const cls = delta === 0 ? 'neutral' : favorable ? 'down' : 'up';
-      const text = delta === 0 ? 'Stable' : `${delta > 0 ? '+' : '−'}${Utils.fmtS(Math.abs(delta))}${pct === null ? '' : ` (${pct} %)`}`;
-      return `<small class="stats-compare ${cls}">vs ${MONTHS[pm].toLowerCase()} : <b>${text}</b></small>`;
+      const label = delta === 0 ? 'Stable' : `${delta > 0 ? 'Hausse de ' : 'Baisse de '}${Utils.fmtS(Math.abs(delta))}${pct === null ? '' : ` (${pct} %)`}`;
+      return `<small class="stats-compare ${cls}">vs ${MONTHS[previousMonth].toLowerCase()} : <b>${label}</b></small>`;
     };
     UI.html('statsSummary',
-      `<div class="sc"><div class="sc-lbl">Revenus</div><div class="sc-val" style="color:var(--green)">+${Utils.fmtS(inc)}</div>${compare(inc,prevInc,'income')}</div>` +
-      `<div class="sc"><div class="sc-lbl">Dépenses</div><div class="sc-val" style="color:var(--red)">-${Utils.fmtS(exp)}</div>${compare(exp,prevExp,'expense')}</div>` +
-      `<div class="sc"><div class="sc-lbl">Épargne</div><div class="sc-val" style="color:var(--gold)">-${Utils.fmtS(sav)}</div>${compare(sav,prevSav,'saving')}</div>` +
-      `<div class="sc"><div class="sc-lbl">Balance</div><div class="sc-val" style="color:${bal < 0 ? 'var(--red)' : 'var(--green)'}">${bal < 0 ? '-' : '+'}${Utils.fmtS(Math.abs(bal))}</div>${compare(bal,prevBal,'balance')}</div>`);
+      `<div class="sc"><div class="sc-lbl">Revenus</div><div class="sc-val" style="color:var(--green)">${Utils.fmtS(current.income)}</div>${compare(current.income,previous.income,'income')}</div>` +
+      `<div class="sc"><div class="sc-lbl">Dépenses</div><div class="sc-val" style="color:var(--red)">${Utils.fmtS(current.expense)}</div>${compare(current.expense,previous.expense,'expense')}</div>` +
+      `<div class="sc"><div class="sc-lbl">Épargne</div><div class="sc-val" style="color:var(--gold)">${Utils.fmtS(current.saving)}</div>${compare(current.saving,previous.saving,'saving')}</div>` +
+      `<div class="sc"><div class="sc-lbl">Balance</div><div class="sc-val" style="color:${current.balance < 0 ? 'var(--red)' : 'var(--green)'}">${Utils.fmtS(Math.abs(current.balance))}</div>${compare(current.balance,previous.balance,'balance')}</div>`);
   },
   selectStatsCat(cat) {
     if (this._statsCat === cat) this._statsCat = null;
@@ -2904,7 +3366,7 @@ const Modals = {
     box.style.display = '';
     box.innerHTML = `<div class="stats-cat-detail">
       <div class="scd-head">
-        <div class="scd-title">${c.e} ${Utils.esc(c.l)} · ${txs.length} · <span style="color:${color}">${sign}${Utils.fmtS(total)} ${Utils.cur()}</span></div>
+        <div class="scd-title">${c.e} ${Utils.esc(c.l)} · ${txs.length} · <span style="color:${color}">${Utils.fmtS(total)} ${Utils.cur()}</span></div>
         <button type="button" class="scd-close" onclick="Modals.clearStatsCat()">Fermer</button>
       </div>
       <div class="tx-list">${rows}</div>
@@ -2935,6 +3397,7 @@ const Modals = {
       return d.getMonth() === this.statsMonth && d.getFullYear() === this.statsYear;
     });
     this._renderRecap(txs);
+    this.renderIntelligentReport(txs);
     const list = txs.filter(t => t.type === type), total = list.reduce((s, t) => s + t.amount, 0), by = {};
     list.forEach(t => { by[t.cat] = (by[t.cat] || 0) + t.amount; });
     const entries = Object.entries(by).sort((a, b) => b[1] - a[1]);
@@ -2986,6 +3449,47 @@ const Modals = {
     }).join(''));
     if (this._statsCat && !entries.some(([cat]) => cat === this._statsCat)) this._statsCat = null;
     this._renderStatsCatDetail();
+  },
+
+  renderIntelligentReport(txs) {
+    const el = UI.$('intelligentReport'); if (!el) return;
+    const summary = getMonthlyFinancialSummary(txs, this.statsMonth, this.statsYear);
+    const { current, previous, topCategory } = summary;
+    const { income, expense, saving, balance: net } = current;
+    const prevExpense = previous.expense;
+    const delta = prevExpense ? Math.round((expense-prevExpense)/prevExpense*100) : null;
+    const days = new Date(this.statsYear,this.statsMonth+1,0).getDate();
+    const now = new Date(), isCurrent = this.statsYear===now.getFullYear() && this.statsMonth===now.getMonth();
+    const elapsed = isCurrent ? Math.max(1,now.getDate()) : days;
+    const daily = expense/elapsed, forecast = isCurrent ? daily*days : expense;
+    const rate = income>0 ? Math.round(saving/income*100) : 0;
+    const fmt = n => Utils.fmtS(Math.round(n))+' '+Utils.cur();
+    const trendText = delta===null ? 'Aucune comparaison disponible avec le mois précédent.' : delta>0 ? `Les dépenses progressent de ${delta}% par rapport au mois précédent.` : delta<0 ? `Les dépenses reculent de ${Math.abs(delta)}% par rapport au mois précédent.` : 'Les dépenses sont stables par rapport au mois précédent.';
+    const narrative = income+expense+saving===0 ? 'Ajoutez vos opérations pour obtenir une analyse personnalisée de votre activité financière.' :
+      `${trendText} ${topCategory ? `Votre premier poste de dépenses est « ${(CATS[topCategory[0]]||CATS.autre).l} » avec ${fmt(topCategory[1])} (${Math.round(topCategory[1]/Math.max(1,expense)*100)}% des dépenses).` : 'Aucune dépense enregistrée sur la période.'}`;
+    const metrics = [
+      ['Revenus',fmt(income),'var(--green)'],['Dépenses',fmt(expense),'var(--red)'],
+      ['Solde du mois',fmt(net),net>=0?'var(--green)':'var(--red)'],['Épargne',`${fmt(saving)} · ${rate}%`,'var(--blue)'],
+      ['Moyenne dépensée / jour',fmt(daily),'var(--text)'],[isCurrent?'Dépenses projetées':'Dépenses totales',fmt(forecast),'var(--text)']
+    ];
+    UI.txt('irPeriod',MONTHS[this.statsMonth]+' '+this.statsYear+' · '+txs.length+' opération(s) analysée(s)');
+    UI.html('irNarrative',Utils.esc(narrative));
+    UI.html('irMetrics',metrics.map(([label,value,color])=>`<div style="padding:10px 11px;border-radius:13px;background:var(--surface2);min-width:0"><div style="font-size:.68rem;color:var(--text3);margin-bottom:5px">${label}</div><div style="font-weight:900;font-size:.88rem;color:${color};overflow-wrap:anywhere">${value}</div></div>`).join(''));
+    let advice = net<0 ? '⚠️ Vos sorties dépassent vos revenus sur cette période. Examinez les dépenses variables avant d’augmenter votre budget.' :
+      rate<10 && income>0 ? '💡 Votre taux d’épargne est inférieur à 10%. Essayez de mettre de côté une petite somme dès la réception de vos revenus.' :
+      delta!==null && delta>15 ? '📈 Vos dépenses augmentent sensiblement. Vérifiez le poste principal et comparez les achats non essentiels.' :
+      '🌱 Votre bilan est équilibré. Gardez le rythme et vérifiez régulièrement vos budgets par catégorie.';
+    UI.html('irAdvice',Utils.esc(advice));
+    this._intelligentReportText = `BILAN FINANCIER — ${MONTHS[this.statsMonth]} ${this.statsYear}\n${narrative}\nRevenus : ${fmt(income)}\nDépenses : ${fmt(expense)}\nSolde : ${fmt(net)}\nÉpargne : ${fmt(saving)} (${rate}%)\nMoyenne quotidienne : ${fmt(daily)}\n${isCurrent?'Projection des dépenses : '+fmt(forecast):''}\nConseil : ${advice}`;
+  },
+
+  exportIntelligentReport() {
+    const content = this._intelligentReportText || 'Aucune donnée à exporter.';
+    const blob = new Blob(['\\ufeff'+content],{type:'text/plain;charset=utf-8'});
+    const url = URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download=`nova-finance-bilan-${this.statsYear}-${String(this.statsMonth+1).padStart(2,'0')}.txt`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+    UI.toast('Bilan intelligent exporté','success');
   },
 
   _cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); },
@@ -3159,13 +3663,15 @@ const Modals = {
   },
 
   confirmReset() {
-    this.openConfirm('⚠️ Réinitialisation', 'Cette action remettra l\'application à zéro : transactions, comptes, récurrences, objectifs, budgets et catégories personnalisées.', () => {
-      ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'recurring'].forEach(k => DB.set(k, []));
+    this.openConfirm('⚠️ Réinitialisation', 'Cette action remettra l\'application à zéro : transactions, comptes, récurrences, rappels, justificatifs, objectifs, budgets et catégories personnalisées.', () => {
+      ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'recurring', 'reminders'].forEach(k => DB.set(k, []));
+      AttachmentStore.clear().catch(e => console.warn('Nettoyage des justificatifs impossible', e));
       DB.update('settings', st => {
         st.monthlyBudget = {};
         st.catBudgets = {};
         st.catIcons = {};
         st.mainAccountId = null;
+        st.reminderNotified = [];
         (st.customCats || []).forEach(c => delete CATS[c.id]);
         st.customCats = [];
       });
@@ -3265,7 +3771,7 @@ const Actions = {
     UI.toast(`✅ ${Utils.fmtS(amount)} ${Utils.cur()} transféré avec succès`, 'success');
   },
 
-  saveTx() {
+  async saveTx() {
     if (this._isSubmitting) return;
     this._isSubmitting = true;
     const btn = UI.$('txSaveBtn');
@@ -3281,6 +3787,10 @@ const Actions = {
       if (_txType === 'saving' && (!savingDestinationId || savingDestinationId === accountId)) { UI.toast('Créez ou choisissez un autre compte pour recevoir l’épargne', 'error'); btn.disabled = false; btn.textContent = originalText; this._isSubmitting = false; return; }
       const desc = UI.$('txDesc').value.trim();
       const wasEdit = !!this._editId;
+      const candidateDate = Modals.txDateISO();
+      const duplicate = DB.get('txs').find(t => t.id !== this._editId && t.type === _txType && Math.abs(Number(t.amount) - amt) < 0.005 && (t.desc || '').trim().toLocaleLowerCase() === desc.toLocaleLowerCase() && new Date(t.date).toDateString() === new Date(candidateDate).toDateString() && t.accountId === accountId);
+      if (duplicate && !confirm('Une transaction très similaire existe déjà à cette date et sur ce compte. Veux-tu quand même l’enregistrer ?')) { btn.disabled = false; btn.textContent = originalText; this._isSubmitting = false; return; }
+
       let _oldTx = null, _snap = null;
       const _undoEdit = () => { if (_snap) Actions._restore(_snap); };
       if (wasEdit) {
@@ -3308,16 +3818,20 @@ const Actions = {
         date: Modals.txDateISO(), ...(savingTransferId ? { transferId: savingTransferId } : {})
       }); if (savingTransferId) ops.push({ id: Utils.uid(), accountId: savingDestinationId, type: 'transfer_in', amount: amt, desc: `Épargne reçue${desc ? ` : ${desc}` : ''}`, date: Modals.txDateISO(), transferId: savingTransferId }); });
       DB.update('txs', txs => txs.push({
-        id: (this._newTxId = Utils.uid()),
+        id: (this._newTxId = (wasEdit && _oldTx ? _oldTx.id : Utils.uid())),
         type: _txType,
         amount: amt,
         cat: _txType === 'saving' ? 'epargne' : _selectedCat,
         desc: desc,
+        note: UI.$('txNote').value.trim(),
         accountId: accountId,
         linkedOpId: newOpId,
         ...(savingTransferId ? { savingTransferId, savingDestinationId } : {}),
         date: Modals.txDateISO()
       }));
+      const receiptFile = UI.$('txReceipt').files && UI.$('txReceipt').files[0];
+      let receiptWarning = '';
+      if (receiptFile) { try { await AttachmentStore.put(this._newTxId, receiptFile); } catch (receiptError) { receiptWarning = receiptError.message || 'Échec de l’ajout du justificatif'; } }
       btn.disabled = false;
       btn.textContent = originalText;
       this._isSubmitting = false;
@@ -3331,7 +3845,7 @@ const Actions = {
       App.renderHome();
       App.renderAccounts();
       if (Nav._detailType === 'account') Nav.refreshDetail();
-      UI.toast(wasEdit ? '✅ Transaction modifiée' : (_txType === 'income' ? '✅ Revenu enregistré' : _txType === 'saving' ? '✅ Épargne enregistrée' : '✅ Dépense enregistrée'), 'success');
+      UI.toast(receiptWarning ? `Transaction enregistrée, mais ${receiptWarning}` : (wasEdit ? '✅ Transaction modifiée' : (_txType === 'income' ? '✅ Revenu enregistré' : _txType === 'saving' ? '✅ Épargne enregistrée' : '✅ Dépense enregistrée')), receiptWarning ? 'info' : 'success');
     } catch (e) {
       console.error(e);
       btn.disabled = false;
@@ -3668,14 +4182,29 @@ const Actions = {
     });
   },
 
-  exportJSON() {
-    const data = { app: 'budget', version: 1, exportedAt: new Date().toISOString() };
-    ['txs','accounts','accountOps','savings','savingsOps','transfers','recurring','settings'].forEach(k => data[k] = DB.get(k));
-    const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
-    const a = document.createElement('a');
-    a.href = url; a.download = 'budget_sauvegarde_' + new Date().toISOString().slice(0, 10) + '.json';
-    a.click(); URL.revokeObjectURL(url);
-    UI.toast('✅ Sauvegarde téléchargée', 'success');
+  exportCSV() {
+    const rows = [['Date','Type','Description','Catégorie','Compte','Montant','Devise','Note']];
+    const accounts = DB.get('accounts');
+    DB.get('txs').slice().sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(t => {
+      const account = accounts.find(a => a.id === t.accountId);
+      const values = [new Date(t.date).toLocaleDateString('fr-FR'), t.type, t.desc || '', CATS[t.cat]?.l || t.cat || '', account?.name || '', Number(t.amount || 0), DB.get('settings').currency || 'FCFA', t.note || ''];
+      rows.push(values.map(v => '"' + String(v).replace(/"/g,'""') + '"'));
+    });
+    const csv = '\ufeff' + rows.map(r => r.join(';')).join('\r\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8'}); const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'nova-finance-transactions-' + new Date().toISOString().slice(0,10) + '.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+    UI.toast('Export CSV prêt', 'success');
+  },
+
+  async exportJSON() {
+    try {
+      const data = { app: 'nova-finance', version: 2, exportedAt: new Date().toISOString() };
+      ['txs','accounts','accountOps','savings','savingsOps','transfers','recurring','reminders','settings'].forEach(k => data[k] = DB.get(k));
+      data.attachments = await AttachmentStore.exportAll();
+      const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+      const a = document.createElement('a'); a.href = url; a.download = 'nova_finance_sauvegarde_' + new Date().toISOString().slice(0, 10) + '.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+      UI.toast('✅ Sauvegarde téléchargée', 'success');
+    } catch (e) { console.error(e); UI.toast('Impossible de créer la sauvegarde', 'error'); }
   },
 
   async exportPDF() {
@@ -3794,7 +4323,7 @@ function _selCat(k) { _selectedCat = k; _buildCats(); }
 // ==================================================
 // GESTIONNAIRES D'ÉVÉNEMENTS
 // ==================================================
-const MODAL_IDS = ['addOverlay', 'catOverlay', 'catIconOverlay', 'catBudgetOverlay', 'recurOverlay', 'txOverlay', 'acOpOverlay', 'acFormOverlay', 'renameOverlay', 'profileOverlay', 'paletteOverlay', 'confirmOverlay', 'homeAccountsModal', 'budgetModal', 'transferModal'];
+const MODAL_IDS = ['addOverlay', 'catOverlay', 'catIconOverlay', 'catBudgetOverlay', 'recurOverlay', 'txOverlay', 'acOpOverlay', 'acFormOverlay', 'renameOverlay', 'profileOverlay', 'paletteOverlay', 'confirmOverlay', 'homeAccountsModal', 'budgetModal', 'transferModal', 'remindersOverlay', 'reminderFormOverlay', 'calculatorOverlay'];
 
 MODAL_IDS.forEach(id => { const el = UI.$(id); if (!el) return; el.addEventListener('click', e => { if (e.target === el) Modals.close(id); }); let t0 = null;
   el.addEventListener('touchstart', e => { if (e.target === el) { e.preventDefault(); const t = e.touches[0]; t0 = { x: t.clientX, y: t.clientY }; } else t0 = null; }, { passive: false });
@@ -4066,7 +4595,7 @@ Modals.txDateISO = function () {
 };
 
 App._animateBal = function (el, to) {
-  if (!el) return; const from = this._lastBal ?? to, fmt = v => (v > 0 ? '+' : '') + Utils.fmt(Math.round(v));
+  if (!el) return; const from = this._lastBal ?? to, fmt = v => Utils.fmt(Math.abs(Math.round(v)));
   this._lastBal = to; el.style.color = to < 0 ? '#ffb3a7' : ''; cancelAnimationFrame(this._balRaf);
   if (from === to || reducedMotion()) { el.textContent = fmt(to); return; }
   const t0 = performance.now(), step = now => { const k = Math.min(1, (now - t0) / 450); el.textContent = fmt(from + (to - from) * (1 - Math.pow(1 - k, 3))); if (k < 1) this._balRaf = requestAnimationFrame(step); };
@@ -4258,11 +4787,11 @@ const Flux = {
         else if (delta > 0) entries += delta;
         else exits += Math.abs(delta);
       });
-      const transferSummary = `+${Utils.fmtS(transferIn)} · −${Utils.fmtS(transferOut)}`;
+      const transferSummary = `${Utils.fmtS(transferIn)} reçus · ${Utils.fmtS(transferOut)} envoyés`;
       UI.html('fluxSummary',
-        `<div class="sc"><div class="sc-lbl">Solde actuel</div><div class="sc-val" style="color:${selectedAccount.balance < 0 ? 'var(--red)' : 'var(--green)'}">${selectedAccount.balance < 0 ? '−' : ''}${Utils.fmtS(Math.abs(selectedAccount.balance))}</div></div>` +
-        `<div class="sc"><div class="sc-lbl">Entrées</div><div class="sc-val pos">+${Utils.fmtS(entries)}</div></div>` +
-        `<div class="sc"><div class="sc-lbl">Sorties</div><div class="sc-val neg">−${Utils.fmtS(exits)}</div></div>` +
+        `<div class="sc"><div class="sc-lbl">Solde actuel</div><div class="sc-val" style="color:${selectedAccount.balance < 0 ? 'var(--red)' : 'var(--green)'}">${Utils.fmtS(Math.abs(selectedAccount.balance))}</div></div>` +
+        `<div class="sc"><div class="sc-lbl">Entrées</div><div class="sc-val pos">${Utils.fmtS(entries)}</div></div>` +
+        `<div class="sc"><div class="sc-lbl">Sorties</div><div class="sc-val neg">${Utils.fmtS(exits)}</div></div>` +
         `<div class="sc"><div class="sc-lbl">Transferts</div><div class="sc-val" style="color:var(--blue);font-size:.88rem">${transferSummary}</div></div>`);
       UI.$('fluxSummary').classList.add('flux-account-summary');
     } else { UI.$('fluxSummary').classList.remove('flux-account-summary'); UI.html('fluxSummary', ''); }
@@ -4354,13 +4883,113 @@ Back.guard();
   observer.observe(UI.$('phone'), { childList: true, subtree: true });
 })();
 
+// ==================================================
+// OUTILS FINANCIERS — calendrier, rappels, calculatrice
+// ==================================================
+const FinancialTools = (() => {
+  const pad = n => String(n).padStart(2, '0');
+  function localISO(d) { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+  let calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  let selectedDate = localISO(new Date());
+  let editReminderId = null;
+  function parseISO(s) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || '')); return m ? new Date(+m[1], +m[2]-1, +m[3]) : new Date(); }
+  function escape(s) { return Utils.esc(String(s == null ? '' : s)); }
+  function init() { checkNotifications(); }
+  function openCalendar() { calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); selectedDate = localISO(new Date()); renderCalendar(); Modals.open('remindersOverlay'); }
+  function changeCalendarMonth(delta) { calendarMonth.setMonth(calendarMonth.getMonth()+delta); renderCalendar(); }
+  function renderCalendar() {
+    const year = calendarMonth.getFullYear(), month = calendarMonth.getMonth();
+    UI.txt('remMonthLabel', calendarMonth.toLocaleDateString('fr-FR', {month:'long',year:'numeric'}));
+    const first = new Date(year,month,1), start = (first.getDay()+6)%7, days = new Date(year,month+1,0).getDate(), prevDays = new Date(year,month,0).getDate();
+    const reminders = DB.get('reminders') || [], today = localISO(new Date());
+    const byDate = new Set(reminders.filter(r => !r.done).map(r => r.dueDate));
+    const cells = [];
+    for(let i=0;i<42;i++) {
+      let day, d, muted=false;
+      if(i<start){day=prevDays-start+i+1;d=new Date(year,month-1,day);muted=true;}
+      else if(i>=start+days){day=i-(start+days)+1;d=new Date(year,month+1,day);muted=true;}
+      else {day=i-start+1;d=new Date(year,month,day);}
+      const iso=localISO(d), cls=['nova-day',muted?'muted':'',iso===today?'today':'',iso===selectedDate?'selected':'',byDate.has(iso)?'has-reminder':''].filter(Boolean).join(' ');
+      cells.push(`<button type="button" class="${cls}" onclick="FinancialTools.selectCalendarDate('${iso}')" aria-label="${escape(d.toLocaleDateString('fr-FR'))}">${day}</button>`);
+    }
+    UI.html('remCalendarGrid',cells.join(''));
+    renderAgenda();
+    const btn=UI.$('remNotifyBtn'), info=UI.$('remNotifyInfo');
+    if(typeof Notification==='undefined'){btn.style.display='none';info.textContent='Notifications non prises en charge par ce navigateur.';}
+    else if(Notification.permission==='granted'){btn.textContent='🔔 Notifications activées';btn.disabled=true;info.textContent='Les rappels s’affichent à l’ouverture de l’application.';}
+    else {btn.textContent=Notification.permission==='denied'?'🔕 Notifications bloquées':'🔔 Activer les notifications';btn.disabled=Notification.permission==='denied';info.textContent=Notification.permission==='denied'?'Autorisation bloquée dans les réglages du navigateur.':'Autorisation facultative.';}
+  }
+  function selectCalendarDate(date) { selectedDate=date; const d=parseISO(date); if(d.getMonth()!==calendarMonth.getMonth()||d.getFullYear()!==calendarMonth.getFullYear()) calendarMonth=new Date(d.getFullYear(),d.getMonth(),1); renderCalendar(); }
+  function renderAgenda() {
+    const list=(DB.get('reminders')||[]).filter(r=>r.dueDate===selectedDate).sort((a,b)=>(a.done?1:0)-(b.done?1:0));
+    UI.txt('remAgendaTitle','Échéances du '+parseISO(selectedDate).toLocaleDateString('fr-FR',{day:'numeric',month:'long'}));
+    if(!list.length){UI.html('reminderAgenda','<div class="nova-empty">Aucune échéance ce jour-là.</div>');return;}
+    UI.html('reminderAgenda',list.map(r=>`<div class="nova-agenda-item"><div class="nova-agenda-main"><div class="nova-agenda-title">${r.done?'✅ ':''}${escape(r.title)}</div><div class="nova-agenda-meta">${r.amount>0?escape(Utils.fmt(r.amount))+' · ':''}${r.repeat==='monthly'?'Récurrent chaque mois':r.repeat==='yearly'?'Récurrent chaque année':r.done?'Terminé':'À régler'}${r.note?' · '+escape(r.note):''}</div></div><div class="nova-agenda-actions">${!r.done?`<button class="done" title="Marquer comme réglé" aria-label="Marquer comme réglé" onclick="FinancialTools.completeReminder('${r.id}')">✓</button>`:''}<button title="Modifier" aria-label="Modifier" onclick="FinancialTools.editReminder('${r.id}')">✎</button><button class="delete" title="Supprimer" aria-label="Supprimer" onclick="FinancialTools.deleteReminder('${r.id}')">×</button></div></div>`).join(''));
+  }
+  function openReminderForm(id=null, date=null) {
+    editReminderId=id; const r=id?(DB.get('reminders')||[]).find(x=>x.id===id):null;
+    UI.txt('reminderFormTitle',r?'Modifier une échéance':'Nouvelle échéance');
+    UI.$('reminderTitle').value=r?.title||''; UI.$('reminderDate').value=r?.dueDate||date||selectedDate;
+    UI.$('reminderAmount').value=r?.amount||''; UI.$('reminderRepeat').value=r?.repeat||'none'; UI.$('reminderNote').value=r?.note||'';
+    Modals.open('reminderFormOverlay');
+  }
+  function editReminder(id){openReminderForm(id);}
+  function saveReminder() {
+    const title=UI.$('reminderTitle').value.trim(), dueDate=UI.$('reminderDate').value, raw=UI.$('reminderAmount').value, amount=raw===''?0:Number(raw);
+    if(!title){UI.toast('Indique un intitulé','error');return;}
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(dueDate)||isNaN(parseISO(dueDate).getTime())){UI.toast('Date invalide','error');return;}
+    if(raw!==''&&(!Number.isFinite(amount)||amount<0)){UI.toast('Montant invalide','error');return;}
+    const item={id:editReminderId||Utils.uid(),title,dueDate,dayOfMonth:parseISO(dueDate).getDate(),amount,repeat:UI.$('reminderRepeat').value,note:UI.$('reminderNote').value.trim(),done:false};
+    DB.update('reminders',arr=>{const i=arr.findIndex(x=>x.id===item.id);if(i>=0){item.done=arr[i].done&&arr[i].dueDate===item.dueDate;arr[i]=item;}else arr.push(item);});
+    selectedDate=dueDate;const d=parseISO(dueDate);calendarMonth=new Date(d.getFullYear(),d.getMonth(),1);Modals.close('reminderFormOverlay');renderCalendar();UI.toast(editReminderId?'Échéance modifiée':'Échéance ajoutée','success');editReminderId=null;
+  }
+  function completeReminder(id) {
+    DB.update('reminders',arr=>{const r=arr.find(x=>x.id===id);if(!r)return;if(r.repeat==='monthly'||r.repeat==='yearly'){let d=parseISO(r.dueDate);const targetDay=r.dayOfMonth||d.getDate(),today=parseISO(localISO(new Date()));let guard=0;do{if(r.repeat==='monthly'){const next=new Date(d.getFullYear(),d.getMonth()+1,1),last=new Date(next.getFullYear(),next.getMonth()+1,0).getDate();d=new Date(next.getFullYear(),next.getMonth(),Math.min(targetDay,last));}else{const y=d.getFullYear()+1,last=new Date(y,d.getMonth()+1,0).getDate();d=new Date(y,d.getMonth(),Math.min(targetDay,last));}guard++;}while(d<today&&guard<1200);r.dueDate=localISO(d);r.done=false;}else r.done=true;});
+    renderCalendar();UI.toast('Échéance mise à jour','success');
+  }
+  function deleteReminder(id) { Modals.openConfirm('Supprimer cette échéance ?','Cette échéance sera supprimée du calendrier.',()=>{DB.update('reminders',arr=>{const i=arr.findIndex(r=>r.id===id);if(i>=0)arr.splice(i,1);});renderCalendar();UI.toast('Échéance supprimée');}); }
+  async function requestNotifications() {
+    if(typeof Notification==='undefined'){UI.toast('Notifications non prises en charge','info');return;}
+    try{const permission=await Notification.requestPermission();renderCalendar();if(permission==='granted'){UI.toast('Notifications activées','success');checkNotifications();}else UI.toast('Notifications non autorisées','info');}catch(e){UI.toast('Impossible d’activer les notifications','error');}
+  }
+  function checkNotifications() {
+    if(typeof Notification==='undefined'||Notification.permission!=='granted'||!Array.isArray(DB.get('reminders')))return;
+    const today=localISO(new Date()), settings=DB.get('settings'), sent=Array.isArray(settings.reminderNotified)?settings.reminderNotified:[];
+    let changed=false;
+    DB.get('reminders').filter(r=>!r.done&&r.dueDate<=today).forEach(r=>{const key=r.id+'@'+r.dueDate;if(sent.includes(key))return;try{new Notification('Nova Finance · Échéance',{body:(r.title||'Rappel financier')+(r.amount>0?' — '+Utils.fmt(r.amount):'')+(r.dueDate<today?' · En retard':' · À régler aujourd’hui'),tag:key});sent.push(key);changed=true;}catch(e){}});
+    if(changed)DB.update('settings',s=>{s.reminderNotified=sent.slice(-150);});
+  }
+  function openCalculator(){UI.$('novaCalcInput').value='';UI.txt('novaCalcResult','Saisis une opération');UI.$('calcMonthly').value='';UI.$('calcMonths').value='12';UI.txt('calcSavingsResult','');Modals.open('calculatorOverlay');}
+  function calcInsert(value){const el=UI.$('novaCalcInput');el.value+=value;el.focus();}
+  function calcClear(){UI.$('novaCalcInput').value='';UI.txt('novaCalcResult','Saisis une opération');}
+  function calcBackspace(){const el=UI.$('novaCalcInput');el.value=el.value.slice(0,-1);}
+  function evaluateExpression(input) {
+    const src=String(input||'').replace(/,/g,'.').replace(/\s+/g,'');
+    if(!src||!/^[0-9.+\-*/%()]+$/.test(src))throw new Error('Expression invalide');
+    const tokens=src.match(/\d*\.?\d+|[()+\-*/%]/g)||[]; if(tokens.join('')!==src)throw new Error('Expression invalide');
+    let i=0;
+    function expr(){let v=term();while(tokens[i]==='+'||tokens[i]==='-'){const op=tokens[i++],n=term();v=op==='+'?v+n:v-n;}return v;}
+    function term(){let v=factor();while(tokens[i]==='*'||tokens[i]==='/'){const op=tokens[i++],n=factor();if(op==='/'&&n===0)throw new Error('Division par zéro');v=op==='*'?v*n:v/n;}return v;}
+    function factor(){let sign=1;while(tokens[i]==='+'||tokens[i]==='-'){if(tokens[i++]==='-')sign*=-1;}let v;if(tokens[i]==='('){i++;v=expr();if(tokens[i++]!==')')throw new Error('Parenthèse manquante');}else{const t=tokens[i++];if(t===undefined||!/^\d*\.?\d+$/.test(t))throw new Error('Nombre attendu');v=Number(t);}if(tokens[i]==='%'){i++;v/=100;}return sign*v;}
+    const result=expr();if(i!==tokens.length||!Number.isFinite(result))throw new Error('Calcul impossible');return result;
+  }
+  function calcEvaluate(){try{const v=evaluateExpression(UI.$('novaCalcInput').value);UI.txt('novaCalcResult',v.toLocaleString('fr-FR',{maximumFractionDigits:6}));UI.$('novaCalcInput').value=String(v);}catch(e){UI.txt('novaCalcResult',e.message||'Expression invalide');}}
+  function calculateSavings(){const m=Number(UI.$('calcMonthly').value),n=Number(UI.$('calcMonths').value);if(!Number.isFinite(m)||m<0||!Number.isInteger(n)||n<1||n>600){UI.txt('calcSavingsResult','Vérifie le montant et la durée (1 à 600 mois).');return;}UI.txt('calcSavingsResult',`Montant épargné estimé : ${Utils.fmt(m*n)} sur ${n} mois (hors intérêts et frais).`);}
+  return {init,openCalendar,changeCalendarMonth,selectCalendarDate,openReminderForm,editReminder,saveReminder,completeReminder,deleteReminder,requestNotifications,checkNotifications,openCalculator,calcInsert,calcClear,calcBackspace,calcEvaluate,calculateSavings};
+})();
+
+window.addEventListener('nova:storage', () => { if (typeof App !== 'undefined' && App.renderLocalSaveStatus) App.renderLocalSaveStatus(); });
 App.init();
 App.renderFilters();
 App.applyHide();
 Actions.runRecurring();
-document.addEventListener('visibilitychange', () => { if (!document.hidden) Actions.runRecurring(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { Actions.runRecurring(); FinancialTools.checkNotifications(); } });
 
-(function handleDeepLink() { const hash = location.hash; if (!hash) return; const map = { '#savings': 'savings', '#accounts': 'accounts', '#expense': 'home' }; const tab = map[hash]; if (tab) { setTimeout(() => { Nav.go(tab); if (hash === '#expense') Modals.openTx('expense'); history.replaceState(null, '', location.pathname); }, 150); } })();
+(function enforceOverviewOnLaunch() {
+  // Chaque ouverture commence sur la vue d'ensemble, même si un ancien lien interne est présent.
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+  Nav.go('home');
+})();
 
 /* Effet 3D léger inspiré de Quête — désactivé sur tactile et si réduction du mouvement. */
 (function NovaDepth(){
@@ -4368,19 +4997,29 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) Acti
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!fine || reduce) return;
   const selector = '.sc:not(.main),.mini-ac,.ac-card,.tx-item,.prog-item,.add-opt,.pal-card';
+  let frame = 0, latest = null;
   document.addEventListener('pointermove', e => {
     const el = e.target.closest && e.target.closest(selector);
     if (!el) return;
-    const r = el.getBoundingClientRect();
-    if (!r.width || !r.height) return;
-    const x = (e.clientX - r.left) / r.width - .5;
-    const y = (e.clientY - r.top) / r.height - .5;
-    el.style.setProperty('--tilt-x', (y * -3).toFixed(2) + 'deg');
-    el.style.setProperty('--tilt-y', (x * 3).toFixed(2) + 'deg');
+    latest = { el, x: e.clientX, y: e.clientY };
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      const point = latest; latest = null;
+      if (!point || !point.el.isConnected) return;
+      const r = point.el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const x = (point.x - r.left) / r.width - .5;
+      const y = (point.y - r.top) / r.height - .5;
+      point.el.style.setProperty('--tilt-x', (y * -3).toFixed(2) + 'deg');
+      point.el.style.setProperty('--tilt-y', (x * 3).toFixed(2) + 'deg');
+    });
   }, {passive:true});
   document.addEventListener('pointerout', e => {
     const el = e.target.closest && e.target.closest(selector);
     if (!el || (e.relatedTarget && el.contains(e.relatedTarget))) return;
+    if (frame) cancelAnimationFrame(frame);
+    frame = 0; latest = null;
     el.style.setProperty('--tilt-x','0deg'); el.style.setProperty('--tilt-y','0deg');
   }, {passive:true});
 })();
