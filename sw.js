@@ -1,6 +1,6 @@
 // Nova Finance — Service Worker (offline-first)
 // Changer V à chaque modification d'un fichier de l'app pour déclencher la mise à jour.
-const V = 'nova-finance-v15';
+const V = 'nova-finance-v16';
 const CORE = [
   './',
   './index.html',
