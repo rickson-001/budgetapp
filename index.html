@@ -1346,31 +1346,11 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
 <div class="phone" id="phone">
   <div class="pwa-update-bar" id="pwaUpdateBar"><span>⬆️ Mise à jour disponible</span><button onclick="PWA.applyUpdate()">Mettre à jour</button></div>
   <div class="status-bar" style="justify-content:flex-end"><span class="sync-dot sync-idle" id="syncDot"></span></div>
-  <div class="nova-drawer-overlay" id="novaDrawerOverlay" aria-hidden="true" onclick="NovaMenu.close()">
-    <aside class="nova-drawer-panel" id="novaDrawer" role="dialog" aria-modal="true" aria-label="Menu de navigation" onclick="event.stopPropagation()">
-      <div class="nova-drawer-top">
-        <div class="nova-drawer-brand"><span class="nova-drawer-brand-mark">N</span><span>Nova Finance</span></div>
-        <button type="button" class="nova-drawer-close" onclick="NovaMenu.close()" aria-label="Fermer le menu">✕</button>
-      </div>
-      <div class="nova-drawer-profile"><span class="nova-drawer-avatar" id="drawerAvatar">N</span><span class="nova-drawer-profile-copy"><strong id="drawerProfileName">Mon espace</strong><small>Votre espace financier</small></span></div>
-      <div class="nova-drawer-label">Navigation</div>
-      <nav class="nova-drawer-links" aria-label="Rubriques Nova Finance">
-        <button type="button" class="nova-drawer-link" data-destination="overview" onclick="NovaMenu.go('overview')"><span class="nova-drawer-icon">⌂</span><span><strong>Vue d'ensemble</strong><small>Votre situation en un coup d'œil</small></span><span class="nova-drawer-arrow">›</span></button>
-        <button type="button" class="nova-drawer-link" data-destination="transactions" onclick="NovaMenu.go('transactions')"><span class="nova-drawer-icon">⇄</span><span><strong>Transaction</strong><small>Historique des mouvements</small></span><span class="nova-drawer-arrow">›</span></button>
-        <button type="button" class="nova-drawer-link" data-destination="accounts" onclick="NovaMenu.go('accounts')"><span class="nova-drawer-icon">▣</span><span><strong>Mes comptes</strong><small>Soldes et portefeuilles</small></span><span class="nova-drawer-arrow">›</span></button>
-        <button type="button" class="nova-drawer-link" data-destination="budget" onclick="NovaMenu.go('budget')"><span class="nova-drawer-icon">◷</span><span><strong>Budget</strong><small>Objectif mensuel et plafonds</small></span><span class="nova-drawer-arrow">›</span></button>
-        <button type="button" class="nova-drawer-link" data-destination="recurring" onclick="NovaMenu.go('recurring')"><span class="nova-drawer-icon">⟳</span><span><strong>Récurrences</strong><small>Opérations programmées</small></span><span class="nova-drawer-arrow">›</span></button>
-        <button type="button" class="nova-drawer-link" data-destination="report" onclick="NovaMenu.go('report')"><span class="nova-drawer-icon">▤</span><span><strong>Rapport</strong><small>Statistiques et analyses</small></span><span class="nova-drawer-arrow">›</span></button>
-        <button type="button" class="nova-drawer-link" data-destination="settings" onclick="NovaMenu.go('settings')"><span class="nova-drawer-icon">⚙</span><span><strong>Réglages</strong><small>Préférences et sauvegardes</small></span><span class="nova-drawer-arrow">›</span></button>
-      </nav>
-      <div class="nova-drawer-footer"><span class="nova-drawer-footer-dot"></span><span>Vos données restent sur cet appareil</span></div>
-    </aside>
-  </div>
   <main class="screen" id="screen" aria-label="Nova Finance">
     <div class="tab-page active" id="tab-home">
       <div class="page-header home-page-header">
         <div class="home-header-main">
-          <button type="button" class="nova-menu-trigger" id="novaMenuTrigger" onclick="NovaMenu.open()" aria-label="Ouvrir le menu de navigation" aria-controls="novaDrawer" aria-expanded="false"><span aria-hidden="true">☰</span></button>
+          
           <div class="home-welcome"><div class="page-title" id="welcomeMsg">Bonjour 👋</div><div class="page-sub" id="welcomeSub">Avril 2026</div></div>
         </div>
         <div class="month-nav"><button class="month-btn" onclick="App.changeMonth(-1)" aria-label="Mois précédent">‹</button><span class="month-lbl" id="monthLbl">Avril 2026</span><button class="month-btn" onclick="App.changeMonth(1)" aria-label="Mois suivant">›</button></div>
@@ -1394,9 +1374,9 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
       <div class="sec-head"><div class="sec-title">Transactions</div><select class="home-category-select" id="homeFilter" aria-label="Filtrer les transactions par catégorie" onchange="App.setFilter(this.value,this)"><option value="all">Toutes catégories</option></select></div>
       <div class="tx-list" id="homeTxList"></div>
     </div>
-    <div class="tab-page" id="tab-accounts"><div class="page-header"><button type="button" class="nova-menu-trigger nova-menu-trigger-shared" onclick="NovaMenu.open()" aria-label="Ouvrir le menu de navigation" aria-controls="novaDrawer" aria-expanded="false"><span aria-hidden="true">☰</span></button><div><div class="page-title">Comptes</div><div class="page-sub" id="accountsSubtitle"></div></div></div><div id="accountsList"></div></div>
+    <div class="tab-page" id="tab-accounts"><div class="page-header"><div><div class="page-title">Comptes</div><div class="page-sub" id="accountsSubtitle"></div></div></div><div id="accountsList"></div></div>
     <div class="tab-page" id="tab-flux">
-      <div class="page-header"><button type="button" class="nova-menu-trigger nova-menu-trigger-shared" onclick="NovaMenu.open()" aria-label="Ouvrir le menu de navigation" aria-controls="novaDrawer" aria-expanded="false"><span aria-hidden="true">☰</span></button><div><div class="page-title">Flux</div><div class="page-sub" id="fluxSub">Historique complet</div></div><div class="month-nav"><button class="month-btn" id="fluxPrev" onclick="Flux.shift(-1)" aria-label="Mois précédent">‹</button><span class="month-lbl" id="fluxMonthLbl">Avril 2026</span><button class="month-btn" id="fluxNext" onclick="Flux.shift(1)" aria-label="Mois suivant">›</button></div></div>
+      <div class="page-header"><div><div class="page-title">Flux</div><div class="page-sub" id="fluxSub">Historique complet</div></div><div class="month-nav"><button class="month-btn" id="fluxPrev" onclick="Flux.shift(-1)" aria-label="Mois précédent">‹</button><span class="month-lbl" id="fluxMonthLbl">Avril 2026</span><button class="month-btn" id="fluxNext" onclick="Flux.shift(1)" aria-label="Mois suivant">›</button></div></div>
       <div id="fluxSummary" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px"></div>
       <div class="flux-searchrow"><div class="search-bar"><input type="search" id="fluxSearch" placeholder="🔍 Rechercher (nom, catégorie, compte, montant)" oninput="Flux.search(this.value)" aria-label="Rechercher dans l'historique" autocomplete="off" autocorrect="off" spellcheck="false"></div><button class="f-pill" id="fluxAll" onclick="Flux.toggleAll()" aria-pressed="false" title="Afficher tout l'historique, tous mois confondus">📅 Tout</button></div>
       <div class="filter-row flux-row" id="fluxTypeRow"><div class="f-pill active" data-v="all" onclick="Flux.setType('all')">Tout</div><div class="f-pill" data-v="expense" onclick="Flux.setType('expense')">💸 Dépenses</div><div class="f-pill" data-v="income" onclick="Flux.setType('income')">💵 Revenus</div><div class="f-pill" data-v="saving" onclick="Flux.setType('saving')">🐖 Épargne</div><div class="f-pill" data-v="deposit" onclick="Flux.setType('deposit')">＋ Ajouts</div><div class="f-pill" data-v="withdraw" onclick="Flux.setType('withdraw')">− Retraits</div><div class="f-pill" data-v="transfer" onclick="Flux.setType('transfer')">🔄 Transferts</div></div>
@@ -1406,7 +1386,7 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
       <div class="tx-list" id="fluxList"></div>
     </div>
     <div class="tab-page" id="tab-stats">
-      <div class="page-header"><button type="button" class="nova-menu-trigger nova-menu-trigger-shared" onclick="NovaMenu.open()" aria-label="Ouvrir le menu de navigation" aria-controls="novaDrawer" aria-expanded="false"><span aria-hidden="true">☰</span></button><div><div class="page-title">Statistiques</div><div class="page-sub">Aperçu rapide de l'évolution</div></div><div class="month-nav stats-header-actions"><button class="month-btn" id="statsMonthPrev" aria-label="Mois précédent">‹</button><span class="month-lbl" id="statsMonthLbl">Avril 2026</span><button class="month-btn" id="statsMonthNext" aria-label="Mois suivant">›</button></div></div>
+      <div class="page-header"><div><div class="page-title">Statistiques</div><div class="page-sub">Aperçu rapide de l'évolution</div></div><div class="month-nav stats-header-actions"><button class="month-btn" id="statsMonthPrev" aria-label="Mois précédent">‹</button><span class="month-lbl" id="statsMonthLbl">Avril 2026</span><button class="month-btn" id="statsMonthNext" aria-label="Mois suivant">›</button></div></div>
       <div id="statsSummary" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px"></div>
       <section id="intelligentReport" aria-live="polite" style="margin:14px 0 18px;padding:16px;border:1px solid var(--border);border-radius:20px;background:var(--surface);box-shadow:0 8px 24px rgba(20,35,60,.06)">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px"><div><div style="font-weight:900;font-size:1rem">✦ Bilan financier intelligent</div><div id="irPeriod" style="font-size:.75rem;color:var(--text3);margin-top:3px">Analyse de votre mois</div></div></div>
@@ -1421,7 +1401,7 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
       <div id="statsCatDetail" style="display:none;margin:12px 0 20px"></div>
     </div>
     <div class="tab-page" id="tab-settings">
-      <div class="page-header"><button type="button" class="nova-menu-trigger nova-menu-trigger-shared" onclick="NovaMenu.open()" aria-label="Ouvrir le menu de navigation" aria-controls="novaDrawer" aria-expanded="false"><span aria-hidden="true">☰</span></button><div><div class="page-title">Paramètres</div></div></div>
+      <div class="page-header"><div><div class="page-title">Paramètres</div></div></div>
       <div class="settings-sec"><div style="text-align:center;padding:8px 0 18px"><div class="avatar" id="avatarLetter">?</div><div class="profile-name" id="profileNameEl">Utilisateur</div><div class="profile-sub">Compte personnel</div></div><div class="settings-group"><div class="srow" onclick="Modals.openProfile()"><span class="srow-icon">👤</span><div class="srow-info"><div class="srow-name">Modifier le profil</div><div class="srow-desc">Nom, devise</div></div><div class="srow-right">›</div></div></div></div>
       <div class="settings-sec"><div class="settings-lbl">Apparence</div><div class="settings-group"><div class="srow"><span class="srow-icon">🌙</span><div class="srow-info"><div class="srow-name">Mode sombre</div><div class="srow-desc">Thème de l'application</div></div><label class="toggle"><input type="checkbox" id="darkToggle" onchange="App.toggleTheme(this.checked)"/><div class="toggle-track"></div></label></div><div class="srow" onclick="Modals.openPalette()"><span class="srow-icon">🎨</span><div class="srow-info"><div class="srow-name">Palette de couleurs</div><div class="srow-desc" id="paletteSummary">Forêt</div></div><div class="srow-right">›</div></div></div></div>
       
@@ -2407,7 +2387,6 @@ const LP = {
 const Nav = {
   _tab: 'home',
   go(tab, fromMenu = false) {
-    if (!fromMenu && typeof NovaMenu !== 'undefined') NovaMenu._lastDestination = null;
     if (tab === 'savings') tab = 'accounts';
     this._tab = tab;
     document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
@@ -2461,108 +2440,7 @@ const Nav = {
 };
 
 // ==================================================
-// MENU LATÉRAL — navigation vers les vues et outils existants
-// ==================================================
-const NovaMenu = {
-  _returnFocus: null,
-  _keydown: null,
-  _lastDestination: null,
-  open() {
-    const overlay = UI.$('novaDrawerOverlay');
-    const triggers = document.querySelectorAll('.nova-menu-trigger');
-    if (!overlay || overlay.classList.contains('open')) return;
-    this._returnFocus = document.activeElement;
-    this._syncProfile();
-    this._syncActive();
-    // Le panneau est modal : rendre le reste de l'application inerte le temps de la navigation.
-    this._inertNodes = [...overlay.parentElement.children].filter(node => node !== overlay).map(node => ({ node, wasInert: node.inert }));
-    this._inertNodes.forEach(({ node }) => { node.inert = true; });
-    overlay.classList.add('open');
-    overlay.setAttribute('aria-hidden', 'false');
-    triggers.forEach(trigger => trigger.setAttribute('aria-expanded', 'true'));
-    this._keydown = e => {
-      if (e.key === 'Escape') { e.preventDefault(); this.close(); return; }
-      if (e.key !== 'Tab') return;
-      const focusables = [...overlay.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')]
-        .filter(el => el.getClientRects().length > 0 && !el.closest('[inert]'));
-      if (!focusables.length) return;
-      const first = focusables[0], last = focusables[focusables.length - 1];
-      if (e.shiftKey && (document.activeElement === first || !overlay.contains(document.activeElement))) {
-        e.preventDefault(); last.focus();
-      } else if (!e.shiftKey && (document.activeElement === last || !overlay.contains(document.activeElement))) {
-        e.preventDefault(); first.focus();
-      }
-    };
-    document.addEventListener('keydown', this._keydown);
-    const first = overlay.querySelector('.nova-drawer-close');
-    if (first) setTimeout(() => { if (overlay.classList.contains('open')) first.focus({ preventScroll: true }); }, 0);
-  },
-  close() {
-    const overlay = UI.$('novaDrawerOverlay');
-    const triggers = document.querySelectorAll('.nova-menu-trigger');
-    if (!overlay) return;
-    overlay.classList.remove('open');
-    overlay.setAttribute('aria-hidden', 'true');
-    triggers.forEach(trigger => trigger.setAttribute('aria-expanded', 'false'));
-    if (this._keydown) document.removeEventListener('keydown', this._keydown);
-    this._keydown = null;
-    (this._inertNodes || []).forEach(({ node, wasInert }) => { node.inert = wasInert; });
-    this._inertNodes = null;
-    const back = this._returnFocus; this._returnFocus = null;
-    if (back && typeof back.focus === 'function') requestAnimationFrame(() => back.focus({ preventScroll: true }));
-  },
-  _syncProfile() {
-    const name = DB.get('settings').name || 'Mon espace';
-    UI.txt('drawerProfileName', name);
-    UI.txt('drawerAvatar', (name.trim()[0] || 'N').toUpperCase());
-  },
-  _syncActive() {
-    const current = ({ home: 'overview', flux: 'transactions', accounts: 'accounts', stats: 'report', settings: 'settings' })[Nav._tab] || 'overview';
-    const special = this._lastDestination;
-    const useSpecial = ((special === 'budget' || special === 'recurring') && Nav._tab === 'settings')
-      || (special === 'savings' && Nav._tab === 'accounts');
-    const activeDestination = useSpecial ? special : current;
-    document.querySelectorAll('.nova-drawer-link').forEach(el => {
-      const selected = el.dataset.destination === activeDestination;
-      el.classList.toggle('active', selected);
-      if (selected) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
-    });
-  },
-  go(destination) {
-    this._lastDestination = destination;
-    this.close();
-    if (destination === 'overview') { Nav.go('home', true); return; }
-    if (destination === 'transactions') { Nav.go('flux', true); return; }
-    if (destination === 'accounts') { Nav.go('accounts', true); return; }
-    if (destination === 'budget') {
-      Nav.go('settings', true);
-      requestAnimationFrame(() => Modals.openBudgetSettings());
-      return;
-    }
-    if (destination === 'savings') {
-      Nav.go('accounts', true);
-      requestAnimationFrame(() => {
-        const section = UI.$('savingsAccountsGroup');
-        if (!section) {
-          Modals.openAccountForm();
-          const type = UI.$('acFormType'); if (type) { type.value = 'savings'; Modals.toggleGoalSection(); }
-          UI.toast('Créez un compte épargne pour définir votre premier objectif.', 'info');
-          return;
-        }
-        const target = [...section.querySelectorAll('.ac-card')].find(card => card.querySelector('.ac-goal')) || section;
-        target.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' });
-      });
-      return;
-    }
-    if (destination === 'recurring') {
-      Nav.go('settings', true);
-      requestAnimationFrame(() => Modals.openRecurring());
-      return;
-    }
-    if (destination === 'report') { Nav.go('stats', true); return; }
-    if (destination === 'settings') { Nav.go('settings', true); return; }
-  }
-};
+
 
 // ==================================================
 // APP - Rendu principal
