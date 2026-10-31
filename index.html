@@ -2333,7 +2333,8 @@ const Theme = (() => {
     const root = document.documentElement;
     VARS.forEach(k => root.style.removeProperty(k));
     const id = state().id;
-    if (id && id !== 'custom') {
+    if (id) {
+      // La palette personnalisée doit suivre exactement le même circuit d'application que les palettes prédéfinies.
       const b = base(id, mode());
       if (b) { const v = derive(b); for (const k in v) root.style.setProperty(k, v[k]); }
     }
