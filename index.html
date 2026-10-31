@@ -1549,7 +1549,7 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
       <div class="field"><label>Date</label><div class="date-row"><button type="button" class="day-chip" id="dayToday" onclick="Modals.setTxDay(0)">Aujourd'hui</button><button type="button" class="day-chip" id="dayYest" onclick="Modals.setTxDay(-1)">Hier</button><input type="date" id="txDate" onchange="Modals._syncDayChips()"/></div></div>
       <div class="field"><label>Description (facultatif)</label><input type="text" id="txDesc" placeholder="Ex: Courses au marché" maxlength="80" autocomplete="off" autocorrect="off" spellcheck="false"/></div>
       <div class="field tx-notes-block"><label for="txNote"><span class="tx-note-label-icon">✎</span> Note personnelle <span class="tx-note-optional">FACULTATIF</span></label><div class="tx-note-shell"><span class="tx-note-mark" aria-hidden="true">“</span><textarea id="txNote" rows="3" maxlength="500" placeholder="Ajoutez un détail, un contexte ou un petit mémo…"></textarea><div class="tx-note-foot"><span>Cette note reste privée dans vos données locales.</span><span id="txNoteCount">0 / 500</span></div></div></div>
-      <div class="field"><label>📎 Justificatif (image ou PDF, 5 Mo max.)</label><input type="file" id="txReceipt" accept="image/*,application/pdf"/><div class="tx-meta" id="txReceiptInfo">Aucun justificatif ajouté.</div></div>
+
       <button class="btn-primary btn-blue" id="txSaveBtn" onclick="Actions.saveTx()">Enregistrer</button>
     </div>
   </div>
@@ -2001,7 +2001,6 @@ const FileSync = (() => {
       transfers: DB.get('transfers'),
       recurring: DB.get('recurring'),
       reminders: DB.get('reminders'),
-      attachments: await AttachmentStore.exportAll(),
       settings: DB.get('settings')
     }, null, 2);
   }
@@ -3168,9 +3167,6 @@ const Modals = {
     UI.$('txAmt').value = tx.amount;
     UI.$('txDesc').value = tx.desc || '';
     UI.$('txNote').value = tx.note || '';
-    UI.$('txReceipt').value = '';
-    UI.txt('txReceiptInfo', 'Vérification du justificatif…');
-    AttachmentStore.get(tx.id).then(item => { if (Actions._editId === id) UI.html('txReceiptInfo', item ? `Justificatif : ${Utils.esc(item.name)} · <button type="button" class="nova-inline-btn" onclick="AttachmentStore.download('${id}')">Télécharger</button>` : 'Aucun justificatif associé.'); }).catch(() => UI.txt('txReceiptInfo', 'Justificatif indisponible.'));
     this._setTxDate(tx.date); this._renderAmt();
   },
 
@@ -3186,8 +3182,6 @@ const Modals = {
     UI.$('txAmt').value = '';
     UI.$('txDesc').value = '';
     UI.$('txNote').value = '';
-    UI.$('txReceipt').value = '';
-    UI.txt('txReceiptInfo', 'Aucun justificatif ajouté.');
     this._setTxDate(null); this._renderAmt();
 
     const main = getMainAccount();
@@ -3634,7 +3628,6 @@ const Modals = {
   confirmReset() {
     this.openConfirm('⚠️ Réinitialisation', 'Cette action remettra l\'application à zéro : transactions, comptes, récurrences, rappels, justificatifs, objectifs, budgets et catégories personnalisées.', () => {
       ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'recurring', 'reminders'].forEach(k => DB.set(k, []));
-      AttachmentStore.clear().catch(e => console.warn('Nettoyage des justificatifs impossible', e));
       DB.update('settings', st => {
         st.monthlyBudget = {};
         st.catBudgets = {};
@@ -3798,9 +3791,6 @@ const Actions = {
         ...(savingTransferId ? { savingTransferId, savingDestinationId } : {}),
         date: Modals.txDateISO()
       }));
-      const receiptFile = UI.$('txReceipt').files && UI.$('txReceipt').files[0];
-      let receiptWarning = '';
-      if (receiptFile) { try { await AttachmentStore.put(this._newTxId, receiptFile); } catch (receiptError) { receiptWarning = receiptError.message || 'Échec de l’ajout du justificatif'; } }
       btn.disabled = false;
       btn.textContent = originalText;
       this._isSubmitting = false;
@@ -3814,7 +3804,7 @@ const Actions = {
       App.renderHome();
       App.renderAccounts();
       if (Nav._detailType === 'account') Nav.refreshDetail();
-      UI.toast(receiptWarning ? `Transaction enregistrée, mais ${receiptWarning}` : (wasEdit ? '✅ Transaction modifiée' : (_txType === 'income' ? '✅ Revenu enregistré' : _txType === 'saving' ? '✅ Épargne enregistrée' : '✅ Dépense enregistrée')), receiptWarning ? 'info' : 'success');
+      UI.toast(wasEdit ? '✅ Transaction modifiée' : (_txType === 'income' ? '✅ Revenu enregistré' : _txType === 'saving' ? '✅ Épargne enregistrée' : '✅ Dépense enregistrée'), 'success');
     } catch (e) {
       console.error(e);
       btn.disabled = false;
