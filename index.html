@@ -86,6 +86,19 @@
   .acs-card-grid .ac-card,.acs-card-grid .ac-goal-bar i{transition:none!important}
 }
 
+/* Clavier mobile : les formulaires restent dans la zone visible et défilent jusqu’au champ actif. */
+@media(max-width:699px){
+  .modal-overlay{align-items:flex-end;padding:0;min-height:0}
+  .modal-overlay.open{overscroll-behavior:contain}
+  .modal{
+    box-sizing:border-box;
+    max-height:calc(var(--nova-vh,100dvh) - env(safe-area-inset-top) - 10px)!important;
+    padding-bottom:calc(24px + env(safe-area-inset-bottom));
+    scroll-padding-block:18px 28px;
+    overscroll-behavior:contain;
+  }
+  .modal input,.modal textarea,.modal select{scroll-margin-block:18px 28px}
+}
 </style>
 <style>
 /* ==================================================
@@ -5004,7 +5017,35 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) { Ac
   if(vv){vv.addEventListener('resize',sync,{passive:true});vv.addEventListener('scroll',sync,{passive:true});}
   window.addEventListener('resize',sync,{passive:true});
   document.addEventListener('focusout',()=>setTimeout(sync,120),{passive:true});
-  const note= document.getElementById('txNote'), count=document.getElementById('txNoteCount');
+
+  // Quand le clavier réduit la fenêtre visible, faire défiler le contenu du modal
+  // (et non toute la page) pour garder le champ et le curseur au-dessus du clavier.
+  let focusScrollTimer=0;
+  const keepFocusedFieldVisible=()=>{
+    if(!window.matchMedia('(max-width: 699px)').matches) return;
+    const field=document.activeElement;
+    if(!field || !/^(INPUT|TEXTAREA|SELECT)$/.test(field.tagName)) return;
+    const modal=field.closest('.modal');
+    if(!modal) return;
+    const fieldRect=field.getBoundingClientRect();
+    const modalRect=modal.getBoundingClientRect();
+    const top=fieldRect.top-modalRect.top-modal.clientTop;
+    const bottom=fieldRect.bottom-modalRect.top-modal.clientTop;
+    const visibleBottom=modal.clientHeight-22;
+    if(bottom>visibleBottom) modal.scrollTop+=bottom-visibleBottom;
+    else if(top<14) modal.scrollTop-=14-top;
+  };
+  const scheduleFocusedFieldScroll=()=>{
+    clearTimeout(focusScrollTimer);
+    focusScrollTimer=setTimeout(()=>{
+      requestAnimationFrame(keepFocusedFieldVisible);
+      setTimeout(()=>requestAnimationFrame(keepFocusedFieldVisible),180);
+    },70);
+  };
+  document.addEventListener('focusin',scheduleFocusedFieldScroll,true);
+  if(vv) vv.addEventListener('resize',scheduleFocusedFieldScroll,{passive:true});
+
+  const note= document.getElementById('txNote'), count= document.getElementById('txNoteCount');
   if(note&&count){const update=()=>count.textContent=note.value.length+' / 500';note.addEventListener('input',update);update();}
 })();
 </script>
