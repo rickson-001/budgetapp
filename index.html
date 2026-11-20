@@ -4338,10 +4338,24 @@ function migrateSavings() {
 const CAT_COLORS = ['#34c58a', '#5aa2ff', '#ffc233', '#ff7a59', '#ff6fa8', '#a78bfa', '#2dd4d4', '#9ca3af'];
 const CAT_EMOJIS = ['💰', '📈', '🤝', '🛒', '☕', '📱', '🎓', '👕', '✈️', '🐾', '🎁', '💡', '🔧', '🏋️', '📚', '🎮', '💄', '🚰', '🧾', '👶', '⛽', '🎬', '🏷️'];
 function registerCats() {
-  Object.keys(CATS0).forEach(k => { CATS[k] = { ...CATS0[k] }; }); (DB.get('settings').hiddenCats || []).forEach(k => { if (k !== 'autre' && k !== 'salaire') delete CATS[k]; }); try { if (DB.get('txs').some(t => t.cat && !CATS[t.cat])) DB.update('txs', a => a.forEach(t => { if (t.cat && !CATS[t.cat]) t.cat = 'autre'; })); } catch { }
-    (DB.get('settings').customCats || []).forEach((c, i) => { CATS[c.id] = { e: c.e, l: c.l, c: CAT_COLORS[i % CAT_COLORS.length], t: c.t || 'expense', custom: true }; });
-    Object.entries(DB.get('settings').catIcons || {}).forEach(([id, value]) => { if (CATS[id]) CATS[id].e = normalizeEmoji(value, CATS[id].e); });
-    Object.entries(DB.get('settings').catLabels || {}).forEach(([id, value]) => { if (CATS[id] && String(value).trim()) CATS[id].l = String(value).trim(); });
+  // Reconstruire toutes les catégories disponibles AVANT de vérifier les transactions.
+  // Sinon, au démarrage, une catégorie personnalisée (ex. « Courses ») est
+  // prise à tort pour une catégorie supprimée et sa transaction est réaffectée à « autre ».
+  Object.keys(CATS0).forEach(k => { CATS[k] = { ...CATS0[k] }; });
+  (DB.get('settings').hiddenCats || []).forEach(k => { if (k !== 'autre' && k !== 'salaire') delete CATS[k]; });
+  (DB.get('settings').customCats || []).forEach((c, i) => {
+    if (!c || !c.id) return;
+    CATS[c.id] = { e: c.e, l: c.l, c: CAT_COLORS[i % CAT_COLORS.length], t: c.t || 'expense', custom: true };
+  });
+  Object.entries(DB.get('settings').catIcons || {}).forEach(([id, value]) => { if (CATS[id]) CATS[id].e = normalizeEmoji(value, CATS[id].e); });
+  Object.entries(DB.get('settings').catLabels || {}).forEach(([id, value]) => { if (CATS[id] && String(value).trim()) CATS[id].l = String(value).trim(); });
+  // Seulement après avoir réintégré les catégories personnalisées, traiter les
+  // éventuelles références réellement orphelines (catégorie supprimée).
+  try {
+    if (DB.get('txs').some(t => t.cat && !CATS[t.cat])) {
+      DB.update('txs', txs => txs.forEach(t => { if (t.cat && !CATS[t.cat]) t.cat = 'autre'; }));
+    }
+  } catch (_) {}
 }
 // ==================================================
 // DÉMARRAGE DES DONNÉES
