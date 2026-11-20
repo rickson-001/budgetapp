@@ -3717,9 +3717,10 @@ const Actions = {
     btn.textContent = 'Enregistrement...';
     try {
       const amt = Utils.parseAmt(UI.$('txAmt').value);
-      // La catégorie retenue est celle réellement affichée comme sélectionnée.
+      // Lire la catégorie directement depuis la puce sélectionnée au moment du clic.
       const selectedCategoryChip = UI.$('txCats')?.querySelector('.cat-chip.sel');
-      if (_txType !== 'saving' && selectedCategoryChip?.dataset.cat) _selectedCat = selectedCategoryChip.dataset.cat;
+      const selectedCategory = _txType === 'saving' ? 'epargne' : (selectedCategoryChip?.getAttribute('data-cat') || _selectedCat);
+      if (_txType !== 'saving') _selectedCat = selectedCategory;
       if (amt <= 0) { UI.toast('Montant invalide', 'error'); btn.disabled = false; btn.textContent = originalText; this._isSubmitting = false; return; }
       const accountId = getMainAccountId();
       if (!accountId) { UI.toast('Créez d’abord le compte principal', 'error'); btn.disabled = false; btn.textContent = originalText; this._isSubmitting = false; return; }
@@ -3739,10 +3740,22 @@ const Actions = {
           this._isSubmitting = false;
           return;
         }
-        DB.update('txs', txs => {
-          const tx = txs.find(t => t.id === editId);
-          if (tx && tx.type !== 'saving') tx.cat = _selectedCat;
-        });
+        if (existingTx.type !== 'saving') {
+          const nextTxs = DB.get('txs').map(t => t.id === editId ? { ...t, cat: selectedCategory } : t);
+          // Écriture explicite puis relecture du stockage persistant : aucun succès
+          // n'est annoncé tant que la nouvelle catégorie n'est pas réellement conservée.
+          localStorage.setItem('b5_txs', JSON.stringify(nextTxs));
+          const persistedTxs = JSON.parse(localStorage.getItem('b5_txs') || '[]');
+          const persistedTx = persistedTxs.find(t => t.id === editId);
+          if (!persistedTx || persistedTx.cat !== selectedCategory) {
+            throw new Error('La catégorie n’a pas pu être conservée dans le stockage local.');
+          }
+          DB.set('txs', persistedTxs);
+          const verifiedTx = DB.get('txs').find(t => t.id === editId);
+          if (!verifiedTx || verifiedTx.cat !== selectedCategory) {
+            throw new Error('La catégorie enregistrée n’a pas pu être vérifiée.');
+          }
+        }
         this._editId = null;
         btn.disabled = false;
         btn.textContent = originalText;
