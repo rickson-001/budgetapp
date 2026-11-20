@@ -3131,8 +3131,11 @@ const Modals = {
   editTx(id) {
     const tx = DB.get('txs').find(t => t.id === id);
     if (!tx || _lpFired) return;
-    _selectedCat = tx.cat;
     this.openTx(tx.type);
+    // Restaurer la catégorie après la reconstruction du formulaire pour garantir
+    // que l'élément visuellement sélectionné corresponde à la valeur enregistrée.
+    _selectedCat = tx.type === 'saving' ? 'epargne' : (tx.cat || (tx.type === 'income' ? 'salaire' : 'alimentation'));
+    _buildCats();
     Actions._editId = id;
     if (tx.type === 'saving' && tx.savingDestinationId && Array.from(UI.$('txSavingDestination').options).some(o => o.value === tx.savingDestinationId)) UI.$('txSavingDestination').value = tx.savingDestinationId;
     const _tt = document.querySelector('#txOverlay .modal-title-text'); if (_tt) _tt.textContent = 'Modifier la transaction';
@@ -3714,6 +3717,9 @@ const Actions = {
     btn.textContent = 'Enregistrement...';
     try {
       const amt = Utils.parseAmt(UI.$('txAmt').value);
+      // La catégorie retenue est celle réellement affichée comme sélectionnée.
+      const selectedCategoryChip = UI.$('txCats')?.querySelector('.cat-chip.sel');
+      if (_txType !== 'saving' && selectedCategoryChip?.dataset.cat) _selectedCat = selectedCategoryChip.dataset.cat;
       if (amt <= 0) { UI.toast('Montant invalide', 'error'); btn.disabled = false; btn.textContent = originalText; this._isSubmitting = false; return; }
       const accountId = getMainAccountId();
       if (!accountId) { UI.toast('Créez d’abord le compte principal', 'error'); btn.disabled = false; btn.textContent = originalText; this._isSubmitting = false; return; }
@@ -4247,7 +4253,7 @@ const Actions = {
 // FORMULAIRES
 // ==================================================
 function _syncTxType() { UI.$('btnExp').className = 'type-btn' + (_txType === 'expense' ? ' ae' : ''); UI.$('btnInc').className = 'type-btn' + (_txType === 'income' ? ' ai' : ''); UI.$('btnSav').className = 'type-btn' + (_txType === 'saving' ? ' as' : ''); }
-function _buildCats() { if (_txType === 'saving') { _selectedCat = 'epargne'; UI.html('txCats', '<div class="cat-chip sel"><span class="cc-e">🐖</span><span>Épargne</span></div>'); return; } const keys = _txType === 'income' ? ['salaire', ...Object.keys(CATS).filter(k => CATS[k].custom && CATS[k].t === 'income'), 'autre'] : Object.keys(CATS).filter(k => k !== 'salaire' && CATS[k].t !== 'income'); if (!keys.includes(_selectedCat)) _selectedCat = keys[0]; UI.html('txCats', keys.map(k => { const c = CATS[k]; return `<div class="cat-chip ${_selectedCat === k ? 'sel' : ''}" onclick="_selCat('${k}')"><span class="cc-e">${c.e}</span><span>${Utils.esc(c.l)}</span></div>`; }).join('')); }
+function _buildCats() { if (_txType === 'saving') { _selectedCat = 'epargne'; UI.html('txCats', '<div class="cat-chip sel"><span class="cc-e">🐖</span><span>Épargne</span></div>'); return; } const keys = _txType === 'income' ? ['salaire', ...Object.keys(CATS).filter(k => CATS[k].custom && CATS[k].t === 'income'), 'autre'] : Object.keys(CATS).filter(k => k !== 'salaire' && CATS[k].t !== 'income'); if (!keys.includes(_selectedCat)) _selectedCat = keys[0]; UI.html('txCats', keys.map(k => { const c = CATS[k]; return `<div class="cat-chip ${_selectedCat === k ? 'sel' : ''}" data-cat="${k}" onclick="_selCat('${k}')"><span class="cc-e">${c.e}</span><span>${Utils.esc(c.l)}</span></div>`; }).join('')); }
 function _selCat(k) { _selectedCat = k; _buildCats(); }
 
 // ==================================================
