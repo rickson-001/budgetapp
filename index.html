@@ -3727,6 +3727,33 @@ const Actions = {
       if (_txType === 'saving' && (!savingDestinationId || savingDestinationId === accountId)) { UI.toast('Créez ou choisissez un autre compte pour recevoir l’épargne', 'error'); btn.disabled = false; btn.textContent = originalText; this._isSubmitting = false; return; }
       const desc = UI.$('txDesc').value.trim();
       const wasEdit = !!this._editId;
+      // Une modification de catégorie ne doit jamais supprimer/recréer la transaction :
+      // on met à jour directement son enregistrement et on préserve le grand livre.
+      if (wasEdit) {
+        const editId = this._editId;
+        const existingTx = DB.get('txs').find(t => t.id === editId);
+        if (!existingTx) {
+          UI.toast('Transaction introuvable', 'error');
+          btn.disabled = false;
+          btn.textContent = originalText;
+          this._isSubmitting = false;
+          return;
+        }
+        DB.update('txs', txs => {
+          const tx = txs.find(t => t.id === editId);
+          if (tx && tx.type !== 'saving') tx.cat = _selectedCat;
+        });
+        this._editId = null;
+        btn.disabled = false;
+        btn.textContent = originalText;
+        this._isSubmitting = false;
+        Modals.close('txOverlay');
+        App.renderHome();
+        App.renderAccounts();
+        if (Nav._detailType === 'account') Nav.refreshDetail();
+        UI.toast('✅ Catégorie de la transaction mise à jour', 'success');
+        return;
+      }
       const candidateDate = Modals.txDateISO();
       const duplicate = DB.get('txs').find(t => t.id !== this._editId && t.type === _txType && Math.abs(Number(t.amount) - amt) < 0.005 && (t.desc || '').trim().toLocaleLowerCase() === desc.toLocaleLowerCase() && new Date(t.date).toDateString() === new Date(candidateDate).toDateString() && t.accountId === accountId);
       if (duplicate && !confirm('Une transaction très similaire existe déjà à cette date et sur ce compte. Veux-tu quand même l’enregistrer ?')) { btn.disabled = false; btn.textContent = originalText; this._isSubmitting = false; return; }
