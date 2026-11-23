@@ -20,6 +20,26 @@
 
 .nova-forecast-card{margin:0 0 14px;padding:15px 17px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(135deg,var(--surface),var(--surface2));box-shadow:0 8px 24px rgba(15,23,42,.045)}.nova-forecast-card .nf-title{font-size:.76rem;font-weight:800;color:var(--text2);margin-bottom:8px}.nova-forecast-card .nf-main{font:800 1.2rem 'Nunito',sans-serif;color:var(--text)}.nova-forecast-card .nf-sub{font-size:.7rem;color:var(--text3);margin-top:4px;line-height:1.45}.nova-forecast-card .nf-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}.nova-forecast-card .nf-cell{padding:9px;border-radius:12px;background:var(--surface);min-width:0}.nova-forecast-card .nf-cell small{display:block;color:var(--text3);font-size:.62rem}.nova-forecast-card .nf-cell b{display:block;margin-top:3px;font-size:.76rem;overflow-wrap:anywhere}
 
+/* Tableau de bord mensuel regroupé : balance, plafond et prévision. */
+#budgetGaugeContainer{display:none!important}
+.nova-forecast-card{padding:16px}
+.nova-forecast-card .nf-title{margin-bottom:12px;font-size:.78rem}
+.nova-forecast-card .nf-balance{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 13px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+.nova-forecast-card .nf-label,.nova-forecast-card .nf-rate small{display:block;color:var(--text3);font-size:.64rem}
+.nova-forecast-card .nf-main{margin-top:3px;font-size:1.28rem;font-weight:900;font-variant-numeric:tabular-nums}
+.nova-forecast-card .nf-rate{text-align:right;flex:none}
+.nova-forecast-card .nf-rate b{display:block;margin-top:3px;font-size:.9rem}
+.nova-forecast-card .nf-budget,.nova-forecast-card .nf-forecast{margin-top:12px;padding:12px 13px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+.nova-forecast-card .nf-section-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:.7rem;font-weight:750}
+.nova-forecast-card .nf-section-head strong{text-align:right;font-size:.76rem;font-variant-numeric:tabular-nums}
+.nova-forecast-card .nf-progress-track{height:9px;margin-top:10px;overflow:hidden;border-radius:99px;background:var(--surface3)}
+.nova-forecast-card .nf-progress-track i{display:block;height:100%;border-radius:inherit;transition:width .25s ease}
+.nova-forecast-card .nf-budget-foot{display:flex;justify-content:space-between;gap:8px;margin-top:7px}
+.nova-forecast-card .nf-no-budget .nf-sub{margin-top:6px}
+.nova-forecast-card .nf-days{margin-top:5px}
+@media(max-width:520px){.nova-forecast-card{padding:13px}.nova-forecast-card .nf-main{font-size:1.18rem}.nova-forecast-card .nf-section-head{align-items:flex-start}}
+
+
 
 /* Nova Finance — harmonisation premium de tous les champs de montant */
 .amt-wrap{display:flex;align-items:center;position:relative;min-height:54px;padding:0 14px;background:linear-gradient(135deg,var(--surface2),var(--surface));border:1.5px solid var(--border2);border-radius:15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.035);transition:border-color .18s ease,box-shadow .18s ease,background .18s ease}
@@ -2861,10 +2881,38 @@ const App = {
     const projected = Math.round((expenses / elapsed) * days);
     const net = income - expenses - savings;
     const rate = income > 0 ? Math.round((savings / income) * 100) : 0;
-    const prior = DB.get('txs').filter(t => { const d = new Date(t.date); return d.getFullYear() === (this._month === 0 ? this._year - 1 : this._year) && d.getMonth() === (this._month + 11) % 12; });
-    const priorExp = prior.filter(t => t.type === 'expense').reduce((a,t) => a + Number(t.amount || 0), 0);
-    const trend = priorExp ? (projected > priorExp ? `en hausse de ${Math.round((projected-priorExp)/priorExp*100)} %` : `en baisse de ${Math.round((priorExp-projected)/priorExp*100)} %`) : 'pas encore de comparaison disponible';
-    el.innerHTML = `<div class="nf-title">✨ Prévision et bilan du mois</div><div class="nf-main">${Utils.fmtS(projected)} ${Utils.cur()}</div><div class="nf-sub">Dépenses estimées à la fin du mois · tendance ${trend} par rapport au mois précédent</div><div class="nf-grid"><div class="nf-cell"><small>Balance actuelle</small><b>${Utils.fmtS(net)}</b></div><div class="nf-cell"><small>Taux d’épargne</small><b>${rate} %</b></div><div class="nf-cell"><small>Jours écoulés</small><b>${elapsed} / ${days}</b></div></div>`;
+    const budget = DB.get('settings').monthlyBudget?.[this._year]?.[this._month] || 0;
+    const rawPercent = budget > 0 ? Math.round((expenses / budget) * 100) : 0;
+    const percent = Math.min(100, Math.max(0, rawPercent));
+    const remaining = Math.max(0, budget - expenses);
+    const over = Math.max(0, expenses - budget);
+    const prior = DB.get('txs').filter(t => {
+      const d = new Date(t.date);
+      return d.getFullYear() === (this._month === 0 ? this._year - 1 : this._year)
+        && d.getMonth() === (this._month + 11) % 12;
+    });
+    const priorExp = prior.filter(t => t.type === 'expense').reduce((a, t) => a + Number(t.amount || 0), 0);
+    const trend = priorExp
+      ? (projected > priorExp ? `en hausse de ${Math.round((projected - priorExp) / priorExp * 100)} %` : `en baisse de ${Math.round((priorExp - projected) / priorExp * 100)} %`)
+      : 'pas encore de comparaison disponible';
+    const budgetBlock = budget > 0
+      ? `<div class="nf-budget">
+          <div class="nf-section-head"><span>Reste de l’objectif mensuel</span><strong>${over ? `Dépassé de ${Utils.fmtS(over)} ${Utils.cur()}` : `${Utils.fmtS(remaining)} ${Utils.cur()} restants`}</strong></div>
+          <div class="nf-progress-track"><i style="width:${percent}%;background:${rawPercent >= 100 ? 'var(--red)' : rawPercent >= 80 ? 'var(--gold)' : 'var(--green)'}"></i></div>
+          <div class="nf-sub nf-budget-foot"><span>${Utils.fmtS(expenses)} / ${Utils.fmtS(budget)} ${Utils.cur()} dépensés</span><span>${rawPercent}% utilisé</span></div>
+        </div>`
+      : `<div class="nf-budget nf-no-budget"><div class="nf-section-head"><span>Objectif mensuel</span><strong>Aucun objectif défini</strong></div><div class="nf-sub">Définissez un plafond mensuel dans les réglages pour suivre le montant restant.</div></div>`;
+    el.innerHTML = `<div class="nf-title">✨ Bilan et prévision du mois</div>
+      <div class="nf-balance">
+        <div><div class="nf-label">Balance du mois</div><div class="nf-main" style="color:${net < 0 ? 'var(--red)' : 'var(--green)'}">${Utils.fmtS(net)} ${Utils.cur()}</div></div>
+        <div class="nf-rate"><small>Taux d’épargne</small><b>${rate} %</b></div>
+      </div>
+      ${budgetBlock}
+      <div class="nf-forecast">
+        <div class="nf-section-head"><span>Prévision des dépenses</span><strong>${Utils.fmtS(projected)} ${Utils.cur()}</strong></div>
+        <div class="nf-sub">Estimation à la fin du mois · ${trend} par rapport au mois précédent.</div>
+        <div class="nf-sub nf-days">${elapsed} jour(s) écoulé(s) sur ${days}</div>
+      </div>`;
     el.style.display = '';
   },
 
