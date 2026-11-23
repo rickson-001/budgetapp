@@ -4313,7 +4313,7 @@ const Actions = {
     const mainChoice = UI.$('acFormMain').value;
     let savedAccountId = _acSetupId;
     if (_acSetupId) {
-      DB.update('accounts', acs => { const ac = acs.find(a => a.id === _acSetupId); if (ac) { ac.name = name; ac.icon = icon; ac.colorKey = colorKey; if (customColor) ac.customColor = customColor; else delete ac.customColor; ac.type = type; ac.balance = bal; delete ac.showOnHome; if (goal) ac.goal = goal; else delete ac.goal; } });
+      DB.update('accounts', acs => { const ac = acs.find(a => a.id === _acSetupId); if (ac) { ac.name = name; ac.icon = icon; ac.colorKey = colorKey; if (customColor) ac.customColor = customColor; else delete ac.customColor; ac.type = type; ac.balance = bal; if (goal) ac.goal = goal; else delete ac.goal; } });
       UI.toast('✅ Compte modifié', 'success');
     } else {
       savedAccountId = 'acc-' + Utils.uid();
