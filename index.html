@@ -2070,7 +2070,9 @@ const FileSync = (() => {
   let _saveTimer = null;
   let _lastSaved = null;
   let _status = 'idle';
-  const SUPPORTED = (typeof window.showSaveFilePicker === 'function');
+  let _importing = false;
+  const CAN_SAVE_HANDLE = typeof window.showSaveFilePicker === 'function';
+  const CAN_OPEN_HANDLE = typeof window.showOpenFilePicker === 'function';
 
   const _IDB = (() => {
     const DB_NAME = 'budget_filesync_v6';
@@ -2080,12 +2082,13 @@ const FileSync = (() => {
     function open() {
       return new Promise((res, rej) => {
         const r = indexedDB.open(DB_NAME, 1);
-        r.onupgradeneeded = e => e.target.result.createObjectStore(STORE);
+        r.onupgradeneeded = e => {
+          if (!e.target.result.objectStoreNames.contains(STORE)) e.target.result.createObjectStore(STORE);
+        };
         r.onsuccess = e => res(e.target.result);
         r.onerror = e => rej(e.target.error);
       });
     }
-
     async function save(h) {
       try {
         const db = await open();
@@ -2093,23 +2096,21 @@ const FileSync = (() => {
           const tx = db.transaction(STORE, 'readwrite');
           tx.objectStore(STORE).put(h, KEY);
           tx.oncomplete = res;
-          tx.onerror = rej;
+          tx.onerror = () => rej(tx.error);
         });
       } catch (e) { console.warn('[FileSync] IDB save:', e); }
     }
-
     async function load() {
       try {
         const db = await open();
         return await new Promise((res, rej) => {
           const tx = db.transaction(STORE, 'readonly');
-          const r = tx.objectStore(STORE).get(KEY);
-          r.onsuccess = e => res(e.target.result || null);
-          r.onerror = e => rej(e.target.error);
+          const req = tx.objectStore(STORE).get(KEY);
+          req.onsuccess = e => res(e.target.result || null);
+          req.onerror = () => rej(req.error);
         });
-      } catch (e) { return null; }
+      } catch (e) { console.warn('[FileSync] IDB load:', e); return null; }
     }
-
     async function clear() {
       try {
         const db = await open();
@@ -2117,11 +2118,10 @@ const FileSync = (() => {
           const tx = db.transaction(STORE, 'readwrite');
           tx.objectStore(STORE).delete(KEY);
           tx.oncomplete = res;
-          tx.onerror = rej;
+          tx.onerror = () => rej(tx.error);
         });
-      } catch (e) { }
+      } catch (e) { console.warn('[FileSync] IDB clear:', e); }
     }
-
     return { save, load, clear };
   })();
 
@@ -2141,22 +2141,42 @@ const FileSync = (() => {
     }, null, 2);
   }
 
+  function _setStatus(s) {
+    _status = s;
+    const dot = UI.$('syncDot');
+    if (dot) {
+      dot.className = 'sync-dot sync-' + s;
+      const labels = {
+        idle: _handle ? 'Fichier sélectionné — autorisation à vérifier' : 'Aucun fichier sélectionné',
+        connected: 'Fichier sélectionné — prêt à synchroniser',
+        saving: 'Sauvegarde en cours…',
+        saved: 'Fichier synchronisé ✓',
+        permission: 'Autorisation nécessaire : appuyez sur « Sauvegarder maintenant »',
+        error: 'Échec de sauvegarde — vérifiez le fichier et son autorisation',
+        unsupported: 'Sélection persistante non prise en charge par ce navigateur'
+      };
+      dot.title = labels[s] || '';
+    }
+    try { if (Nav._tab === 'settings') App.renderSettings(); } catch (_) {}
+  }
+
   async function _write(permissionRequest = null) {
-    if (!_handle) return false;
+    if (!_handle || typeof _handle.createWritable !== 'function') return false;
+    let writable = null;
     try {
-      // La demande d'autorisation doit être lancée depuis le clic ou l'action
-      // utilisateur, pas après le délai de synchronisation.
       const perm = permissionRequest
         ? await permissionRequest
         : await _handle.queryPermission({ mode: 'readwrite' });
-      if (perm !== 'granted') { _setStatus('error'); return false; }
-      const writable = await _handle.createWritable();
+      if (perm !== 'granted') { _setStatus('permission'); return false; }
+      writable = await _handle.createWritable();
       await writable.write(await _build());
       await writable.close();
+      writable = null;
       _lastSaved = new Date();
       _setStatus('saved');
       return true;
     } catch (e) {
+      if (writable) { try { await writable.abort(); } catch (_) {} }
       console.warn('[FileSync] write failed:', e);
       _setStatus('error');
       return false;
@@ -2164,161 +2184,195 @@ const FileSync = (() => {
   }
 
   function _askWritePermission() {
+    if (!_handle || typeof _handle.requestPermission !== 'function') return Promise.resolve('denied');
     try {
-      // Appel immédiat : conserve l'activation utilisateur nécessaire au navigateur.
-      return Promise.resolve(_handle.requestPermission({ mode: 'readwrite' }));
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-
-  function _setStatus(s) {
-    _status = s;
-    const dot = UI.$('syncDot');
-    if (dot) {
-      dot.className = 'sync-dot sync-' + s;
-      const LABELS = {
-        idle: 'Aucun fichier sélectionné',
-        saving: 'Sauvegarde en cours…',
-        saved: 'Fichier synchronisé ✓',
-        error: 'Erreur de sauvegarde',
-        unsupported: 'Non supporté'
-      };
-      dot.title = LABELS[s] || '';
-    }
-    try { if (Nav._tab === 'settings') App.renderSettings(); } catch (_) { }
+      // À appeler uniquement depuis un clic explicite de l'utilisateur.
+      return _handle.requestPermission({ mode: 'readwrite' });
+    } catch (e) { return Promise.reject(e); }
   }
 
   async function init() {
-    if (!SUPPORTED) { _setStatus('unsupported'); return; }
+    // La récupération du handle ne dépend pas de showSaveFilePicker :
+    // un fichier précédemment ouvert peut rester utilisable même si cette API manque.
     const h = await _IDB.load();
-    if (h) {
+    if (h && typeof h.getFile === 'function' && typeof h.createWritable === 'function') {
+      _handle = h;
       try {
-        const perm = await h.queryPermission({ mode: 'readwrite' });
-        if (perm === 'granted' || perm === 'prompt') { _handle = h; _setStatus('idle'); }
-      } catch (e) { _handle = null; }
+        const perm = typeof h.queryPermission === 'function'
+          ? await h.queryPermission({ mode: 'readwrite' })
+          : 'prompt';
+        _setStatus(perm === 'granted' ? 'connected' : 'permission');
+      } catch (e) {
+        console.warn('[FileSync] permission check:', e);
+        _setStatus('permission');
+      }
+    } else {
+      _handle = null;
+      _setStatus(CAN_SAVE_HANDLE || CAN_OPEN_HANDLE ? 'idle' : 'unsupported');
     }
-    _setStatus('idle'); // était '_handle ? idle : idle' — les deux branches identiques, simplifié
   }
 
   async function chooseFile() {
-    if (!SUPPORTED) { UI.toast('Non supporté - Chrome ou Edge requis', 'error'); return; }
+    if (!CAN_SAVE_HANDLE) {
+      UI.toast('La création d’un fichier synchronisé n’est pas prise en charge ici. Utilisez « Charger un fichier » pour importer un JSON.', 'error');
+      return;
+    }
     try {
       const h = await window.showSaveFilePicker({
-        suggestedName: 'budget_' + new Date().toISOString().slice(0, 10) + '.json',
-        types: [{ description: 'Budget JSON', accept: { 'application/json': ['.json'] } }]
+        suggestedName: 'nova-finance-' + new Date().toISOString().slice(0, 10) + '.json',
+        types: [{ description: 'Sauvegarde Nova Finance (JSON)', accept: { 'application/json': ['.json'] } }]
       });
       _handle = h;
       await _IDB.save(h);
       _setStatus('saving');
-      await _write();
-      UI.toast('✅ Fichier sélectionné et sauvegardé', 'success');
+      const ok = await _write();
+      UI.toast(ok ? 'Fichier sélectionné et sauvegardé' : 'Fichier sélectionné. Appuyez sur « Sauvegarder maintenant » pour autoriser l’écriture.', ok ? 'success' : 'error');
     } catch (e) {
-      if (e.name !== 'AbortError') UI.toast('Erreur lors de la sélection', 'error');
+      if (e.name !== 'AbortError') {
+        console.warn('[FileSync] chooseFile:', e);
+        UI.toast('Impossible de sélectionner ce fichier', 'error');
+      }
     }
   }
 
   async function saveNow() {
-    if (!_handle) { UI.toast('Aucun fichier sélectionné', 'error'); return; }
+    if (!_handle) { UI.toast('Aucun fichier synchronisé sélectionné. Choisissez ou chargez un fichier JSON.', 'error'); return; }
     _setStatus('saving');
-    const ok = await _write(_askWritePermission());
-    UI.toast(ok ? '✅ Sauvegarde réussie' : '⚠️ Autorisation refusée ou sauvegarde impossible', ok ? 'success' : 'error');
+    // requestPermission est invoqué directement pendant le clic sur le bouton.
+    const permission = _askWritePermission();
+    const ok = await _write(permission);
+    UI.toast(ok ? 'Sauvegarde réussie ✓' : 'Autorisation refusée ou sauvegarde impossible. Réessayez depuis ce bouton.', ok ? 'success' : 'error');
+  }
+
+  function _pickLocalJson() {
+    return new Promise(resolve => {
+      const picker = document.createElement('input');
+      picker.type = 'file';
+      picker.accept = '.json,application/json';
+      picker.style.position = 'fixed';
+      picker.style.left = '-10000px';
+      let finished = false;
+      let focusTimer = null;
+      const finish = file => {
+        if (finished) return;
+        finished = true;
+        if (focusTimer) clearTimeout(focusTimer);
+        window.removeEventListener('focus', onFocus);
+        picker.remove();
+        resolve(file || null);
+      };
+      const onFocus = () => {
+        // Sur certains Android, l'annulation ne déclenche ni change ni cancel.
+        focusTimer = setTimeout(() => finish(picker.files && picker.files[0]), 700);
+      };
+      picker.addEventListener('change', () => finish(picker.files && picker.files[0]), { once: true });
+      picker.addEventListener('cancel', () => finish(null), { once: true });
+      window.addEventListener('focus', onFocus, { once: true });
+      document.body.appendChild(picker);
+      picker.click();
+    });
   }
 
   async function loadFile() {
     let h = null;
     try {
-      let file;
-      if (typeof window.showOpenFilePicker === 'function') {
-        [h] = await window.showOpenFilePicker({
-          types: [{ description: 'Budget JSON', accept: { 'application/json': ['.json'] } }],
+      let file = null;
+      if (CAN_OPEN_HANDLE) {
+        const handles = await window.showOpenFilePicker({
+          types: [{ description: 'Sauvegarde Nova Finance (JSON)', accept: { 'application/json': ['.json'] } }],
           multiple: false
         });
+        h = handles && handles[0] ? handles[0] : null;
+        if (!h) { UI.toast('Aucun fichier sélectionné', 'error'); return; }
         file = await h.getFile();
       } else {
-        // Repli universel : le chargement JSON reste possible sans File System Access API.
-        const picker = document.createElement('input');
-        picker.type = 'file';
-        picker.accept = '.json,application/json';
-        file = await new Promise(resolve => {
-          picker.onchange = () => resolve(picker.files && picker.files[0] ? picker.files[0] : null);
-          picker.click();
-        });
-        if (!file) return;
+        file = await _pickLocalJson();
+        if (!file) { UI.toast('Sélection annulée', 'info'); return; }
       }
+
       let data;
-      try {
-        data = JSON.parse(await file.text());
-      } catch (e) {
-        UI.toast('Fichier JSON invalide', 'error');
-        return;
+      try { data = JSON.parse(await file.text()); }
+      catch (e) { UI.toast('Le fichier sélectionné n’est pas un JSON valide', 'error'); return; }
+
+      if (!data || typeof data !== 'object' || Array.isArray(data)) {
+        UI.toast('Format de sauvegarde non reconnu', 'error'); return;
       }
-      const OK = ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'recurring', 'reminders'].every(k => data[k] === undefined || Array.isArray(data[k])) && (data.settings === undefined || (data.settings && typeof data.settings === 'object' && !Array.isArray(data.settings)));
-      if (!OK) { UI.toast('Format non reconnu', 'error'); return; }
-      Modals.openConfirm('📂 Charger ce fichier', `Les données actuelles seront remplacées. Continuer ?`, async () => {
-        ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'recurring', 'reminders', 'settings'].forEach(k => {
-          if (data[k] !== undefined) DB.set(k, data[k]);
-        });
-        if (h) {
-          _handle = h;
-          await _IDB.save(h);
-          _setStatus('saved');
+      const arrayKeys = ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'recurring', 'reminders'];
+      const valid = arrayKeys.every(k => data[k] === undefined || Array.isArray(data[k])) &&
+        (data.settings === undefined || (data.settings && typeof data.settings === 'object' && !Array.isArray(data.settings)));
+      if (!valid || !arrayKeys.some(k => Array.isArray(data[k])) && data.settings === undefined) {
+        UI.toast('Ce fichier ne correspond pas à une sauvegarde Nova Finance', 'error'); return;
+      }
+
+      Modals.openConfirm('📂 Charger cette sauvegarde', 'Les données actuelles seront remplacées par celles du fichier. Continuer ?', async () => {
+        _importing = true;
+        clearTimeout(_saveTimer);
+        try {
+          arrayKeys.concat('settings').forEach(k => {
+            if (data[k] !== undefined) DB.set(k, data[k]);
+          });
+          registerCats();
+          migrateSavings();
+          App.ensureMainAccount();
+          App.renderHome();
+          App.renderAccounts();
+          App.renderFilters();
+          App.renderSettings();
+          document.documentElement.setAttribute('data-theme', DB.get('settings').theme || 'dark');
+          Theme.apply();
+
+          if (h) {
+            _handle = h;
+            await _IDB.save(h);
+            _setStatus('connected');
+          }
+          UI.toast(h
+            ? 'Sauvegarde chargée. Le fichier est maintenant sélectionné.'
+            : 'Données chargées. Pour la synchronisation automatique, ouvrez le fichier avec un navigateur compatible.',
+            'success');
+        } catch (e) {
+          console.error('[FileSync] import failed:', e);
+          UI.toast('Le chargement a échoué. Vérifiez le fichier et réessayez.', 'error');
+        } finally {
+          _importing = false;
         }
-        registerCats(); migrateSavings();
-        App.ensureMainAccount();
-        App.renderHome();
-        App.renderAccounts();
-        App.renderFilters();
-        App.renderSettings();
-        document.documentElement.setAttribute('data-theme', DB.get('settings').theme || 'dark');
-        Theme.apply();
-        UI.toast('✅ Données chargées', 'success');
       });
     } catch (e) {
-      if (e.name !== 'AbortError') UI.toast('Erreur', 'error');
+      if (e.name !== 'AbortError') {
+        console.warn('[FileSync] loadFile:', e);
+        UI.toast('Impossible d’ouvrir ou de lire ce fichier', 'error');
+      }
     }
   }
 
   function scheduleSave() {
-    if (!_handle) return;
+    if (!_handle || _importing) return;
     clearTimeout(_saveTimer);
-    _setStatus('saving');
-
-    // Déclencher la demande tout de suite, pendant l'action utilisateur.
-    // L'écriture elle-même reste différée pour regrouper les modifications.
-    let permissionRequest;
-    try {
-      permissionRequest = _askWritePermission();
-    } catch (e) {
-      permissionRequest = Promise.reject(e);
-    }
     _saveTimer = setTimeout(async () => {
-      let perm = null;
-      try { perm = await permissionRequest; } catch (_) {}
-      if (perm !== 'granted') {
-        try { perm = await _handle.queryPermission({ mode: 'readwrite' }); } catch (_) {}
-      }
-      if (perm !== 'granted') { _setStatus('error'); return; }
+      // Aucune demande d'autorisation ici : les mutations internes ne sont pas
+      // un geste utilisateur fiable. L'auto-écriture ne fonctionne que si déjà autorisée.
+      let perm = 'denied';
+      try { perm = await _handle.queryPermission({ mode: 'readwrite' }); } catch (_) {}
+      if (perm !== 'granted') { _setStatus('permission'); return; }
+      _setStatus('saving');
       await _write(Promise.resolve('granted'));
-    }, 1500);
+    }, 1200);
   }
 
   async function disconnect() {
     _handle = null;
     clearTimeout(_saveTimer);
     await _IDB.clear();
-    _setStatus('idle');
+    _setStatus(CAN_SAVE_HANDLE || CAN_OPEN_HANDLE ? 'idle' : 'unsupported');
     UI.toast('Fichier déconnecté');
   }
 
   return {
     init, chooseFile, saveNow, loadFile, scheduleSave, disconnect,
-    isSupported: () => SUPPORTED,
-    isConnected: () => !!_handle,
     getStatus: () => _status,
-    getFileName: () => _handle?.name || null,
     getLastSaved: () => _lastSaved
   };
+
 })();
 
 // ==================================================
