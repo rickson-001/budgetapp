@@ -1541,6 +1541,13 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
             </div>
             <div class="srow-right">›</div>
           </div>
+          <div class="srow" onclick="Modals.openHomeAccountsSettings()">
+            <span class="srow-icon">🏠</span>
+            <div class="srow-info">
+              <div class="srow-name">Comptes sur l'accueil</div>
+              <div class="srow-desc">Choisir quels comptes afficher</div>
+            </div>
+            <div class="srow-right">›</div>
           </div>
         </div>
       </div>
@@ -1682,7 +1689,7 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
       <section class="form-section"><div class="form-section-head"><span class="form-section-icon">🏦</span><div><h3>Identité du compte</h3><p>Choisissez son nom et son icône.</p></div></div><div class="field"><label>Nom du compte</label><input type="text" id="acFormName" maxlength="40" autocomplete="off" autocorrect="off" spellcheck="false"/></div><div class="field"><label>Icônes proposées</label><div class="emoji-picker" id="acFormEmojis"></div><details class="emoji-custom-fold"><summary>Choisir mon propre emoji</summary><div class="custom-emoji-field"><input type="text" id="acFormCustomEmoji" aria-label="Votre emoji pour ce compte" placeholder="Saisissez un emoji" oninput="Modals.previewCustomEmoji(this,'acFormEmojiPreview','#acFormEmojis')"/><span class="emoji-preview" id="acFormEmojiPreview" aria-hidden="true">🏦</span></div></details></div></section>
       <section class="form-section"><div class="form-section-head"><span class="form-section-icon">🎨</span><div><h3>Apparence</h3><p>Personnalisez la carte du compte.</p></div></div><div class="field"><label>Couleur de la carte</label><div class="color-picker" id="acFormColors"></div><details class="emoji-custom-fold color-custom-fold"><summary>Choisir une couleur personnalisée</summary><label class="custom-color-row"><span>Couleur de la carte</span><input type="color" id="acFormCustomColor" aria-label="Couleur personnalisée de la carte" oninput="Modals.pickCustomColor(this.value)"/></label></details></div><div class="field"><label>Type de compte</label><select id="acFormType" onchange="Modals.toggleGoalSection()"><option value="bank">Banque</option><option value="mobile">Mobile Money</option><option value="cash">Espèces</option><option value="savings">Épargne</option></select></div></section>
       <section class="form-section" id="acFormGoalSection" style="display:none"><div class="form-section-head"><span class="form-section-icon">🎯</span><div><h3>Objectif d’épargne</h3><p>Fixez le montant à atteindre, avec une date si vous le souhaitez.</p></div></div><div class="field"><label>Montant à atteindre</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="text" id="acFormGoalAmt" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="0"/></div></div><div class="field"><label>Date cible (facultatif)</label><input type="date" id="acFormGoalDate"/><div class="tx-meta">Laissez le montant vide pour ne pas définir d’objectif.</div></div></section>
-      <section class="form-section"><div class="form-section-head"><span class="form-section-icon">⚙️</span><div><h3>Préférences</h3><p>Configurez son rôle et son affichage.</p></div></div><div class="field"><label>Compte principal</label><select id="acFormMain"></select><div class="tx-meta">Les revenus, dépenses et épargnes seront automatiquement rattachés à ce compte.</div></div><div class="field"><label>Solde initial</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="text" id="acFormBal" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="0"/></div></div></section>
+      <section class="form-section"><div class="form-section-head"><span class="form-section-icon">⚙️</span><div><h3>Préférences</h3><p>Configurez son rôle et son affichage.</p></div></div><div class="field"><label>Compte principal</label><select id="acFormMain"></select><div class="tx-meta">Les revenus, dépenses et épargnes seront automatiquement rattachés à ce compte.</div></div><div class="field"><label>Afficher sur l’accueil</label><select id="acFormShowOnHome"><option value="true">✅ Oui, afficher</option><option value="false">❌ Non, masquer</option></select></div><div class="field"><label>Solde initial</label><div class="amt-wrap"><span class="amt-sign">F</span><input type="text" id="acFormBal" inputmode="decimal" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="0"/></div></div></section>
       <button class="btn-primary btn-blue" onclick="Actions.saveAccountForm()">Enregistrer</button></div></div>
 
   <!-- MODAL: Rename -->
@@ -1702,6 +1709,19 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
 
   <!-- MODAL: Confirm -->
   <div class="modal-overlay" id="confirmOverlay"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text" id="confirmTitle">Confirmer</span><button class="modal-close" onclick="Modals.close('confirmOverlay')">✕</button></div><div id="confirmMsg"></div><div class="confirm-row"><button class="btn-primary btn-blue" onclick="Modals.close('confirmOverlay')">Annuler</button><button class="btn-primary btn-red" id="confirmBtn">Confirmer</button></div></div></div>
+
+  <!-- MODAL: Gestion des comptes sur l'accueil -->
+  <div class="modal-overlay" id="homeAccountsModal">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">
+        <span class="modal-title-text">Comptes sur l'accueil</span>
+        <button class="modal-close" onclick="Modals.close('homeAccountsModal')">✕</button>
+      </div>
+      <div id="homeAccountsList" style="max-height: 400px; overflow-y: auto;"></div>
+      <button class="btn-primary btn-blue" onclick="Modals.close('homeAccountsModal'); App.renderHome();" style="margin-top:12px">Fermer</button>
+    </div>
+  </div>
 
   <!-- MODAL: Objectif mensuel -->
   <div class="modal-overlay" id="budgetModal">
@@ -1892,6 +1912,20 @@ const DB = (() => {
     }
     _save('settings', S.settings);
   }
+
+  // Migration showOnHome
+  if (S.accounts.length) {
+    let needsSave = false;
+    S.accounts.forEach(ac => {
+      if (ac.showOnHome === undefined) {
+        ac.showOnHome = true;
+        needsSave = true;
+      }
+    });
+    if (needsSave) _save('accounts', S.accounts);
+  }
+
+
 
   // Migration pour les anciens transferts sans type
   if (S.transfers.length) {
@@ -2920,7 +2954,8 @@ const App = {
     const n = DB.get('settings').name;
     UI.txt('welcomeMsg', g + (n ? ' ' + n.split(' ')[0] : '') + ' 👋');
 
-    let acs = DB.get('accounts');
+    let allAccounts = DB.get('accounts');
+    let acs = allAccounts.filter(ac => ac.showOnHome !== false);
     UI.html('homeAccountsRow', acs.map(ac => `
       <div class="mini-ac" data-color="${ac.customColor ? 'custom' : ac.colorKey}" style="${accountStyle(ac)};--ac-custom:${ac.customColor || 'transparent'}" onclick="if(!_lpFired)Nav.openDetail('account','${ac.id}')">
         <div class="mac-badge"><div class="mac-icon">${Utils.esc(ac.icon)}</div>${Utils.esc(ac.name)}</div>
@@ -3480,6 +3515,10 @@ const Modals = {
     UI.$('acFormGoalDate').value = ac?.goal?.date || '';
     UI.$('acFormGoalDate').min = new Date().toISOString().slice(0, 10);
     this.toggleGoalSection();
+    const showSelect = UI.$('acFormShowOnHome');
+    if (showSelect) {
+      showSelect.value = ac ? (ac.showOnHome !== false ? 'true' : 'false') : 'true';
+    }
     let selEmoji = ac ? ac.icon : AC_ICONS[0];
     UI.html('acFormEmojis', AC_ICONS.map(e => `<div class="emoji-opt ${e === selEmoji ? 'sel' : ''}" onclick="Modals._pickAcEmoji('${e}',this)">${e}</div>`).join(''));
     const customEmoji = UI.$('acFormCustomEmoji'); customEmoji.value = ac && !AC_ICONS.includes(ac.icon) ? ac.icon : '';
@@ -3806,6 +3845,37 @@ const Modals = {
       });
     });
     this.open('ctxOverlay');
+  },
+
+  openHomeAccountsSettings() {
+    const container = UI.$('homeAccountsList');
+    if (!container) return;
+    const accounts = DB.get('accounts');
+    container.innerHTML = accounts.map(ac => `
+      <div class="srow" style="cursor:default">
+        <span class="srow-icon">${Utils.esc(ac.icon)}</span>
+        <div class="srow-info">
+          <div class="srow-name">${Utils.esc(ac.name)}</div>
+          <div class="srow-desc">${Utils.fmt(ac.balance)}</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" class="home-account-toggle" data-id="${ac.id}" ${ac.showOnHome !== false ? 'checked' : ''}>
+          <div class="toggle-track"></div>
+        </label>
+      </div>
+    `).join('');
+    container.querySelectorAll('.home-account-toggle').forEach(toggle => {
+      toggle.addEventListener('change', (e) => {
+        const accountId = toggle.dataset.id;
+        const isChecked = toggle.checked;
+        DB.update('accounts', accounts => {
+          const ac = accounts.find(a => a.id === accountId);
+          if (ac) ac.showOnHome = isChecked;
+        });
+        App.renderHome();
+      });
+    });
+    this.open('homeAccountsModal');
   },
 
   openBudgetSettings() {
@@ -4301,6 +4371,7 @@ const Actions = {
     const customColor = UI.$('acFormCustomColor').dataset.active === 'true' ? UI.$('acFormCustomColor').value : '';
     const colorKey = document.querySelector('#acFormColors .color-opt.sel')?.dataset.color || (_acSetupId ? DB.get('accounts').find(a => a.id === _acSetupId)?.colorKey : null) || COLORS[0];
     const type = UI.$('acFormType').value || 'bank';
+    const showOnHome = UI.$('acFormShowOnHome')?.value === 'true';
     const bal = Utils.parseAmt(UI.$('acFormBal').value);
     let goal = null;
     if (type === 'savings') {
@@ -4313,11 +4384,11 @@ const Actions = {
     const mainChoice = UI.$('acFormMain').value;
     let savedAccountId = _acSetupId;
     if (_acSetupId) {
-      DB.update('accounts', acs => { const ac = acs.find(a => a.id === _acSetupId); if (ac) { ac.name = name; ac.icon = icon; ac.colorKey = colorKey; if (customColor) ac.customColor = customColor; else delete ac.customColor; ac.type = type; ac.balance = bal; if (goal) ac.goal = goal; else delete ac.goal; } });
+      DB.update('accounts', acs => { const ac = acs.find(a => a.id === _acSetupId); if (ac) { ac.name = name; ac.icon = icon; ac.colorKey = colorKey; if (customColor) ac.customColor = customColor; else delete ac.customColor; ac.type = type; ac.balance = bal; ac.showOnHome = showOnHome; if (goal) ac.goal = goal; else delete ac.goal; } });
       UI.toast('✅ Compte modifié', 'success');
     } else {
       savedAccountId = 'acc-' + Utils.uid();
-      DB.update('accounts', acs => acs.push({ id: savedAccountId, name, icon, colorKey, ...(customColor ? { customColor } : {}), balance: bal, type, isMain: false, ...(goal ? { goal } : {}) }));
+      DB.update('accounts', acs => acs.push({ id: savedAccountId, name, icon, colorKey, ...(customColor ? { customColor } : {}), balance: bal, type, showOnHome, isMain: false, ...(goal ? { goal } : {}) }));
       if (bal > 0) DB.update('accountOps', ops => ops.push({ id: Utils.uid(), accountId: savedAccountId, type: 'deposit', amount: bal, desc: 'Solde initial', date: new Date().toISOString() }));
       UI.toast('✅ Compte créé', 'success');
     }
@@ -4399,7 +4470,7 @@ function _selCat(k) { _selectedCat = k; _buildCats(); }
 // ==================================================
 // GESTIONNAIRES D'ÉVÉNEMENTS
 // ==================================================
-const MODAL_IDS = ['addOverlay', 'catOverlay', 'catIconOverlay', 'catBudgetOverlay', 'recurOverlay', 'txOverlay', 'acOpOverlay', 'acFormOverlay', 'renameOverlay', 'profileOverlay', 'paletteOverlay', 'confirmOverlay', 'budgetModal', 'transferModal', 'remindersOverlay', 'reminderFormOverlay', 'calculatorOverlay'];
+const MODAL_IDS = ['addOverlay', 'catOverlay', 'catIconOverlay', 'catBudgetOverlay', 'recurOverlay', 'txOverlay', 'acOpOverlay', 'acFormOverlay', 'renameOverlay', 'profileOverlay', 'paletteOverlay', 'confirmOverlay', 'homeAccountsModal', 'budgetModal', 'transferModal', 'remindersOverlay', 'reminderFormOverlay', 'calculatorOverlay'];
 
 MODAL_IDS.forEach(id => { const el = UI.$(id); if (!el) return; el.addEventListener('click', e => { if (e.target === el) Modals.close(id); }); let t0 = null;
   el.addEventListener('touchstart', e => { if (e.target === el) { e.preventDefault(); const t = e.touches[0]; t0 = { x: t.clientX, y: t.clientY }; } else t0 = null; }, { passive: false });
@@ -4419,7 +4490,7 @@ function migrateSavings() {
   sv.forEach(x => {
     if (have.has(x.id)) return;
     const ck = COLORS.includes(x.colorKey) ? x.colorKey : (COLORS.includes(x.color) ? x.color : 'gold');
-    DB.update('accounts', acs => acs.push({ id: x.id, name: x.name, icon: x.emoji || '🐖', colorKey: ck, balance: x.balance || 0, type: 'savings' }));
+    DB.update('accounts', acs => acs.push({ id: x.id, name: x.name, icon: x.emoji || '🐖', colorKey: ck, balance: x.balance || 0, type: 'savings', showOnHome: false }));
     const mine = sops.filter(o => o.savingId === x.id);
     let net = 0; mine.forEach(o => { net += dep.includes(o.type) ? o.amount : -o.amount; });
     DB.update('accountOps', ops => {
