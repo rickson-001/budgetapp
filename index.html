@@ -2068,6 +2068,8 @@ const FileSync = (() => {
   let _lastSaved = null;
   let _status = 'idle';
   let _importing = false;
+  let _permissionRequest = null;
+  let _permissionRetryBlocked = false;
   const CAN_SAVE_HANDLE = typeof window.showSaveFilePicker === 'function';
   const CAN_OPEN_HANDLE = typeof window.showOpenFilePicker === 'function';
 
@@ -2345,15 +2347,51 @@ const FileSync = (() => {
   function scheduleSave() {
     if (!_handle || _importing) return;
     clearTimeout(_saveTimer);
-    _saveTimer = setTimeout(async () => {
-      // Aucune demande d'autorisation ici : les mutations internes ne sont pas
-      // un geste utilisateur fiable. L'auto-écriture ne fonctionne que si déjà autorisée.
-      let perm = 'denied';
-      try { perm = await _handle.queryPermission({ mode: 'readwrite' }); } catch (_) {}
-      if (perm !== 'granted') { _setStatus('permission'); return; }
-      _setStatus('saving');
-      await _write(Promise.resolve('granted'));
-    }, 1200);
+
+    const queueWrite = () => {
+      clearTimeout(_saveTimer);
+      _saveTimer = setTimeout(async () => {
+        let perm = 'denied';
+        try { perm = await _handle.queryPermission({ mode: 'readwrite' }); } catch (_) {}
+        if (perm !== 'granted') { _setStatus('permission'); return; }
+        _setStatus('saving');
+        await _write(Promise.resolve('granted'));
+      }, 700);
+    };
+
+    // Après la réouverture, le navigateur remet souvent le droit d'écriture
+    // à « prompt ». On le redemande immédiatement lors de la première
+    // modification faite par l'utilisateur (geste actif), puis on synchronise.
+    if (_status === 'permission' && !_permissionRetryBlocked &&
+        !_permissionRequest && typeof _handle.requestPermission === 'function') {
+      try {
+        const request = _handle.requestPermission({ mode: 'readwrite' });
+        _permissionRequest = Promise.resolve(request).then(permission => {
+          _permissionRequest = null;
+          if (permission === 'granted') {
+            _permissionRetryBlocked = false;
+            _setStatus('connected');
+            queueWrite();
+          } else {
+            _permissionRetryBlocked = true;
+            _setStatus('permission');
+          }
+        }).catch(error => {
+          _permissionRequest = null;
+          console.warn('[FileSync] automatic permission request:', error);
+          // Un refus technique (par exemple absence de geste utilisateur)
+          // ne bloque pas une nouvelle tentative lors d'une prochaine action.
+          _setStatus('permission');
+        });
+        return;
+      } catch (error) {
+        console.warn('[FileSync] automatic permission request:', error);
+        _setStatus('permission');
+      }
+    }
+
+    if (_permissionRequest) return;
+    queueWrite();
   }
 
   async function disconnect() {
@@ -3321,7 +3359,7 @@ const App = {
     const status = FileSync.getStatus();
     const fileName = FileSync.getFileName();
     const lastSaved = FileSync.getLastSaved();
-    const statusLabels = { idle: 'Prêt', saving: 'Sauvegarde…', saved: 'Synchronisé ✓', error: 'Erreur' };
+    const statusLabels = { idle: 'Prêt', connected: 'Prêt à synchroniser', permission: 'Autorisation à renouveler', saving: 'Sauvegarde…', saved: 'Synchronisé ✓', error: 'Erreur' };
     const statusColors = { idle: 'var(--text3)', saving: 'var(--gold)', saved: 'var(--green)', error: 'var(--red)' };
     const lastSavedTxt = lastSaved ? 'Dernière : ' + lastSaved.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : (connected ? 'Jamais sauvegardé' : 'Aucun fichier');
 
