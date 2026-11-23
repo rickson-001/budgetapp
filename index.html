@@ -2369,6 +2369,13 @@ const FileSync = (() => {
 
   return {
     init, chooseFile, saveNow, loadFile, scheduleSave, disconnect,
+    // Méthodes consommées par App.renderSettings : conservées dans l'API publique.
+    isSupported: () => CAN_SAVE_HANDLE || CAN_OPEN_HANDLE,
+    isConnected: () => !!_handle,
+    getFileName: () => {
+      try { return _handle && _handle.name ? _handle.name : 'Fichier JSON sélectionné'; }
+      catch (_) { return 'Fichier JSON sélectionné'; }
+    },
     getStatus: () => _status,
     getLastSaved: () => _lastSaved
   };
