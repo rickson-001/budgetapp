@@ -2710,15 +2710,17 @@ const Weekly = (() => {
     const today = new Date();
     const currentMonday = mondayOf(today);
     const latestMonday = addDays(currentMonday, -7);
-    const oldest = new Date(today.getFullYear(), today.getMonth() - 6, today.getDate(), 12);
-    const firstMonday = mondayOf(oldest);
+    const firstMonday = addDays(latestMonday, -35);
     const reports = DB.get('weeklyReports');
     const byKey = new Map(reports.map(r => [r.key, r]));
     for (let cursor = new Date(firstMonday); cursor <= latestMonday; cursor = addDays(cursor, 7)) {
       const key = keyOf(cursor);
       if (!byKey.has(key)) byKey.set(key, buildReport(cursor));
     }
-    const kept = Array.from(byKey.values()).filter(r => parseKey(r.start) >= firstMonday).sort((a,b) => a.start.localeCompare(b.start));
+    const kept = Array.from(byKey.values())
+      .filter(r => parseKey(r.start) >= firstMonday && parseKey(r.start) <= latestMonday)
+      .sort((a,b) => a.start.localeCompare(b.start))
+      .slice(-6);
     DB.set('weeklyReports', kept);
     return kept;
   };
@@ -2766,7 +2768,7 @@ const Weekly = (() => {
     if (!_selectedKey || !reports.some(r=>r.key===_selectedKey)) _selectedKey = reports[reports.length-1].key;
     const options = reports.slice().reverse().map(r => '<option value="'+r.key+'" '+(r.key===_selectedKey?'selected':'')+'>'+Utils.esc(rangeLabel(r))+'</option>').join('');
     const report = reports.find(r=>r.key===_selectedKey);
-    el.innerHTML = '<div class="weekly-archive"><label for="weeklySelect">Consulter une autre semaine</label><select id="weeklySelect" onchange="Weekly.select(this.value)">'+options+'</select></div>'+renderReport(report)+'<p class="weekly-retention">Les bilans sont conservés sur cet appareil pendant six mois.</p>';
+    el.innerHTML = '<div class="weekly-archive"><label for="weeklySelect">Consulter une autre semaine</label><select id="weeklySelect" onchange="Weekly.select(this.value)">'+options+'</select></div>'+renderReport(report)+'<p class="weekly-retention">Les 6 bilans hebdomadaires les plus récents sont conservés sur cet appareil. Les plus anciens sont supprimés automatiquement.</p>';
   };
   const select = key => { _selectedKey = key; render(); };
   const init = () => { storeReports(); };
