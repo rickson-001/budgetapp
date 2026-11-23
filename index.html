@@ -1577,6 +1577,7 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
       <div class="settings-sec"><div class="settings-lbl">Données</div><div class="settings-group">
         <div class="srow" onclick="Modals.openCatBudgets()"><span class="srow-icon">🎯</span><div class="srow-info"><div class="srow-name">Budgets par catégorie</div><div class="srow-desc">Plafond mensuel et alertes</div></div><div class="srow-right">›</div></div>
         <div class="srow" onclick="Modals.openRecurring()"><span class="srow-icon">🔁</span><div class="srow-info"><div class="srow-name">Transactions récurrentes</div><div class="srow-desc">Loyer, abonnements, salaire…</div></div><div class="srow-right">›</div></div>
+        <div class="srow" onclick="Actions.exportPDF()"><span class="srow-icon">📑</span><div class="srow-info"><div class="srow-name">Exporter en PDF</div><div class="srow-desc">Télécharger le rapport du mois</div></div><div class="srow-right">›</div></div>
         
         
         <div class="srow" onclick="Modals.confirmReset()"><span class="srow-icon">🗑️</span><div class="srow-info"><div class="srow-name" style="color:var(--red)">Réinitialiser</div><div class="srow-desc">Supprimer toutes les données</div></div><div class="srow-right" style="color:var(--red)">›</div></div>
@@ -4448,6 +4449,101 @@ const Actions = {
   },
 
 
+
+  async exportPDF() {
+    const month = App._month, year = App._year;
+    const txs = DB.get('txs').filter(t => { const d = new Date(t.date); return d.getMonth() === month && d.getFullYear() === year; }).sort((a, b) => new Date(a.date) - new Date(b.date));
+    const inc = txs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0) + transferIncomeForMonth(month, year);
+    const exp = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    const sav = txs.filter(t => t.type === 'saving').reduce((s, t) => s + t.amount, 0);
+    const bal = inc - exp - sav, cur = Utils.cur(), name = (DB.get('settings').name || 'Utilisateur');
+    const byCat = {};
+    txs.filter(t => t.type === 'expense').forEach(t => { byCat[t.cat || 'autre'] = (byCat[t.cat || 'autre'] || 0) + t.amount; });
+    /* ---- mini-générateur PDF : Helvetica, accents, tableaux, emojis en images ---- */
+    const WD = [278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+    const win = s => String(s == null ? '' : s).replace(/[\u202f\u00a0]/g, ' ').replace(/\u2019/g, "'").replace(/[^\x20-\x7e\xa1-\xff]/g, '');
+    const cw = ch => { const c = ch.charCodeAt(0); if (c >= 32 && c <= 126) return WD[c - 32]; const d = ch.normalize('NFD').charCodeAt(0); return d >= 32 && d <= 126 ? WD[d - 32] : 556; };
+    const tw = (s, sz, b) => [...s].reduce((a, ch) => a + cw(ch), 0) * sz / 1000 * (b ? 1.07 : 1);
+    const fit = (s, sz, mw) => { s = win(s); if (tw(s, sz) <= mw) return s; while (s.length && tw(s + '...', sz) > mw) s = s.slice(0, -1); return s + '...'; };
+    const col = h => { if (h.length === 4) h = '#' + h[1] + h[1] + h[2] + h[2] + h[3] + h[3]; return [1, 3, 5].map(i => (parseInt(h.substr(i, 2), 16) / 255).toFixed(3)).join(' '); };
+    const hex = s => '<' + [...win(s)].map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('') + '>';
+    const enc = s => Uint8Array.from(s, c => c.charCodeAt(0) & 255);
+    const W = 595, H = 842, M = 40, pages = [], IM = new Map(); let pg, y;
+    const newPage = () => { pg = { c: [], im: new Set() }; pages.push(pg); y = H - M; };
+    const rect = (x, yy, w, h, c) => pg.c.push(col(c) + ' rg ' + x.toFixed(1) + ' ' + yy.toFixed(1) + ' ' + w.toFixed(1) + ' ' + h.toFixed(1) + ' re f');
+    const txt = (s, x, yy, sz, c, b) => pg.c.push('BT /' + (b ? 'F2' : 'F1') + ' ' + sz + ' Tf ' + col(c) + ' rg ' + x.toFixed(1) + ' ' + yy.toFixed(1) + ' Td ' + hex(s) + ' Tj ET');
+    const rtxt = (s, xr, yy, sz, c, b) => txt(s, xr - tw(win(s), sz, b), yy, sz, c, b);
+    const emoji = e => { if (IM.has(e)) return IM.get(e); let r = null; try { const cv = document.createElement('canvas'); cv.width = cv.height = 64; const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 64, 64); g.font = '44px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(e, 32, 35); r = { n: IM.size, b: Uint8Array.from(atob(cv.toDataURL('image/jpeg', .95).split(',')[1]), c => c.charCodeAt(0)) }; } catch (_) { r = null; } IM.set(e, r); return r; };
+    const drawEmoji = (e, x, yy) => { const im = emoji(e); if (!im) return false; pg.im.add(im.n); pg.c.push('q 12 0 0 12 ' + x.toFixed(1) + ' ' + yy.toFixed(1) + ' cm /Im' + im.n + ' Do Q'); return true; };
+    const need = h => { if (y - h < M + 24) newPage(); };
+    const table = (cols, hd, rows) => {
+      const head = () => { rect(M, y - 20, W - 2 * M, 20, '#f0f0f0'); let x = M; cols.forEach((c, i) => { c.al === 'r' ? rtxt(hd[i], x + c.w - 8, y - 14, 9, '#333', 1) : txt(hd[i], x + 8, y - 14, 9, '#333', 1); x += c.w; }); y -= 20; };
+      head();
+      rows.forEach(r => {
+        if (y - 22 < M + 24) { newPage(); head(); }
+        let x = M;
+        cols.forEach((c, i) => {
+          const o = (r[i] && typeof r[i] === 'object') ? r[i] : { t: r[i] }, dr = o.e ? drawEmoji(o.e, x + 8, y - 17) : false, off = dr ? 16 : 0, s = fit(o.t, 9.5, c.w - 16 - off);
+          c.al === 'r' ? rtxt(s, x + c.w - 8, y - 15, 9.5, o.c || '#111') : txt(s, x + 8 + off, y - 15, 9.5, o.c || '#111');
+          x += c.w;
+        });
+        rect(M, y - 22, W - 2 * M, .6, '#e4e4e4'); y -= 22;
+      });
+    };
+    newPage();
+    y -= 22; txt('Rapport Budget', M, y, 22, '#111', 1);
+    y -= 20; txt(name + ' · ' + MONTHS[month] + ' ' + year, M, y, 11, '#555');
+    y -= 26;
+    txt('Revenus : +' + Utils.fmtS(inc) + ' ' + cur, M, y, 10, '#1a7f5a', 1);
+    txt('Dépenses : -' + Utils.fmtS(exp) + ' ' + cur, M + 260, y, 10, '#c8402f', 1);
+    y -= 17;
+    txt('Épargne : -' + Utils.fmtS(sav) + ' ' + cur, M, y, 10, '#9a7400', 1);
+    txt('Balance : ' + (bal >= 0 ? '+' : '-') + Utils.fmtS(Math.abs(bal)) + ' ' + cur, M + 260, y, 10, bal < 0 ? '#c8402f' : '#1a7f5a', 1);
+    y -= 28; txt('Par catégorie', M, y, 14, '#111', 1); y -= 10;
+    const catRows = Object.entries(byCat).sort((a, b) => b[1] - a[1]).map(([k, v]) => { const c = CATS[k] || CATS.autre; return [{ t: c.l, e: c.e }, Utils.fmtS(v) + ' ' + cur]; });
+    table([{ w: 335 }, { w: 180, al: 'r' }], ['Catégorie', 'Montant'], catRows.length ? catRows : [[{ t: 'Aucune dépense', c: '#777' }, '']]);
+    y -= 26; need(80); txt('Transactions', M, y, 14, '#111', 1); y -= 10;
+    const txRows = txs.map(t => [new Date(t.date).toLocaleDateString('fr-FR'), t.type === 'income' ? 'Revenu' : t.type === 'saving' ? 'Épargne' : 'Dépense', t.type === 'saving' ? 'Épargne' : (CATS[t.cat] || CATS.autre).l, t.desc || '', { t: (t.type === 'income' ? '+' : '-') + Utils.fmtS(t.amount), c: t.type === 'income' ? '#1a7f5a' : t.type === 'saving' ? '#9a7400' : '#c8402f' }]);
+    DB.get('transfers').filter(t => { const d = new Date(t.date); return d.getMonth() === month && d.getFullYear() === year; }).forEach(t => {
+      const from = DB.get('accounts').find(a => a.id === t.fromAccountId)?.name || 'Compte';
+      const to = DB.get('accounts').find(a => a.id === t.toAccountId)?.name || 'Compte';
+      const toMain = t.toType === 'account' && t.toAccountId === getMainAccountId();
+      const fromMain = t.fromType === 'account' && t.fromAccountId === getMainAccountId();
+      txRows.push([new Date(t.date).toLocaleDateString('fr-FR'), 'Transfert', `${from} → ${to}`, t.desc || '', { t: (toMain ? '+' : fromMain ? '−' : '↔') + Utils.fmtS(t.amount), c: toMain ? '#1a7f5a' : fromMain ? '#c8402f' : '#555' }]);
+    });
+    table([{ w: 72 }, { w: 62 }, { w: 96 }, { w: 190 }, { w: 95, al: 'r' }], ['Date', 'Type', 'Catégorie', 'Description', 'Montant'], txRows.length ? txRows : [[{ t: 'Aucune transaction', c: '#777' }, '', '', '', '']]);
+    const gen = 'Généré le ' + new Date().toLocaleDateString('fr-FR');
+    pages.forEach((p, i) => { pg = p; txt(gen, M, 22, 8, '#888'); rtxt('Page ' + (i + 1) + ' / ' + pages.length, W - M, 22, 8, '#888'); });
+    /* ---- assemblage du fichier ---- */
+    const ims = [...IM.values()].filter(Boolean), out = [], offs = []; let pos = 0;
+    const put = u => { out.push(u); pos += u.length; }, P = s => put(enc(s));
+    const obj = (n, body, st) => { offs[n] = pos; P(n + ' 0 obj\n' + body); if (st) { P('\nstream\n'); put(st); P('\nendstream'); } P('\nendobj\n'); };
+    const base = 5 + ims.length, kids = pages.map((_, i) => (base + 2 * i + 1) + ' 0 R').join(' ');
+    P('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+    obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2, '<< /Type /Pages /Kids [' + kids + '] /Count ' + pages.length + ' >>');
+    obj(3, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+    obj(4, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+    ims.forEach((im, i) => obj(5 + i, '<< /Type /XObject /Subtype /Image /Width 64 /Height 64 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + im.b.length + ' >>', im.b));
+    const xo = ims.length ? ' /XObject << ' + ims.map(im => '/Im' + im.n + ' ' + (5 + ims.indexOf(im)) + ' 0 R').join(' ') + ' >>' : '';
+    pages.forEach((p, i) => {
+      const cs = enc(p.c.join('\n'));
+      obj(base + 2 * i, '<< /Length ' + cs.length + ' >>', cs);
+      obj(base + 2 * i + 1, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + W + ' ' + H + '] /Contents ' + (base + 2 * i) + ' 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R >>' + xo + ' >> >>');
+    });
+    const n = base + 2 * pages.length, xr = pos;
+    P('xref\n0 ' + n + '\n0000000000 65535 f \n'); for (let i = 1; i < n; i++) P(String(offs[i]).padStart(10, '0') + ' 00000 n \n');
+    P('trailer\n<< /Size ' + n + ' /Root 1 0 R >>\nstartxref\n' + xr + '\n%%EOF');
+    /* ---- enregistrement : emplacement au choix ---- */
+    const blob = new Blob(out, { type: 'application/pdf' }), fn = ('Rapport_' + MONTHS[month] + '_' + year + '.pdf').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    try {
+      if (window.showSaveFilePicker) { const hd = await window.showSaveFilePicker({ suggestedName: fn, types: [{ description: 'PDF', accept: { 'application/pdf': ['.pdf'] } }] }); const w = await hd.createWritable(); await w.write(blob); await w.close(); UI.toast('✅ Rapport PDF enregistré', 'success'); return; }
+      const file = new File([blob], fn, { type: 'application/pdf' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: fn }); UI.toast('✅ Rapport PDF prêt', 'success'); return; }
+    } catch (e) { if (e && e.name === 'AbortError') return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fn; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    UI.toast('✅ Rapport PDF téléchargé', 'success');
+  },
 
   saveProfile() {
     const name = UI.$('profileName').value.trim();
