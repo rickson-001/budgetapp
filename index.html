@@ -1427,8 +1427,6 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
 
 <style>
 /* Bilan hebdomadaire */
-.weekly-nav-dot{display:none;position:absolute;top:3px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 0 2px var(--bg)}
-.weekly-nav-dot.show{display:block}
 #tab-weekly{padding-bottom:18px}
 .weekly-archive{display:flex;flex-direction:column;gap:7px;margin:0 0 14px}
 .weekly-archive label,.weekly-retention{font-size:.7rem;color:var(--text3)}
@@ -1596,8 +1594,7 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
     </div>
   </main>
   <div class="detail-panel" id="detailPanel"><div class="detail-topbar"><button class="detail-back" onclick="Nav.closeDetail()">‹ Retour</button><div class="detail-topbar-title" id="detailTitle"></div><div class="detail-topbar-right" id="detailTopRight"></div></div><div class="detail-body" id="detailBody"></div></div>
-  <nav class="bottom-nav" id="mainNav" aria-label="Navigation principale"><div class="nav-brand"><span class="brand-mark" aria-hidden="true">💰</span><span>Nova Finance</span></div><button class="nav-btn active" id="nav-home" aria-current="page" onclick="Nav.go('home')" aria-label="Accueil"><span class="ni">🏠</span><span>Accueil</span></button><button class="nav-btn" id="nav-accounts" onclick="Nav.go('accounts')" aria-label="Comptes"><span class="ni">💳</span><span>Comptes</span></button><button class="nav-btn" id="nav-flux" onclick="Nav.go('flux')" aria-label="Flux"><span class="ni">🧾</span><span>Flux</span></button><button class="nav-btn" id="nav-weekly" onclick="Nav.go('weekly')" aria-label="Bilan hebdomadaire"><span class="ni">📅</span><span>Hebdo</span><span class="weekly-nav-dot" id="weeklyNavDot" aria-hidden="true"></span></button><button class="nav-btn" id="nav-stats" onclick="Nav.go('stats')" aria-label="Statistiques"><span class="ni">📊</span><span>Stats</span></button><button class="nav-btn" id="nav-settings" onclick="Nav.go('settings')" aria-label="Réglages"><span class="ni">⚙️</span><span>Réglages</span></button></nav><button class="nav-add" id="navAdd" onclick="Nav.addAction()" aria-label="Ajouter">＋</button>
-  <div class="modal-overlay" id="weeklyNoticeOverlay" role="dialog" aria-modal="true" aria-label="Nouveau bilan hebdomadaire"><div class="modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text">📅 Votre bilan hebdomadaire est prêt</span><button class="modal-close" onclick="Weekly.postponeNotice()">✕</button></div><p class="tools-intro">Le bilan de la semaine du <strong id="weeklyNoticePeriod"></strong> est disponible. Retrouvez vos revenus, dépenses, épargne et leur évolution.</p><button class="btn-primary btn-blue" onclick="Weekly.openLatest()">Consulter mon bilan</button><button class="btn-secondary" style="width:100%;margin-top:8px" onclick="Weekly.dismissNotice()">Plus tard</button></div></div>
+  <nav class="bottom-nav" id="mainNav" aria-label="Navigation principale"><div class="nav-brand"><span class="brand-mark" aria-hidden="true">💰</span><span>Nova Finance</span></div><button class="nav-btn active" id="nav-home" aria-current="page" onclick="Nav.go('home')" aria-label="Accueil"><span class="ni">🏠</span><span>Accueil</span></button><button class="nav-btn" id="nav-accounts" onclick="Nav.go('accounts')" aria-label="Comptes"><span class="ni">💳</span><span>Comptes</span></button><button class="nav-btn" id="nav-flux" onclick="Nav.go('flux')" aria-label="Flux"><span class="ni">🧾</span><span>Flux</span></button><button class="nav-btn" id="nav-weekly" onclick="Nav.go('weekly')" aria-label="Bilan hebdomadaire"><span class="ni">📅</span><span>Hebdo</span></button><button class="nav-btn" id="nav-stats" onclick="Nav.go('stats')" aria-label="Statistiques"><span class="ni">📊</span><span>Stats</span></button><button class="nav-btn" id="nav-settings" onclick="Nav.go('settings')" aria-label="Réglages"><span class="ni">⚙️</span><span>Réglages</span></button></nav><button class="nav-add" id="navAdd" onclick="Nav.addAction()" aria-label="Ajouter">＋</button>
   <div class="modal-overlay" id="remindersOverlay" role="dialog" aria-modal="true" aria-label="Calendrier et rappels financiers"><div class="modal nova-wide-modal"><div class="modal-handle"></div><div class="modal-title"><span class="modal-title-text">🗓️ Calendrier financier</span><button class="modal-close" onclick="Modals.close('remindersOverlay')">✕</button></div>
     <p class="tools-intro">Planifie tes factures, échéances et paiements. Les alertes du navigateur s'affichent lorsque Nova Finance est ouvert.</p>
     <div class="nova-calendar-head"><button class="month-btn" onclick="FinancialTools.changeCalendarMonth(-1)" aria-label="Mois précédent">‹</button><div class="nova-calendar-label" id="remMonthLabel"></div><button class="month-btn" onclick="FinancialTools.changeCalendarMonth(1)" aria-label="Mois suivant">›</button></div>
@@ -2741,42 +2738,8 @@ const Weekly = (() => {
     el.innerHTML = '<div class="weekly-archive"><label for="weeklySelect">Consulter une autre semaine</label><select id="weeklySelect" onchange="Weekly.select(this.value)">'+options+'</select></div>'+renderReport(report)+'<p class="weekly-retention">Les bilans sont conservés sur cet appareil pendant six mois.</p>';
   };
   const select = key => { _selectedKey = key; render(); };
-  const updateBadge = () => {
-    const dot = UI.$('weeklyNavDot');
-    const latest = DB.get('weeklyReports').slice().sort((a,b)=>a.start.localeCompare(b.start)).slice(-1)[0];
-    const seen = DB.get('settings').weeklyNoticeSeenKey;
-    const available = !!latest && seen !== latest.key;
-    if (dot) dot.classList.toggle('show',available);
-    const nav = UI.$('nav-weekly');
-    if (nav) nav.setAttribute('aria-label',available?'Bilan hebdomadaire disponible':'Bilan hebdomadaire');
-    return {latest:latest,available:available};
-  };
-  const postponeNotice = () => {
-    if (UI.$('weeklyNoticeOverlay')?.classList.contains('open')) Modals.close('weeklyNoticeOverlay');
-    updateBadge();
-  };
-  const openLatest = () => {
-    const state = updateBadge();
-    if (!state.latest) return;
-    _selectedKey = state.latest.key;
-    DB.update('settings',s=>{s.weeklyNoticeSeenKey=state.latest.key;});
-    updateBadge();
-    if (UI.$('weeklyNoticeOverlay')?.classList.contains('open')) Modals.close('weeklyNoticeOverlay');
-    Nav.go('weekly');
-  };
-  const init = () => {
-    storeReports();
-    const state = updateBadge();
-    if (state.available && state.latest) {
-      const notice = UI.$('weeklyNoticeOverlay');
-      if (notice && !sessionStorage.getItem('novaWeeklyNoticeSession:'+state.latest.key)) {
-        sessionStorage.setItem('novaWeeklyNoticeSession:'+state.latest.key,'1');
-        UI.txt('weeklyNoticePeriod',rangeLabel(state.latest));
-        setTimeout(()=>{ if (!document.hidden && !UI.$('weeklyNoticeOverlay')?.classList.contains('open')) Modals.open('weeklyNoticeOverlay'); },900);
-      }
-    }
-  };
-  return {init,render,select,postponeNotice,openLatest,updateBadge};
+  const init = () => { storeReports(); };
+  return {init,render,select};
 })();
 
 // ==================================================
