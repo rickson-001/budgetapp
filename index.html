@@ -1430,7 +1430,7 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
         </div>
         <div class="sc" id="catBudgetCard" style="display:none;grid-column:1/-1"></div>
       </div>
-      <div class="insight" id="insightCard" style="display:none"></div>
+      
       <div class="nova-forecast-card" id="novaForecastCard" style="display:none" aria-live="polite"></div>
       <div class="accounts-row" id="homeAccountsRow"></div>
       <div class="search-bar"><input type="text" id="txSearch" placeholder="🔍 Rechercher une transaction..." autocomplete="off" autocorrect="off" spellcheck="false"></div>
@@ -2639,7 +2639,6 @@ const App = {
 
     this.renderBudgetGauge();
     this.renderCatBudgets();
-    this.renderInsights(exp, mt);
     this.renderForecast(mt, inc, exp, sav);
     this.renderTxList();
     this.renderSettings();
