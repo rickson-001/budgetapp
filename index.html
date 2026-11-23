@@ -2141,19 +2141,34 @@ const FileSync = (() => {
     }, null, 2);
   }
 
-  async function _write() {
-    if (!_handle) return;
+  async function _write(permissionRequest = null) {
+    if (!_handle) return false;
     try {
-      let perm = await _handle.queryPermission({ mode: 'readwrite' });
-      if (perm === 'prompt') perm = await _handle.requestPermission({ mode: 'readwrite' });
-      if (perm !== 'granted') { _setStatus('error'); return; }
+      // La demande d'autorisation doit être lancée depuis le clic ou l'action
+      // utilisateur, pas après le délai de synchronisation.
+      const perm = permissionRequest
+        ? await permissionRequest
+        : await _handle.queryPermission({ mode: 'readwrite' });
+      if (perm !== 'granted') { _setStatus('error'); return false; }
       const writable = await _handle.createWritable();
       await writable.write(await _build());
       await writable.close();
       _lastSaved = new Date();
       _setStatus('saved');
+      return true;
     } catch (e) {
-      if (e.name !== 'AbortError') { _setStatus('error'); }
+      console.warn('[FileSync] write failed:', e);
+      _setStatus('error');
+      return false;
+    }
+  }
+
+  function _askWritePermission() {
+    try {
+      // Appel immédiat : conserve l'activation utilisateur nécessaire au navigateur.
+      return Promise.resolve(_handle.requestPermission({ mode: 'readwrite' }));
+    } catch (e) {
+      return Promise.reject(e);
     }
   }
 
@@ -2206,18 +2221,31 @@ const FileSync = (() => {
   async function saveNow() {
     if (!_handle) { UI.toast('Aucun fichier sélectionné', 'error'); return; }
     _setStatus('saving');
-    await _write();
-    UI.toast(_status === 'saved' ? '✅ Sauvegarde réussie' : '⚠️ Erreur', _status === 'saved' ? 'success' : 'error');
+    const ok = await _write(_askWritePermission());
+    UI.toast(ok ? '✅ Sauvegarde réussie' : '⚠️ Autorisation refusée ou sauvegarde impossible', ok ? 'success' : 'error');
   }
 
   async function loadFile() {
-    if (!SUPPORTED) { UI.toast('Non supporté', 'error'); return; }
+    let h = null;
     try {
-      const [h] = await window.showOpenFilePicker({
-        types: [{ description: 'Budget JSON', accept: { 'application/json': ['.json'] } }],
-        multiple: false
-      });
-      const file = await h.getFile();
+      let file;
+      if (typeof window.showOpenFilePicker === 'function') {
+        [h] = await window.showOpenFilePicker({
+          types: [{ description: 'Budget JSON', accept: { 'application/json': ['.json'] } }],
+          multiple: false
+        });
+        file = await h.getFile();
+      } else {
+        // Repli universel : le chargement JSON reste possible sans File System Access API.
+        const picker = document.createElement('input');
+        picker.type = 'file';
+        picker.accept = '.json,application/json';
+        file = await new Promise(resolve => {
+          picker.onchange = () => resolve(picker.files && picker.files[0] ? picker.files[0] : null);
+          picker.click();
+        });
+        if (!file) return;
+      }
       let data;
       try {
         data = JSON.parse(await file.text());
@@ -2231,9 +2259,11 @@ const FileSync = (() => {
         ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'recurring', 'reminders', 'settings'].forEach(k => {
           if (data[k] !== undefined) DB.set(k, data[k]);
         });
-        _handle = h;
-        await _IDB.save(h);
-        _setStatus('saved');
+        if (h) {
+          _handle = h;
+          await _IDB.save(h);
+          _setStatus('saved');
+        }
         registerCats(); migrateSavings();
         App.ensureMainAccount();
         App.renderHome();
@@ -2253,7 +2283,24 @@ const FileSync = (() => {
     if (!_handle) return;
     clearTimeout(_saveTimer);
     _setStatus('saving');
-    _saveTimer = setTimeout(() => _write(), 1500);
+
+    // Déclencher la demande tout de suite, pendant l'action utilisateur.
+    // L'écriture elle-même reste différée pour regrouper les modifications.
+    let permissionRequest;
+    try {
+      permissionRequest = _askWritePermission();
+    } catch (e) {
+      permissionRequest = Promise.reject(e);
+    }
+    _saveTimer = setTimeout(async () => {
+      let perm = null;
+      try { perm = await permissionRequest; } catch (_) {}
+      if (perm !== 'granted') {
+        try { perm = await _handle.queryPermission({ mode: 'readwrite' }); } catch (_) {}
+      }
+      if (perm !== 'granted') { _setStatus('error'); return; }
+      await _write(Promise.resolve('granted'));
+    }, 1500);
   }
 
   async function disconnect() {
