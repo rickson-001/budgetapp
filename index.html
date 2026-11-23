@@ -21,7 +21,6 @@
 .nova-forecast-card{margin:0 0 14px;padding:15px 17px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(135deg,var(--surface),var(--surface2));box-shadow:0 8px 24px rgba(15,23,42,.045)}.nova-forecast-card .nf-title{font-size:.76rem;font-weight:800;color:var(--text2);margin-bottom:8px}.nova-forecast-card .nf-main{font:800 1.2rem 'Nunito',sans-serif;color:var(--text)}.nova-forecast-card .nf-sub{font-size:.7rem;color:var(--text3);margin-top:4px;line-height:1.45}.nova-forecast-card .nf-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}.nova-forecast-card .nf-cell{padding:9px;border-radius:12px;background:var(--surface);min-width:0}.nova-forecast-card .nf-cell small{display:block;color:var(--text3);font-size:.62rem}.nova-forecast-card .nf-cell b{display:block;margin-top:3px;font-size:.76rem;overflow-wrap:anywhere}
 
 /* Tableau de bord mensuel regroupé : balance, plafond et prévision. */
-#budgetGaugeContainer{display:none!important}
 .nova-forecast-card{padding:16px}
 .nova-forecast-card .nf-title{margin-bottom:12px;font-size:.78rem}
 .nova-forecast-card .nf-balance{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 13px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
@@ -595,7 +594,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 [data-theme="light"] .sc,[data-theme="light"] .tx-item,[data-theme="light"] .mini-ac{box-shadow:0 1px 0 var(--border)}
 
 .summary-strip{grid-template-columns:1fr 1fr}
-.summary-strip #budgetGaugeContainer,.summary-strip #catBudgetCard{grid-column:1/-1}
+ .summary-strip #catBudgetCard{grid-column:1/-1}
 [data-theme="dark"] .sc,[data-theme="dark"] .tx-item,[data-theme="dark"] .mini-ac{background:var(--surface);box-shadow:0 8px 20px -14px rgba(0,0,0,.6)}
 [data-theme="dark"] .bottom-nav{background:color-mix(in srgb,var(--bg) 88%,transparent)}
 
@@ -629,7 +628,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .sc.main{position:relative}
 .spark{display:none;width:100%;height:46px;margin-top:10px}
 .eye-btn{position:absolute;top:10px;right:10px;border:0;background:rgba(255,255,255,.16);color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1rem}
-.hide-amt #hBal,.hide-amt #hInc,.hide-amt #hExp,.hide-amt #hSav,.hide-amt .tx-amt,.hide-amt .day-total,.hide-amt .mac-bal,.hide-amt .ac-card-bal,.hide-amt .insight b,.hide-amt .ring-val,.hide-amt .ring-sub,.hide-amt #statsSummary .sc-val,.hide-amt .recap-vals,.hide-amt .prog-vals,.hide-amt #budgetGauge,.hide-amt #hBalSub,.hide-amt .flux-account-summary .sc-val,.hide-amt .spark{filter:blur(9px);user-select:none}
+.hide-amt #hBal,.hide-amt #hInc,.hide-amt #hExp,.hide-amt #hSav,.hide-amt .tx-amt,.hide-amt .day-total,.hide-amt .mac-bal,.hide-amt .ac-card-bal,.hide-amt .insight b,.hide-amt .ring-val,.hide-amt .ring-sub,.hide-amt #statsSummary .sc-val,.hide-amt .recap-vals,.hide-amt .prog-vals,.hide-amt #hBalSub,.hide-amt .flux-account-summary .sc-val,.hide-amt .spark{filter:blur(9px);user-select:none}
 .amt-big{display:flex;align-items:baseline;justify-content:center;gap:8px;padding:6px 0 10px;font-family:'Fraunces',Georgia,serif;font-size:2.6rem;font-weight:800;line-height:1.1;min-height:64px}
 .amt-big small{font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;color:var(--text3)}
 .amt-big.empty #txAmtNum{color:var(--text3);opacity:.5}
@@ -709,8 +708,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .tx-edit:active{transform:translateY(2px);box-shadow:0 0 0 var(--border2)}
 .tx-edit:hover{color:var(--blue)}
 .tx-actions{display:flex;align-items:center;gap:4px}
-.budget-reading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:7px;font-size:.68rem;color:var(--text2)}
-.budget-reading strong{color:var(--text);font-weight:700}
 @media(max-width:360px){.screen{padding-left:12px;padding-right:12px}.summary-strip{gap:6px}.sc{padding:9px}.sc-val.big{font-size:1.55rem}.page-title{font-size:1.18rem}.tx-item{gap:8px;padding:10px}.tx-amt{font-size:.8rem}.tx-right{max-width:42%}.flux-extra-filters{gap:5px}.flux-extra-filters select,.flux-extra-filters input{font-size:.64rem;padding:0 5px}}
 .month-btn:disabled{opacity:.35;cursor:default}
 .flux-more{text-align:center;margin:14px 0 4px}
@@ -1489,11 +1486,6 @@ button:focus-visible,[role=button]:focus-visible,input:focus-visible,textarea:fo
         <div class="sc"><div class="sc-lbl">Revenus</div><div class="sc-val pos" id="hInc">0</div></div>
         <div class="sc"><div class="sc-lbl">Dépenses</div><div class="sc-val neg" id="hExp">0</div></div>
         <div class="sc"><div class="sc-lbl">Épargne</div><div class="sc-val" id="hSav" style="color:var(--gold)">0</div></div>
-        <div class="sc" id="budgetGaugeContainer" style="display:none;grid-column:1/-1">
-          <div class="sc-lbl">Objectif mensuel</div>
-          <div class="sc-val" id="budgetGauge" style="font-size:.95rem"></div>
-          <div class="progress-track" style="margin-top:8px"><div class="progress-fill" id="budgetGaugeFill"></div></div>
-        </div>
         <div class="sc" id="catBudgetCard" style="display:none;grid-column:1/-1"></div>
       </div>
       
@@ -2851,7 +2843,6 @@ const App = {
   _filter: 'all',
   _searchTerm: '',
   _searchDebounceTimer: null,
-  _lastBudgetAlert: null,
   _catAlerts: new Set(),
   _catSeeded: false,
 
@@ -2974,7 +2965,6 @@ const App = {
       </div>
     `).join(''));
 
-    this.renderBudgetGauge();
     this.renderCatBudgets();
     this.renderForecast(mt, inc, exp, sav);
     this.renderTxList();
@@ -3054,62 +3044,6 @@ const App = {
     }
   },
 
-  renderBudgetGauge() {
-    const settings = DB.get('settings');
-    const budgets = settings.monthlyBudget || {};
-    const budget = budgets[this._year]?.[this._month] || 0;
-    const container = UI.$('budgetGaugeContainer');
-    const gaugeVal = UI.$('budgetGauge');
-    const gaugeFill = UI.$('budgetGaugeFill');
-    const summaryEl = UI.$('budgetSummary');
-    if (!container) return;
-    if (budget === 0) {
-      container.style.display = 'none';
-      if (summaryEl) summaryEl.textContent = 'Aucun objectif défini';
-      this._lastBudgetAlert = null;
-      return;
-    }
-    const mt = this.monthTxs();
-    const expenses = mt.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-    const rawPercent = Math.round((expenses / budget) * 100);
-    const percent = Math.min(100, rawPercent);
-    const remaining = Math.max(0, budget - expenses);
-    const over = Math.max(0, expenses - budget);
-    const now = new Date(), isCurrentMonth = this._year === now.getFullYear() && this._month === now.getMonth();
-    const daysLeft = isCurrentMonth ? Math.max(1, new Date(this._year, this._month + 1, 0).getDate() - now.getDate() + 1) : 0;
-    const daily = daysLeft ? Math.floor(remaining / daysLeft) : 0;
-    if (summaryEl) summaryEl.textContent = `${Utils.fmtS(expenses)} / ${Utils.fmtS(budget)} ${Utils.cur()} (${rawPercent}%)`;
-    container.style.display = '';
-    if (gaugeVal) gaugeVal.textContent = `${Utils.fmtS(expenses)} dépensés sur ${Utils.fmtS(budget)} ${Utils.cur()}`;
-    let reading = container.querySelector('.budget-reading');
-    if (!reading) { reading = document.createElement('div'); reading.className = 'budget-reading'; container.appendChild(reading); }
-    reading.innerHTML = over
-      ? `<span>Budget dépassé de <strong>${Utils.fmtS(over)} ${Utils.cur()}</strong></span><span>${rawPercent}% utilisé</span>`
-      : `<span>Il reste <strong>${Utils.fmtS(remaining)} ${Utils.cur()}</strong></span><span>${daysLeft ? `≈ ${Utils.fmtS(daily)} / jour` : `${rawPercent}% utilisé`}</span>`;
-    if (gaugeFill) {
-      gaugeFill.style.width = `${percent}%`;
-      gaugeFill.style.background = percent >= 100 ? 'var(--red)' : percent >= 80 ? 'var(--gold)' : 'var(--green)';
-    }
-    if (gaugeVal) gaugeVal.style.color = percent >= 100 ? 'var(--red)' : percent >= 80 ? 'var(--gold)' : 'var(--green)';
-    const alertKey = percent >= 100 ? 'over' : percent >= 80 ? 'warn' : null;
-    if (alertKey && this._lastBudgetAlert !== alertKey) {
-      this._lastBudgetAlert = alertKey;
-      const msg = alertKey === 'over'
-        ? `🟠 Objectif mensuel dépassé : ${Utils.fmtS(expenses)} / ${Utils.fmtS(budget)} ${DB.get('settings').currency || 'FCFA'}`
-        : `⚠️ ${percent}% de votre budget mensuel utilisé`;
-      setTimeout(() => UI.toast(msg, 'warn'), 1800);
-      // Notification système si permission accordée
-      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-        new Notification('Nova Finance', {
-          body: alertKey === 'over'
-            ? `Budget dépassé : ${Utils.fmtS(expenses)} / ${Utils.fmtS(budget)} ${Utils.cur()}`
-            : `Attention : ${percent}% du budget mensuel consommé`,
-          icon: 'icon-192.png'
-        });
-      }
-    }
-    if (!alertKey) this._lastBudgetAlert = null;
-  },
 
   _transferItems(list) {
     return list.map(t => {
@@ -3386,7 +3320,6 @@ const App = {
     this.ensureMainAccount();
     document.documentElement.setAttribute('data-theme', s.theme || 'dark');
     Theme.apply();
-    this._lastBudgetAlert = null;
     FileSync.init();
     PWA.init();
     FinancialTools.init();
@@ -3957,7 +3890,7 @@ const Modals = {
   },
 
   confirmReset() {
-    this.openConfirm('⚠️ Réinitialisation', 'Cette action remettra l\'application à zéro : transactions, comptes, récurrences, rappels, justificatifs, objectifs, budgets et catégories personnalisées.', () => {
+    this.openConfirm('⚠️ Réinitialisation', 'Cette action remettra l\'application à zéro : transactions, comptes, récurrences, rappels, objectifs, budgets et catégories personnalisées.', () => {
       ['txs', 'accounts', 'accountOps', 'savings', 'savingsOps', 'transfers', 'recurring', 'reminders'].forEach(k => DB.set(k, []));
       DB.update('settings', st => {
         st.monthlyBudget = {};
@@ -3968,7 +3901,6 @@ const Modals = {
         (st.customCats || []).forEach(c => delete CATS[c.id]);
         st.customCats = [];
       });
-      App._catAlerts = new Set(); App._catSeeded = false; App._lastBudgetAlert = null; App._filter = 'all';
       App.renderFilters(); App.renderHome(); App.renderAccounts();
       if (Nav._tab === 'stats') Modals.renderStats();
       UI.toast('Application remise à zéro', 'success');
